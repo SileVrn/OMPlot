@@ -10,7 +10,6 @@ using System.Windows.Forms;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Diagnostics;
-using OMPlot.Axis;
 using OMPlot.Data;
 
 namespace OMPlot
@@ -34,8 +33,8 @@ namespace OMPlot
 			set { title = value; }
 		}
 
-		Dictionary<string, IAxis> vertical;
-		Dictionary<string, IAxis> horisontal;
+		Dictionary<string, Axis> vertical;
+		Dictionary<string, Axis> horisontal;
 
 		bool selectHorisontal, selectVertical;
 		string selectedAxisName;
@@ -44,12 +43,12 @@ namespace OMPlot
 		{
 			InitializeComponent();
 			Data = new List<IData>();
-			vertical = new Dictionary<string, IAxis>();
-			horisontal = new Dictionary<string, IAxis>();
+			vertical = new Dictionary<string, Axis>();
+			horisontal = new Dictionary<string, Axis>();
 			this.MouseWheel += Analog_MouseWheel;
 		}
 
-		public void AddVerticalAxis(IAxis axis)
+		public void AddVerticalAxis(Axis axis)
 		{
 			if (axis != null)
 			{
@@ -62,7 +61,7 @@ namespace OMPlot
 			}
 		}
 
-		public void AddHorisontalAxis(IAxis axis)
+		public void AddHorisontalAxis(Axis axis)
 		{
 			if (axis != null)
 			{
@@ -74,7 +73,7 @@ namespace OMPlot
 			}
 		}
 
-		public IAxis GetVerticalAxis(string name = "")
+		public Axis GetVerticalAxis(string name = "")
 		{
 			if (vertical.Any())
 			{
@@ -85,7 +84,7 @@ namespace OMPlot
 			return null;
 		}
 
-		public IAxis GetHorisontalAxis(string name = "")
+		public Axis GetHorisontalAxis(string name = "")
 		{
 			if (horisontal.Any())
 			{
@@ -288,22 +287,22 @@ namespace OMPlot
 			{
 				switch(axis.Value.Position)
 				{
-					case Axis.AxisPosition.Near:
+					case AxisPosition.Near:
 						{
 							axis.Value.Draw(g, leftAxisPosition, plotRectangle.Top, plotRectangle);
 							leftAxisPosition -= axis.Value.HeightNear;
 							break;
 						}
-					case Axis.AxisPosition.Far:
+					case AxisPosition.Far:
 						{
 							axis.Value.Draw(g, rightAxisPosition, plotRectangle.Top, plotRectangle);
 							rightAxisPosition += axis.Value.HeightFar;
 							break;
 						}
-					case Axis.AxisPosition.Center:
+					case AxisPosition.Center:
 						axis.Value.Draw(g, plotRectangle.CenterX, plotRectangle.Top, plotRectangle);
 						break;
-					case Axis.AxisPosition.CrossValue: //Name of Horisontal add
+					case AxisPosition.CrossValue: //Name of Horisontal add
 						{
 							if (axis.Value.CrossValue < horisontal.First().Value.Minimum)
 							{
@@ -327,22 +326,22 @@ namespace OMPlot
 			{
 				switch (axis.Value.Position)
 				{
-					case Axis.AxisPosition.Near:
+					case AxisPosition.Near:
 						{
 							axis.Value.Draw(g, plotRectangle.Left, bottomAxisPosition, plotRectangle);
 							bottomAxisPosition += axis.Value.HeightNear;
 							break;
 						}
-					case Axis.AxisPosition.Far:
+					case AxisPosition.Far:
 						{
 							axis.Value.Draw(g, plotRectangle.Left, topAxisPosition, plotRectangle);
 							topAxisPosition -= axis.Value.HeightFar;
 							break;
 						}
-					case Axis.AxisPosition.Center:
+					case AxisPosition.Center:
 						axis.Value.Draw(g, plotRectangle.Left, plotRectangle.CenterY, plotRectangle);
 						break;
-					case Axis.AxisPosition.CrossValue:
+					case AxisPosition.CrossValue:
 						{
 							if (axis.Value.CrossValue < vertical.First().Value.Minimum)
 							{

@@ -13,6 +13,6 @@ namespace OMPlot.Data
         string AxisHorisontalName { get; set; }
         string AxisVerticalName { get; set; }
 
-        void Draw(Graphics g, OMPlot.Axis.IAxis vertical, OMPlot.Axis.IAxis horisontal, RectangleExtended plotRectangle, int plotIndex);
+        void Draw(Graphics g, OMPlot.Axis vertical, OMPlot.Axis horisontal, RectangleExtended plotRectangle, int plotIndex);
     }
 }

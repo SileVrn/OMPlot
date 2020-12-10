@@ -117,7 +117,7 @@ namespace OMPlot.Data
         }
 
 
-        public void Draw(Graphics g, OMPlot.Axis.IAxis vertical, OMPlot.Axis.IAxis horisontal, RectangleExtended plotRectangle, int plotIndex)
+        public void Draw(Graphics g, OMPlot.Axis vertical, OMPlot.Axis horisontal, RectangleExtended plotRectangle, int plotIndex)
         {
             //pen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
             /*Point[] dataPoint = new Point[X.Length];

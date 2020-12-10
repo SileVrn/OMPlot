@@ -5,14 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OMPlot.Axis
+namespace OMPlot
 {
-	public class Linear : IAxis
+	public class Axis
 	{
 		float minimum;
 		float maximum;
 
 		string title;
+		bool logarithmic;
 		bool vertical;
 		bool reverse;
 		bool zoomLocked;
@@ -53,7 +54,7 @@ namespace OMPlot.Axis
 		private string[] tickLabel;
 		private float[] subTick;
 
-		public Linear()
+		public Axis()
 		{
 			Color = Color.Black;
 			TickNumber = 10;
@@ -88,6 +89,7 @@ namespace OMPlot.Axis
 		public float Resolution { get { return res; } }
 
 		public string Title { get { return title; } set { title = value; } }
+		public bool Logarithmic { get { return logarithmic; } set { logarithmic = value; } }
 		public bool Vertical { get { return vertical; } set { vertical = value; } }
 		public bool Reverse { get { return reverse; } set { reverse = value; } }
 		public bool MoveLocked { get { return moveLocked; } set { moveLocked = value; } }
@@ -111,8 +113,16 @@ namespace OMPlot.Axis
 		{
 			if (!moveLocked)
 			{
-				minimum += length / res;
-				maximum += length / res;
+				if (!logarithmic)
+				{
+					minimum += length / res;
+					maximum += length / res;
+				}
+				else
+                {
+					minimum *= (float)Math.Pow(10, length / res);
+					maximum *= (float)Math.Pow(10, length / res);
+				}
 			}
 		}
 
@@ -129,73 +139,93 @@ namespace OMPlot.Axis
 		{
 			if (!zoomLocked)
 			{
-				float halfscale = (maximum - minimum) / 2;
-				minimum += (1 - zoom) * (halfscale + length / res);
-				maximum -= (1 - zoom) * (halfscale - length / res);
-
-				//Center += (1 - zoom) * length / res;
-				//FullScale *= zoom;
+				if (!logarithmic)
+				{
+					float halfscale = (maximum - minimum) / 2;
+					minimum += (1 - zoom) * (halfscale + length / res);
+					maximum -= (1 - zoom) * (halfscale - length / res);
+				}
+				else
+                {
+					double halfscale = (Math.Log10(maximum) - Math.Log10(minimum)) / 2;
+					minimum = (float)Math.Pow(10, Math.Log10(minimum) + (1 - zoom) * (halfscale + length / res));
+					maximum = (float)Math.Pow(10, Math.Log10(maximum) - (1 - zoom) * (halfscale - length / res));
+				}
 			}
 		}
 
 		public void Calculate(Graphics g)
 		{
-			float step = (maximum - minimum) / TickNumber;
-			int roundStepSign = Accessories.FirstSignRound(step);
-			step = Accessories.Round(step, roundStepSign);
+			string tickLabelFormat;
 
-			int maxDegree = int.MinValue;
-
-			
-
-			List<float> tickList = new List<float>();
-			List<float> subTickList = new List<float>();
-			float mark = (float)Math.Ceiling(minimum / step) * step;
-			float subStep = step / SubTickNumber;
-			float subMark = mark - subStep;
-
-			float nextmark = mark + step;
-
-			if (mark - nextmark == 0) //step smaller than floating point resolution
+			if (!logarithmic)
 			{
-				tick = new float[] { minimum, maximum };
-				subTick = new float[] { };
-				maxDegree = Accessories.Degree(minimum);
-				if (maxDegree < Accessories.Degree(maximum))
-					maxDegree = Accessories.Degree(maximum);
-			}
-			else
-			{
-				if (SubTickNumber != 0)
+				float step = (maximum - minimum) / TickNumber;
+				int roundStepSign = Accessories.FirstSignRound(step);
+				step = Accessories.Round(step, roundStepSign);
+
+				int maxDegree = int.MinValue;
+
+
+				List<float> tickList = new List<float>();
+				List<float> subTickList = new List<float>();
+				float mark = (float)Math.Ceiling(minimum / step) * step;
+				float subStep = step / SubTickNumber;
+				float subMark = mark - subStep;
+
+				float nextmark = mark + step;
+
+				if (mark - nextmark == 0) //step smaller than floating point resolution
 				{
-					for (int i = 0; i < SubTickNumber - 1 && subMark > Minimum; i++)
-					{
-						subTickList.Add(subMark);
-						subMark -= subStep;
-					}
+					tick = new float[] { minimum, maximum };
+					subTick = new float[] { };
+					maxDegree = Accessories.Degree(minimum);
+					if (maxDegree < Accessories.Degree(maximum))
+						maxDegree = Accessories.Degree(maximum);
 				}
-				while (mark <= maximum)
+				else
 				{
-					tickList.Add(mark);
-					if (maxDegree < Accessories.Degree(mark))
-						maxDegree = Accessories.Degree(mark);
 					if (SubTickNumber != 0)
 					{
-						subMark = mark + step / SubTickNumber;
-						for (int i = 0; i < SubTickNumber - 1 && subMark < Maximum; i++)
+						for (int i = 0; i < SubTickNumber - 1 && subMark > Minimum; i++)
 						{
 							subTickList.Add(subMark);
-							subMark += subStep;
+							subMark -= subStep;
 						}
 					}
-					mark = Accessories.Round(mark + step, roundStepSign);
+					while (mark <= maximum)
+					{
+						tickList.Add(mark);
+						if (maxDegree < Accessories.Degree(mark))
+							maxDegree = Accessories.Degree(mark);
+						if (SubTickNumber != 0)
+						{
+							subMark = mark + step / SubTickNumber;
+							for (int i = 0; i < SubTickNumber - 1 && subMark < Maximum; i++)
+							{
+								subTickList.Add(subMark);
+								subMark += subStep;
+							}
+						}
+						mark = Accessories.Round(mark + step, roundStepSign);
+					}
+					tick = tickList.ToArray();
+					subTick = subTickList.ToArray();
 				}
-				tick = tickList.ToArray();
-				subTick = subTickList.ToArray();
+
+				tickLabelFormat = Accessories.FloatFormat(Accessories.FirstSignRound(step / Accessories.Pow1000(maxDegree)));
+			}
+			else
+            {
+				tick = new float[(int)(Math.Log10(maximum) - Math.Log10(minimum) + 1)];
+				subTick = new float[0];
+
+				for (int i = 0; i < tick.Length; i++)
+					tick[i] = Accessories.Pow10(i) * minimum;
+
+				tickLabelFormat = "###";
 			}
 
-			string tickLabelFormat = Accessories.FloatFormat(Accessories.FirstSignRound(step / Accessories.Pow1000(maxDegree)));
-			
 			tickLabel = new string[tick.Length];
 			for (int i = 0; i < tick.Length; i++)
 				tickLabel[i] = Accessories.ToSI(tick[i], tickLabelFormat);
@@ -442,28 +472,87 @@ namespace OMPlot.Axis
 		
 		public void CalculateTranform(float minimum, float maximum)
 		{
-			if (vertical ^ reverse)
+			if (!logarithmic)
 			{
-				res = (maximum - minimum) / (this.minimum - this.maximum);
-				offset = maximum - this.minimum * res;
+				if (vertical ^ reverse)
+				{
+					res = (maximum - minimum) / (this.minimum - this.maximum);
+					offset = maximum - this.minimum * res;
+				}
+				else
+				{
+					res = (maximum - minimum) / (this.maximum - this.minimum);
+					offset = minimum - this.minimum * res;
+				}
 			}
 			else
-			{
-				res = (maximum - minimum) / (this.maximum - this.minimum);
-				offset = minimum - this.minimum * res;
+            {
+				if (vertical ^ reverse)
+				{
+					res = (maximum - minimum) / (float)(Math.Log10(this.minimum) - Math.Log10(this.maximum));
+					offset = maximum - (float)Math.Log10(this.minimum) * res;
+				}
+				else
+				{
+					res = (maximum - minimum) / (float)(Math.Log10(this.maximum) - Math.Log10(this.minimum));
+					offset = minimum - (float)Math.Log10(this.minimum) * res;
+				}
 			}
 		}
 
-		float TransformBack(float value) { return (value - offset) / res; }
+		float TransformBack(float value)
+		{
+			if(!logarithmic)
+				return (value - offset) / res;
+			return (float)Math.Pow(10, (value - offset) / res);
+		}
 
 		public float Transform(float value)
 		{
-			float transformed = offset + value * res;
+			float transformed = offset + (logarithmic ? (float)Math.Log10(value) : value) * res;
 			if (transformed < -100)
 				return -100;
 			if (transformed > 10000)
 				return 10000;
 			return transformed;
 		}
+	}
+
+	public enum AxisPosition
+	{
+		Near,
+		Center,
+		Far,
+		CrossValue
+	}
+
+	public enum TickStyle
+	{
+		Near,
+		Far,
+		Cross,
+		None
+	}
+
+	public enum TicksLabelsLineAlignment
+	{
+		Near,
+		Far,
+		None
+	}
+
+	public enum LabelAlignment
+	{
+		Center,
+		Near,
+		Far
+	}
+
+	public enum GridStyle
+	{
+		None,
+		Major,
+		Minor,
+		Both
 	}
 }

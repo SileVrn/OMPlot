@@ -44,9 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Accessories.cs" />
-    <Compile Include="Axis\IAxis.cs" />
-    <Compile Include="Axis\Linear.cs" />
-    <Compile Include="Axis\Logarithmic.cs" />
+    <Compile Include="Axis.cs" />
     <Compile Include="Data\IData.cs" />
     <Compile Include="Data\XY.cs" />
     <Compile Include="Plot.cs">

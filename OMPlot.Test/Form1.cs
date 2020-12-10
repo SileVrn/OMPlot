@@ -74,12 +74,13 @@ namespace OMPlot.Test
 
             plot1.Data.Add(plotXY1);
 
-            OMPlot.Axis.Logarithmic xAxis = new Axis.Logarithmic();
+            OMPlot.Axis xAxis = new Axis();
+            xAxis.Logarithmic = true;
             xAxis.Minimum = (float)dataX.Min();
             xAxis.Maximum = (float)dataX.Max();
             xAxis.Title = "X";
 
-            OMPlot.Axis.Linear yAxis = new Axis.Linear();
+            OMPlot.Axis yAxis = new Axis();
             yAxis.Minimum = (float)dataY1.Min(); ;
             yAxis.Maximum = (float)dataY1.Max(); ;
             yAxis.Title = "Y";
