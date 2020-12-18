@@ -34,9 +34,9 @@ namespace OMPlot
 		}
 
 		Dictionary<string, Axis> vertical;
-		Dictionary<string, Axis> horisontal;
+		Dictionary<string, Axis> Horizontal;
 
-		bool selectHorisontal, selectVertical;
+		bool selectHorizontal, selectVertical;
 		string selectedAxisName;
 
 		public Plot()
@@ -44,7 +44,7 @@ namespace OMPlot
 			InitializeComponent();
 			Data = new List<IData>();
 			vertical = new Dictionary<string, Axis>();
-			horisontal = new Dictionary<string, Axis>();
+			Horizontal = new Dictionary<string, Axis>();
 			this.MouseWheel += Analog_MouseWheel;
 		}
 
@@ -61,7 +61,7 @@ namespace OMPlot
 			}
 		}
 
-		public void AddHorisontalAxis(Axis axis)
+		public void AddHorizontalAxis(Axis axis)
 		{
 			if (axis != null)
 			{
@@ -69,7 +69,7 @@ namespace OMPlot
 					axis.Title = axis.GetHashCode().ToString();
 				if (axis.Font == null)
 					axis.Font = this.Font;
-				horisontal.Add(axis.Title, axis);
+				Horizontal.Add(axis.Title, axis);
 			}
 		}
 
@@ -84,13 +84,13 @@ namespace OMPlot
 			return null;
 		}
 
-		public Axis GetHorisontalAxis(string name = "")
+		public Axis GetHorizontalAxis(string name = "")
 		{
-			if (horisontal.Any())
+			if (Horizontal.Any())
 			{
 				if (string.IsNullOrEmpty(name))
-					return horisontal.First().Value;
-				return horisontal[name];
+					return Horizontal.First().Value;
+				return Horizontal[name];
 			}
 			return null;
 		}
@@ -102,14 +102,14 @@ namespace OMPlot
 				zoom = -1 / zoom;
 			if(plotRectangle.InRectangle(e.X, e.Y))
 			{
-				foreach(var axis in horisontal)
+				foreach(var axis in Horizontal)
 					axis.Value.Zoom(zoom, e.X - plotRectangle.CenterX);
 				foreach (var axis in vertical)
 					axis.Value.Zoom(zoom, e.Y - plotRectangle.CenterY);
 			}
 			else
 			{
-				foreach (var axis in horisontal.Where(axis => axis.Value.ActionOnAxis(e.X, e.Y)))
+				foreach (var axis in Horizontal.Where(axis => axis.Value.ActionOnAxis(e.X, e.Y)))
 					axis.Value.Zoom(zoom, e.X - plotRectangle.CenterX);
 				foreach (var axis in vertical.Where(axis => axis.Value.ActionOnAxis(e.X, e.Y)))
 					axis.Value.Zoom(zoom, e.Y - plotRectangle.CenterY);
@@ -121,18 +121,18 @@ namespace OMPlot
 		{
 			if (e.Button == MouseButtons.Right || e.Button == MouseButtons.Middle)
 			{
-				selectHorisontal = false;
+				selectHorizontal = false;
 				selectVertical = false;
 				if (plotRectangle.InRectangle(e.X, e.Y))
 				{
-					selectHorisontal = true;
+					selectHorizontal = true;
 					selectVertical = true;
 				}
 				else
 				{
-					var axisSelected = horisontal.Where(axis => axis.Value.ActionOnAxis(e.X, e.Y));
-					selectHorisontal = axisSelected.Any();
-					if(selectHorisontal)
+					var axisSelected = Horizontal.Where(axis => axis.Value.ActionOnAxis(e.X, e.Y));
+					selectHorizontal = axisSelected.Any();
+					if(selectHorizontal)
 						selectedAxisName = axisSelected.First().Key;
 					axisSelected = vertical.Where(axis => axis.Value.ActionOnAxis(e.X, e.Y));
 					selectVertical = axisSelected.Any();
@@ -148,18 +148,18 @@ namespace OMPlot
 		{
 			if (e.Button == MouseButtons.Right)
 			{
-				if (selectHorisontal && selectVertical)
+				if (selectHorizontal && selectVertical)
 				{
-					foreach (var axis in horisontal)
+					foreach (var axis in Horizontal)
 						axis.Value.Move(mouseX - e.X);
 					foreach (var axis in vertical)
 						axis.Value.Move(mouseY - e.Y);
 				}
 				else
 				{
-					if (selectHorisontal)
+					if (selectHorizontal)
 					{
-						var axis = GetHorisontalAxis(selectedAxisName);
+						var axis = GetHorizontalAxis(selectedAxisName);
 						if (axis != null)
 							axis.Move(mouseX - e.X);
 					}
@@ -186,18 +186,18 @@ namespace OMPlot
 		{
 			if (e.Button == MouseButtons.Middle)
 			{
-				if (selectHorisontal && selectVertical)
+				if (selectHorizontal && selectVertical)
 				{
-					foreach (var axis in horisontal)
+					foreach (var axis in Horizontal)
 						axis.Value.Select((int)Math.Min(mouseX, currentmouseX), (int)Math.Max(mouseX, currentmouseX));
 					foreach (var axis in vertical)
 						axis.Value.Select((int)Math.Max(mouseY, currentmouseY), (int)Math.Min(mouseY, currentmouseY));
 				}
 				else
 				{
-					if (selectHorisontal)
+					if (selectHorizontal)
 					{
-						var axis = GetHorisontalAxis(selectedAxisName);
+						var axis = GetHorizontalAxis(selectedAxisName);
 						if (axis != null)
 							axis.Select((int)Math.Min(mouseX, currentmouseX), (int)Math.Max(mouseX, currentmouseX));
 					}
@@ -214,7 +214,7 @@ namespace OMPlot
 			}
 		}
 
-		private void ControlPaint(Graphics g)
+		public void ControlPaint(Graphics g)
 		{
 			Stopwatch sw = new Stopwatch();
 			sw.Start();
@@ -226,52 +226,63 @@ namespace OMPlot
 			Pen mainPen = new Pen(this.ForeColor);
 			
 			g.SmoothingMode = SmoothingMode.AntiAlias;
-			g.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+			g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 			g.Clear(this.BackColor);
 
-			plotRectangle = new RectangleExtended(0, 0, this.Width - 1, this.Height - 1);
+			plotRectangle = new RectangleExtended(6, 6, this.Width - 13, this.Height - 13);
 			
 			if(!string.IsNullOrEmpty(title))
 				plotRectangle.Top += g.MeasureString(title, titleFont).Height;
 
 			foreach(var axis in vertical)
 			{				
-				axis.Value.Calculate(g);
-				plotRectangle.Top += plotRectangle.Top > axis.Value.OverflowFar ? 0 : axis.Value.OverflowFar;
-				plotRectangle.Bottom -= (this.Height - plotRectangle.Bottom) > axis.Value.OverflowNear ? 0 : axis.Value.OverflowNear;
-				plotRectangle.Left += axis.Value.HeightNear;
-				plotRectangle.Right -= axis.Value.HeightFar;
+				axis.Value.MeasureVertical(g, this.Size);
+				if(axis.Value.Position == AxisPosition.Near)
+					plotRectangle.Left += axis.Value.SizeNear;
+				if (axis.Value.Position == AxisPosition.Far)
+					plotRectangle.Right -= axis.Value.SizeFar;
 			}
-			foreach (var axis in horisontal)
+			foreach (var axis in Horizontal)
 			{
-				axis.Value.Calculate(g);
-				plotRectangle.Bottom -= axis.Value.HeightNear;
-				plotRectangle.Top += axis.Value.HeightFar;
-				plotRectangle.Left += plotRectangle.Left > axis.Value.OverflowNear ? 0 : axis.Value.OverflowNear;
-				plotRectangle.Right -= (this.Width - plotRectangle.Right) < axis.Value.OverflowFar ? axis.Value.OverflowFar : 0;
+				axis.Value.MeasureHorizontal(g, this.Size);
+				if (axis.Value.Position == AxisPosition.Near)
+					plotRectangle.Top += axis.Value.SizeNear;
+				if (axis.Value.Position == AxisPosition.Far)
+					plotRectangle.Bottom -= axis.Value.SizeFar;
 			}
 
 			foreach (var axis in vertical)
 			{
-				axis.Value.CalculateTranform(plotRectangle.Top, plotRectangle.Bottom);
+				plotRectangle.Top = plotRectangle.Top > axis.Value.OverflowNear ? plotRectangle.Top : axis.Value.OverflowNear;
+				plotRectangle.Bottom = (this.Height - plotRectangle.Bottom) > axis.Value.OverflowFar ? plotRectangle.Bottom : (this.Height - axis.Value.OverflowFar);
 			}
-			foreach (var axis in horisontal)
+			foreach (var axis in Horizontal)
 			{
-				axis.Value.CalculateTranform(plotRectangle.Left, plotRectangle.Right);
+				plotRectangle.Left = plotRectangle.Left > axis.Value.OverflowNear ? plotRectangle.Left : axis.Value.OverflowNear;
+				plotRectangle.Right = (this.Width - plotRectangle.Right) > axis.Value.OverflowFar ? plotRectangle.Right : (this.Width - axis.Value.OverflowFar);
 			}
 
-			if (vertical.Any() && horisontal.Any())
+			foreach (var axis in vertical)
+			{
+				axis.Value.CalculateTranformVertical(plotRectangle.Top, plotRectangle.Bottom);
+			}
+			foreach (var axis in Horizontal)
+			{
+				axis.Value.CalculateTranformHorizontal(plotRectangle.Left, plotRectangle.Right);
+			}
+
+			if (vertical.Any() && Horizontal.Any())
 			{
 				int plotIndex = 0;
 				foreach (var data in Data)
-					data.Draw(g, GetVerticalAxis(data.AxisVerticalName), GetHorisontalAxis(data.AxisHorisontalName), plotRectangle, plotIndex++);
+					data.Draw(g, GetVerticalAxis(data.AxisVerticalName), GetHorizontalAxis(data.AxisHorizontalName), plotRectangle, plotIndex++);
 			}
 			g.ResetTransform();
 
-			g.FillRectangle(backgroungBrush, 0, 0, this.Width, plotRectangle.Top);
-			g.FillRectangle(backgroungBrush, 0, plotRectangle.Top, plotRectangle.Left, plotRectangle.Height + 2);
+			g.FillRectangle(backgroungBrush, -1, -1, this.Width + 2, plotRectangle.Top);
+			g.FillRectangle(backgroungBrush, -1, plotRectangle.Top, plotRectangle.Left, plotRectangle.Height + 2);
 			g.FillRectangle(backgroungBrush, plotRectangle.Right + 1, plotRectangle.Top, this.Width - plotRectangle.Right, plotRectangle.Height + 2);
-			g.FillRectangle(backgroungBrush, 0, plotRectangle.Bottom + 1, this.Width, this.Height - plotRectangle.Bottom);
+			g.FillRectangle(backgroungBrush, -1, plotRectangle.Bottom + 1, this.Width + 2, this.Height - plotRectangle.Bottom);
 			//if()
 			g.DrawRectangle(mainPen, plotRectangle.X, plotRectangle.Y, plotRectangle.Width, plotRectangle.Height);
 
@@ -289,87 +300,87 @@ namespace OMPlot
 				{
 					case AxisPosition.Near:
 						{
-							axis.Value.Draw(g, leftAxisPosition, plotRectangle.Top, plotRectangle);
-							leftAxisPosition -= axis.Value.HeightNear;
+							axis.Value.DrawVertical(g, leftAxisPosition, plotRectangle.Top, plotRectangle);
+							leftAxisPosition -= axis.Value.SizeNear;
 							break;
 						}
 					case AxisPosition.Far:
 						{
-							axis.Value.Draw(g, rightAxisPosition, plotRectangle.Top, plotRectangle);
-							rightAxisPosition += axis.Value.HeightFar;
+							axis.Value.DrawVertical(g, rightAxisPosition, plotRectangle.Top, plotRectangle);
+							rightAxisPosition += axis.Value.SizeFar;
 							break;
 						}
 					case AxisPosition.Center:
-						axis.Value.Draw(g, plotRectangle.CenterX, plotRectangle.Top, plotRectangle);
+						axis.Value.DrawVertical(g, plotRectangle.CenterX, plotRectangle.Top, plotRectangle);
 						break;
-					case AxisPosition.CrossValue: //Name of Horisontal add
+					case AxisPosition.CrossValue: //Name of Horizontal add
 						{
-							if (axis.Value.CrossValue < horisontal.First().Value.Minimum)
+							if (axis.Value.CrossValue < Horizontal.First().Value.Minimum)
 							{
-								axis.Value.Draw(g, leftAxisPosition, plotRectangle.Top, plotRectangle);
-								leftAxisPosition -= axis.Value.HeightNear;
+								axis.Value.DrawVertical(g, leftAxisPosition, plotRectangle.Top, plotRectangle);
+								leftAxisPosition -= axis.Value.SizeNear;
 							}
-							else if (axis.Value.CrossValue > horisontal.First().Value.Maximum)
+							else if (axis.Value.CrossValue > Horizontal.First().Value.Maximum)
 							{
-								axis.Value.Draw(g, rightAxisPosition, plotRectangle.Top, plotRectangle);
-								rightAxisPosition += axis.Value.HeightFar;
+								axis.Value.DrawVertical(g, rightAxisPosition, plotRectangle.Top, plotRectangle);
+								rightAxisPosition += axis.Value.SizeFar;
 							}
 							else
-								axis.Value.Draw(g, (int)horisontal.First().Value.Transform(axis.Value.CrossValue), plotRectangle.Top, plotRectangle);
+								axis.Value.DrawVertical(g, (int)Horizontal.First().Value.Transform(axis.Value.CrossValue), plotRectangle.Top, plotRectangle);
 							break;
 						}
 				}                
 			}
 			float topAxisPosition = plotRectangle.Top;
 			float bottomAxisPosition = plotRectangle.Bottom;
-			foreach (var axis in horisontal)
+			foreach (var axis in Horizontal)
 			{
 				switch (axis.Value.Position)
 				{
-					case AxisPosition.Near:
-						{
-							axis.Value.Draw(g, plotRectangle.Left, bottomAxisPosition, plotRectangle);
-							bottomAxisPosition += axis.Value.HeightNear;
-							break;
-						}
 					case AxisPosition.Far:
 						{
-							axis.Value.Draw(g, plotRectangle.Left, topAxisPosition, plotRectangle);
-							topAxisPosition -= axis.Value.HeightFar;
+							axis.Value.DrawHorizontal(g, plotRectangle.Left, bottomAxisPosition, plotRectangle);
+							bottomAxisPosition += axis.Value.SizeNear;
+							break;
+						}
+					case AxisPosition.Near:
+						{
+							axis.Value.DrawHorizontal(g, plotRectangle.Left, topAxisPosition, plotRectangle);
+							topAxisPosition -= axis.Value.SizeFar;
 							break;
 						}
 					case AxisPosition.Center:
-						axis.Value.Draw(g, plotRectangle.Left, plotRectangle.CenterY, plotRectangle);
+						axis.Value.DrawHorizontal(g, plotRectangle.Left, plotRectangle.CenterY, plotRectangle);
 						break;
 					case AxisPosition.CrossValue:
 						{
 							if (axis.Value.CrossValue < vertical.First().Value.Minimum)
 							{
-								axis.Value.Draw(g, plotRectangle.Left, bottomAxisPosition, plotRectangle);
-								bottomAxisPosition += axis.Value.HeightNear;
+								axis.Value.DrawHorizontal(g, plotRectangle.Left, bottomAxisPosition, plotRectangle);
+								bottomAxisPosition += axis.Value.SizeNear;
 							}
 							else if (axis.Value.CrossValue > vertical.First().Value.Maximum)
 							{ 
-								axis.Value.Draw(g, plotRectangle.Left, topAxisPosition, plotRectangle);
-								topAxisPosition -= axis.Value.HeightFar;
+								axis.Value.DrawHorizontal(g, plotRectangle.Left, topAxisPosition, plotRectangle);
+								topAxisPosition -= axis.Value.SizeFar;
 							}
 							else
-								axis.Value.Draw(g, plotRectangle.Left, (int)vertical.First().Value.Transform(axis.Value.CrossValue), plotRectangle);
+								axis.Value.DrawHorizontal(g, plotRectangle.Left, (int)vertical.First().Value.Transform(axis.Value.CrossValue), plotRectangle);
 							break;
 						}
 				}
 			}
 
-			if (currentmouseX >= 0 && currentmouseY >= 0 && (selectVertical || selectHorisontal))
+			if (currentmouseX >= 0 && currentmouseY >= 0 && (selectVertical || selectHorizontal))
 			{
 				Rectangle selectionRec = new Rectangle();
-				if (selectVertical && selectHorisontal)
+				if (selectVertical && selectHorizontal)
 					selectionRec = new Rectangle(Math.Min(mouseX, currentmouseX), Math.Min(mouseY, currentmouseY), Math.Abs(mouseX - currentmouseX), Math.Abs(mouseY - currentmouseY));
 				else
 				{
 					if (selectVertical)
 						selectionRec = new Rectangle((int)plotRectangle.Left, Math.Min(mouseY, currentmouseY), (int)plotRectangle.Width, Math.Abs(mouseY - currentmouseY));
-					if (selectHorisontal)
+					if (selectHorizontal)
 						selectionRec = new Rectangle(Math.Min(mouseX, currentmouseX), (int)plotRectangle.Top, Math.Abs(mouseX - currentmouseX), (int)plotRectangle.Height);
 				}
 				Pen selectionPen = new Pen(Color.FromArgb(200, 0, 50, 100));

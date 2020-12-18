@@ -16,7 +16,7 @@ namespace OMPlot.Data
 
 
         float[] X, Y;
-        string axisHorisontalName, axisVerticalName;
+        string axisHorizontalName, axisVerticalName;
         string name;
 
         Pen linePen;
@@ -59,7 +59,7 @@ namespace OMPlot.Data
 
 
         public string Name { get { return name; } set { name = value; } }
-        public string AxisHorisontalName { get { return axisHorisontalName; } set { axisHorisontalName = value; } }
+        public string AxisHorizontalName { get { return axisHorizontalName; } set { axisHorizontalName = value; } }
         public string AxisVerticalName { get { return axisVerticalName; } set { axisVerticalName = value; } }
         
         public XY(double[] x, double[] y)
@@ -87,7 +87,7 @@ namespace OMPlot.Data
             name = Name;
         }
 
-        public XY(double[] x, double[] y, string AxisHorisontalName, string AxisVerticalName)
+        public XY(double[] x, double[] y, string AxisHorizontalName, string AxisVerticalName)
         {
             linePen = new Pen(Color.Empty);
             X = new float[x.Length];
@@ -97,11 +97,11 @@ namespace OMPlot.Data
                 X[i] = (float)x[i];
                 Y[i] = (float)y[i];
             }
-            axisHorisontalName = AxisHorisontalName;
+            axisHorizontalName = AxisHorizontalName;
             axisVerticalName = AxisVerticalName;
         }
 
-        public XY(double[] x, double[] y, string Name, string AxisHorisontalName, string AxisVerticalName)
+        public XY(double[] x, double[] y, string Name, string AxisHorizontalName, string AxisVerticalName)
         {
             linePen = new Pen(Color.Empty);
             X = new float[x.Length];
@@ -112,18 +112,18 @@ namespace OMPlot.Data
                 Y[i] = (float)y[i];
             }
             name = Name;
-            axisHorisontalName = AxisHorisontalName;
+            axisHorizontalName = AxisHorizontalName;
             axisVerticalName = AxisVerticalName;
         }
 
 
-        public void Draw(Graphics g, OMPlot.Axis vertical, OMPlot.Axis horisontal, RectangleExtended plotRectangle, int plotIndex)
+        public void Draw(Graphics g, OMPlot.Axis vertical, OMPlot.Axis Horizontal, RectangleExtended plotRectangle, int plotIndex)
         {
             //pen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
             /*Point[] dataPoint = new Point[X.Length];
             for (int i = 0; i < X.Length; i++)
             {
-                dataPoint[i] = new Point(horisontal.Transform(X[i]), vertical.Transform(Y[i]));
+                dataPoint[i] = new Point(Horizontal.Transform(X[i]), vertical.Transform(Y[i]));
             }
             g.DrawLines(pen, dataPoint);*/
             if (linePen.Color.R == 0 && linePen.Color.G == 0 && linePen.Color.B == 0 && linePen.Color.A == 0)
@@ -131,26 +131,37 @@ namespace OMPlot.Data
             if (markerColor.R == 0 && markerColor.G == 0 && markerColor.B == 0 && markerColor.A == 0)
                 markerColor = defaultPlotColors[plotIndex % 3];
 
+            float leftLimit = plotRectangle.Left - 100;
+            float rightLimit = plotRectangle.Right + 100;
+            float topLimit = plotRectangle.Left - 100;
+            float bottomLimit = plotRectangle.Right + 100;
+
+
             List<PointF> pointList = new List<PointF>();
-            float prevX = horisontal.Transform(X[0]);
+            float prevX = Horizontal.Transform(X[0]);
             float prevY = vertical.Transform(Y[0]);
             pointList.Add(new PointF(prevX, prevY));
             float curX, curY;
             for (int i = 1; i < X.Length; i++)
             {
-                curX = horisontal.Transform(X[i]);
-                curY = vertical.Transform(Y[i]);
-                if (curX - prevX > 1 || curY - prevY > 1 || prevX - curX > 1 || prevY - curY > 1)
+                curX = Horizontal.Transform(X[i]);
+                if (curX > leftLimit && curX < rightLimit)
                 {
-                    prevX = curX;
-                    prevY = curY;
-                    pointList.Add(new PointF(prevX, prevY));
+                    curY = vertical.Transform(Y[i]);
+                    if(curY > topLimit && curY < bottomLimit)
+                        if (curX - prevX > 1 || curY - prevY > 1 || prevX - curX > 1 || prevY - curY > 1)
+                        {
+                            prevX = curX;
+                            prevY = curY;
+                            pointList.Add(new PointF(prevX, prevY));
+                        }
                 }
             }
 
             if (Style == PlotStyle.Line || Style == PlotStyle.Both)
             {
-                g.DrawLines(linePen, pointList.ToArray());
+                if(pointList.Count > 1)
+                    g.DrawLines(linePen, pointList.ToArray());
             }
             if (Style == PlotStyle.Marker || Style == PlotStyle.Both)
             {

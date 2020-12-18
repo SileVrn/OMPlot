@@ -16,9 +16,9 @@ namespace OMPlot.Test
         {
             InitializeComponent();
 
-            /*plot1.Title = "Hello, OMPlot!";
+            plot1.Title = "Hello, OMPlot!";
 
-            double[] dataX = new double[100000];
+            double[] dataX = new double[1000000];
             double[] dataY1 = new double[dataX.Length];
             double[] dataY2 = new double[dataX.Length];
             double[] dataY3 = new double[dataX.Length];
@@ -42,23 +42,30 @@ namespace OMPlot.Test
             plot1.Data.Add(plotXY2);
             plot1.Data.Add(plotXY3);
 
-            OMPlot.Axis.Linear xAxis = new Axis.Linear();
+            OMPlot.Axis xAxis = new Axis();
             //xAxis.Minimum = 0;
             //xAxis.Maximum = (float)(dt * dataX.Length);
             xAxis.Minimum = 0f;
             xAxis.Maximum = 0.001f;
+            xAxis.Position = AxisPosition.Far;
+            xAxis.TitlePosition = LabelsPosition.Far;
+            xAxis.TicksLabelsPosition = LabelsPosition.Far;
+            xAxis.TicksLabelsRotation = TicksLabelsRotation.Tilted;
+            xAxis.TicksLabelsAlignment = Alignment.Far;
             xAxis.Title = "X";
             
-            OMPlot.Axis.Linear yAxis = new Axis.Linear();
+            OMPlot.Axis yAxis = new Axis();
             yAxis.Minimum = -2;
             yAxis.Maximum = 2;
+            yAxis.TicksLabelsRotation = TicksLabelsRotation.Tilted;
+            yAxis.TicksLabelsAlignment = Alignment.Far;
             yAxis.Title = "Y";
             
             plot1.AddVerticalAxis(yAxis);
-            plot1.AddHorisontalAxis(xAxis);*/
+            plot1.AddHorizontalAxis(xAxis);
 
 
-            plot1.Title = "Hello, OMPlot!";
+            /*plot1.Title = "Hello, OMPlot!";
 
             double[] dataX = new double[10];
             double[] dataY1 = new double[dataX.Length];
@@ -86,9 +93,9 @@ namespace OMPlot.Test
             yAxis.Title = "Y";
 
             plot1.AddVerticalAxis(yAxis);
-            plot1.AddHorisontalAxis(xAxis);
+            plot1.AddHorizontalAxis(xAxis);
 
-            plot1.Refresh();
+            plot1.Refresh();*/
 
 
 

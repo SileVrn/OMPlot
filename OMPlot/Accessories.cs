@@ -18,7 +18,7 @@ namespace OMPlot
 			return i;
 		}
 
-		internal static float Pow10(int a)
+		internal static double Pow10(int a)
 		{
 			float b = 1;
 			if (a > 0)
@@ -34,9 +34,9 @@ namespace OMPlot
 			return b;
 		}
 
-		internal static float Pow1000(int a)
+		internal static double Pow1000(int a)
 		{
-			float b = 1;
+			double b = 1;
 			if(a > 0)
 			{
 				while (a-- > 0)
@@ -58,7 +58,7 @@ namespace OMPlot
 			return format;
 		}
 
-		internal static string FloatFormat(float value, double sigma)
+		internal static string FloatFormat(double value, double sigma)
 		{
 			int degree = (int)(Math.Ceiling(Math.Log10(Math.Abs(value / sigma))));
 			string format = "###.";
@@ -67,15 +67,15 @@ namespace OMPlot
 			return format;
 		}
 
-		internal static int Degree(float value)
+		internal static int Degree(double value)
 		{
 			if (value == 0.0f)
 				return 0;
-			if (float.IsPositiveInfinity(value))
+			if (double.IsPositiveInfinity(value))
 				return int.MaxValue;
-			if (float.IsNegativeInfinity(value))
+			if (double.IsNegativeInfinity(value))
 				return int.MinValue;
-			if (float.IsNaN(value))
+			if (double.IsNaN(value))
 				return 0;
 
 			return (int)(Math.Floor(Math.Log10(Math.Abs(value)) / 3));
@@ -100,53 +100,46 @@ namespace OMPlot
 				return value.ToString();
 		}
 
-		internal static string ToSI(float value, string format = "###.##")
+		internal static string ToSI(double value, string format = "###.##")
 		{
 			if (value == 0.0f)
 				return "0";
-			if (float.IsPositiveInfinity(value))
+			if (double.IsPositiveInfinity(value))
 				return "+∞";
-			if (float.IsNegativeInfinity(value))
+			if (double.IsNegativeInfinity(value))
 				return "-∞";
-			if (float.IsNaN(value))
+			if (double.IsNaN(value))
 				return "NaN";
 
 			int degree = (int)(Math.Floor(Math.Log10(Math.Abs(value)) / 3));
 
 			if(degree == 0)
-			{
 				return value.ToString(format);
-			}
 			if (degree < 8 && degree > -8 && degree != 0)
-			{
 				return (value * Pow1000(-degree)).ToString(format) + SIPrefixes[degree + 8];
-			}
 			else
-			{
 				return value.ToString();
-			}
 		}
 
-		internal static float Round(float a, int sign)
+		internal static double Round(double a, int sign)
 		{
 			if (sign > 0)
 			{
-				float b = Pow10(sign);
-				return (float)Math.Round(a / b) * b;
+				double b = Pow10(sign);
+				return Math.Round(a / b) * b;
 			}
 			else
 			{
-				return (float)Math.Round(a, -1 * sign);
+				return Math.Round(a, -1 * sign);
 			}
 		}
 
-		internal static int FirstSignRound(float a)
+		internal static int FirstSignRound(double a)
 		{
-			float b = Math.Abs(a);
-
+			double b = Math.Abs(a);
 			if (b > 10)
 			{
-				float c = 100;
+				double c = 100;
 				int i = 1;
 				while (b > c)
 				{
@@ -157,7 +150,7 @@ namespace OMPlot
 			}
 			else if (b < 1)
 			{
-				float c = 0.1f;
+				double c = 0.1f;
 				int i = -1;
 				while (b < c)
 				{
@@ -166,10 +159,7 @@ namespace OMPlot
 				}
 				return i++;
 			}
-			else
-			{
-				return 0;
-			}
+			return 0;
 		}
 	}
 }
