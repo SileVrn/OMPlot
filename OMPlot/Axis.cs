@@ -316,7 +316,7 @@ namespace OMPlot
         }
         public void MeasureVertical(Graphics g, Size plotSize)
         {
-            if (ticksLabelsLineAlignment == Alignment.Center && ticksLabelsRotation == TicksLabelsRotation.Parallel)
+            if (ticksLabelsLineAlignment == Alignment.Center && (ticksLabelsRotation == TicksLabelsRotation.Parallel || ticksLabelsRotation == TicksLabelsRotation.Tilted))
                 throw new Exception("Central line alignment is not possible for parallel rotation of the tick`s labels.");
 
             bool decreaseTickNumber;
@@ -359,21 +359,23 @@ namespace OMPlot
                         sizeFar += tickLabelFormatSize.Width / 1.4f;
                 }
 
-                if (ticksLabelsRotation == TicksLabelsRotation.Parallel)
-                {
-                    if (ticksLabelsAlignment == Alignment.Near)
-                        overflowFar = tickLabelFormatSize.Width;
-                    else
-                        overflowNear = tickLabelFormatSize.Width;
-                }
-                else if (ticksLabelsAlignment == Alignment.Center)
+                if (ticksLabelsAlignment == Alignment.Center)
                 {
                     overflowFar = tickLabelFormatSize.Width / 2.0f;
                     overflowNear = overflowFar;
                 }
-                else
+                else if (ticksLabelsRotation == TicksLabelsRotation.Parallel)
                 {
-                    if (ticksLabelsAlignment == Alignment.Far)
+                    if ((TicksLabelsPosition == LabelsPosition.Near && ticksLabelsAlignment == ticksLabelsLineAlignment) ||
+                        (TicksLabelsPosition == LabelsPosition.Far && ticksLabelsAlignment != ticksLabelsLineAlignment))
+                        overflowFar = tickLabelFormatSize.Width;
+                    else
+                        overflowNear = tickLabelFormatSize.Width;
+                }
+                else if (ticksLabelsRotation == TicksLabelsRotation.Tilted)
+                {
+                    if ((TicksLabelsPosition == LabelsPosition.Far && ticksLabelsLineAlignment == Alignment.Far) ||
+                        (TicksLabelsPosition == LabelsPosition.Near && ticksLabelsLineAlignment == Alignment.Near))
                         overflowNear = tickLabelFormatSize.Width / 1.4f;
                     else
                         overflowFar = tickLabelFormatSize.Width / 1.4f;
@@ -452,7 +454,7 @@ namespace OMPlot
                     else
                         overflowNear = tickLabelFormatSize.Width;
                 }
-                else
+                else if(ticksLabelsRotation == TicksLabelsRotation.Tilted)
                 {
                     if (ticksLabelsAlignment == Alignment.Near)
                         overflowFar = tickLabelFormatSize.Width / 1.4f;

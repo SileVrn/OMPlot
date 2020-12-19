@@ -18,7 +18,7 @@ namespace OMPlot.Test
 
             plot1.Title = "Hello, OMPlot!";
 
-            double[] dataX = new double[1000000];
+            double[] dataX = new double[10000];
             double[] dataY1 = new double[dataX.Length];
             double[] dataY2 = new double[dataX.Length];
             double[] dataY3 = new double[dataX.Length];
@@ -43,26 +43,50 @@ namespace OMPlot.Test
             plot1.Data.Add(plotXY3);
 
             OMPlot.Axis xAxis = new Axis();
-            //xAxis.Minimum = 0;
-            //xAxis.Maximum = (float)(dt * dataX.Length);
-            xAxis.Minimum = 0f;
-            xAxis.Maximum = 0.001f;
+            xAxis.Minimum = 0;
+            xAxis.Maximum = (float)(dt * dataX.Length);
             xAxis.Position = AxisPosition.Far;
             xAxis.TitlePosition = LabelsPosition.Far;
             xAxis.TicksLabelsPosition = LabelsPosition.Far;
-            xAxis.TicksLabelsRotation = TicksLabelsRotation.Tilted;
-            xAxis.TicksLabelsAlignment = Alignment.Far;
+            xAxis.TicksLabelsRotation = TicksLabelsRotation.Parallel;
+            xAxis.TicksLabelsAlignment = Alignment.Center;
             xAxis.Title = "X";
-            
+
+
+            OMPlot.Axis xxAxis = new Axis();
+            xxAxis.Minimum = 0;
+            xxAxis.Maximum = (float)(dt * dataX.Length);
+            xxAxis.Position = AxisPosition.Near;
+            xxAxis.TitlePosition = LabelsPosition.Near;
+            xxAxis.TicksLabelsPosition = LabelsPosition.Near;
+            xxAxis.TicksLabelsRotation = TicksLabelsRotation.Parallel;
+            xxAxis.TicksLabelsAlignment = Alignment.Center;
+            xxAxis.Title = "XX";
+
+
             OMPlot.Axis yAxis = new Axis();
             yAxis.Minimum = -2;
             yAxis.Maximum = 2;
-            yAxis.TicksLabelsRotation = TicksLabelsRotation.Tilted;
+            yAxis.TicksLabelsRotation = TicksLabelsRotation.Perpendicular;
             yAxis.TicksLabelsAlignment = Alignment.Far;
+            yAxis.TicksLabelsLineAlignment = Alignment.Center;
             yAxis.Title = "Y";
-            
+
+            OMPlot.Axis yyAxis = new Axis();
+            yyAxis.Minimum = -2;
+            yyAxis.Maximum = 2;
+            yyAxis.Position = AxisPosition.Far;
+            yyAxis.TicksLabelsRotation = TicksLabelsRotation.Perpendicular;
+            yyAxis.TicksLabelsAlignment = Alignment.Near;
+            yyAxis.TitlePosition = LabelsPosition.Far;
+            yyAxis.TicksLabelsPosition = LabelsPosition.Far;
+            yyAxis.TicksLabelsLineAlignment = Alignment.Center;
+            yyAxis.Title = "YY";
+
             plot1.AddVerticalAxis(yAxis);
+            plot1.AddVerticalAxis(yyAxis);
             plot1.AddHorizontalAxis(xAxis);
+            plot1.AddHorizontalAxis(xxAxis);
 
 
             /*plot1.Title = "Hello, OMPlot!";

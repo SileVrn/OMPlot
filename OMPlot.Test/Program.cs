@@ -49,34 +49,36 @@ namespace OMPlot.Test
             p.AddVerticalAxis(yAxis);
             p.AddHorizontalAxis(xAxis);
 
-            AxisTestBitmap(p, "Title", LabelsPosition.Far, Alignment.Near, LabelsPosition.Far, Alignment.Far, Alignment.Center, TicksLabelsRotation.Tilted);
+            //AxisTestBitmap(p, "Title", AxisPosition.Center, LabelsPosition.Near, Alignment.Center, LabelsPosition.Far, Alignment.Near, Alignment.Center, TicksLabelsRotation.Tilted);
 
-            foreach (LabelsPosition tp in Enum.GetValues(typeof(LabelsPosition)))
-                foreach (Alignment ta in Enum.GetValues(typeof(Alignment)))
-                    foreach (LabelsPosition tlp in new LabelsPosition[] { LabelsPosition.Near, LabelsPosition.Far })
-                        foreach (Alignment tla in Enum.GetValues(typeof(Alignment)))
-                            foreach (Alignment tlla in Enum.GetValues(typeof(Alignment)))
-                                foreach (TicksLabelsRotation tlr in Enum.GetValues(typeof(TicksLabelsRotation)))
-                                    try
-                                    {
-                                        AxisTestBitmap(p, "Title", tp, ta, tlp, tla, tlla, tlr);
-                                    }
-                                    catch
-                                    { }
+            /*foreach (AxisPosition ap in Enum.GetValues(typeof(AxisPosition)))
+                foreach (LabelsPosition tp in Enum.GetValues(typeof(LabelsPosition)))
+                    foreach (Alignment ta in Enum.GetValues(typeof(Alignment)))
+                        foreach (LabelsPosition tlp in new LabelsPosition[] { LabelsPosition.Near, LabelsPosition.Far })
+                            foreach (Alignment tla in Enum.GetValues(typeof(Alignment)))
+                                foreach (Alignment tlla in Enum.GetValues(typeof(Alignment)))
+                                    foreach (TicksLabelsRotation tlr in Enum.GetValues(typeof(TicksLabelsRotation)))
+                                        try
+                                        {
+                                            AxisTestBitmap(p, "Title", ap, tp, ta, tlp, tla, tlla, tlr);
+                                        }
+                                        catch
+                                        { }*/
 
             Application.Run(new Form1());            
         }
 
-        static void AxisTestBitmap(Plot p, string title, LabelsPosition tp, Alignment ta, LabelsPosition tlp, Alignment tla, Alignment tlla, TicksLabelsRotation tlr)
+        static void AxisTestBitmap(Plot p, string title, AxisPosition ap, LabelsPosition tp, Alignment ta, LabelsPosition tlp, Alignment tla, Alignment tlla, TicksLabelsRotation tlr)
         {
             Image img = new Bitmap(p.Width, p.Height);
             Graphics g = Graphics.FromImage(img);
 
             Axis xAxis = p.GetHorizontalAxis();
-            if (tlp == LabelsPosition.Near)
+            xAxis.Position = ap;
+            /*if (tlp == LabelsPosition.Near)
                 xAxis.Position = AxisPosition.Near;
             else if (tlp == LabelsPosition.Far)
-                xAxis.Position = AxisPosition.Far;
+                xAxis.Position = AxisPosition.Far; */
             xAxis.Title = title;
             xAxis.TitlePosition = tp;
             xAxis.TitleAlignment = ta;
@@ -86,10 +88,11 @@ namespace OMPlot.Test
             xAxis.TicksLabelsRotation = tlr;
 
             Axis yAxis = p.GetVerticalAxis();
-            if (tlp == LabelsPosition.Near)
+            yAxis.Position = ap;
+            /*if (tlp == LabelsPosition.Near)
                 yAxis.Position = AxisPosition.Near;
             else if (tlp == LabelsPosition.Far)
-                yAxis.Position = AxisPosition.Far;
+                yAxis.Position = AxisPosition.Far;*/
             yAxis.Title = title;
             yAxis.TitlePosition = tp;
             yAxis.TitleAlignment = ta;
@@ -99,7 +102,8 @@ namespace OMPlot.Test
             yAxis.TicksLabelsRotation = tlr;
 
             p.ControlPaint(g);
-            img.Save(title + "_" + 
+            img.Save(title + "_" +
+                Enum.GetName(typeof(AxisPosition), ap) + "_" +
                 Enum.GetName(typeof(LabelsPosition), tp) + "_" + 
                 Enum.GetName(typeof(Alignment), ta) + "_" + 
                 Enum.GetName(typeof(LabelsPosition), tlp) + "_" +

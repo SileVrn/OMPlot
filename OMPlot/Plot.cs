@@ -237,17 +237,17 @@ namespace OMPlot
 			foreach(var axis in vertical)
 			{				
 				axis.Value.MeasureVertical(g, this.Size);
-				if(axis.Value.Position == AxisPosition.Near)
+				if(axis.Value.Position == AxisPosition.Near || axis.Value.Position == AxisPosition.CrossValue)
 					plotRectangle.Left += axis.Value.SizeNear;
-				if (axis.Value.Position == AxisPosition.Far)
+				if (axis.Value.Position == AxisPosition.Far || axis.Value.Position == AxisPosition.CrossValue)
 					plotRectangle.Right -= axis.Value.SizeFar;
 			}
 			foreach (var axis in Horizontal)
 			{
 				axis.Value.MeasureHorizontal(g, this.Size);
-				if (axis.Value.Position == AxisPosition.Near)
+				if (axis.Value.Position == AxisPosition.Near || axis.Value.Position == AxisPosition.CrossValue)
 					plotRectangle.Top += axis.Value.SizeNear;
-				if (axis.Value.Position == AxisPosition.Far)
+				if (axis.Value.Position == AxisPosition.Far || axis.Value.Position == AxisPosition.CrossValue)
 					plotRectangle.Bottom -= axis.Value.SizeFar;
 			}
 
@@ -313,7 +313,7 @@ namespace OMPlot
 					case AxisPosition.Center:
 						axis.Value.DrawVertical(g, plotRectangle.CenterX, plotRectangle.Top, plotRectangle);
 						break;
-					case AxisPosition.CrossValue: //Name of Horizontal add
+					case AxisPosition.CrossValue:
 						{
 							if (axis.Value.CrossValue < Horizontal.First().Value.Minimum)
 							{
@@ -340,13 +340,13 @@ namespace OMPlot
 					case AxisPosition.Far:
 						{
 							axis.Value.DrawHorizontal(g, plotRectangle.Left, bottomAxisPosition, plotRectangle);
-							bottomAxisPosition += axis.Value.SizeNear;
+							bottomAxisPosition += axis.Value.SizeFar;
 							break;
 						}
 					case AxisPosition.Near:
 						{
 							axis.Value.DrawHorizontal(g, plotRectangle.Left, topAxisPosition, plotRectangle);
-							topAxisPosition -= axis.Value.SizeFar;
+							topAxisPosition -= axis.Value.SizeNear;
 							break;
 						}
 					case AxisPosition.Center:
