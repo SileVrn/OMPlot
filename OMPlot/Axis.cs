@@ -9,51 +9,15 @@ namespace OMPlot
 {
     public class Axis
     {
-        double minimum;
-        double maximum;
-
-        string title;
-        bool logarithmic;
-        bool vertical;
-        bool reverse;
-        bool zoomLocked;
-        bool moveLocked;
-
-        AxisPosition axisPosition;
-        double crossValue;
-
-        TickStyle majorTickStyle, minorTickStyle;
-
-        LabelsPosition ticksLabelsPosition;
-        Alignment ticksLabelsAlignment;
-        Alignment ticksLabelsLineAlignment;
-        TicksLabelsRotation ticksLabelsRotation;
-
-        Alignment titleAlignment;
-        LabelsPosition titlePosition;
-        GridStyle gridStyle;
-
         Font font;
         Brush brush;
         Pen pen;
         Color color;
 
-        float sizeNear;
-        float sizeFar;
-        float overflowNear;
-        float overflowFar;
-
         RectangleExtended drawnRectangle;
 
         public int TickNumber;
         public int SubTickNumber;
-
-
-        public float SizeNear { get { return sizeNear; } }
-        public float SizeFar { get { return sizeFar; } }
-        public float OverflowNear { get { return overflowNear; } }
-        public float OverflowFar { get { return overflowFar; } }
-
 
         private SizeF titleSize;
         private double res;
@@ -72,192 +36,180 @@ namespace OMPlot
 
         public double FullScale
         {
-            get { return maximum - minimum; }
+            get { return Maximum - Minimum; }
             set
             {
                 double center = Center;
-                maximum = center + value / 2.0f;
-                minimum = center - value / 2.0f;
+                Maximum = center + value / 2.0f;
+                Minimum = center - value / 2.0f;
             }
         }
         public double Center
         {
-            get { return (maximum + minimum) / 2.0f; }
+            get { return (Maximum + Minimum) / 2.0f; }
             set
             {
                 double delta = value - Center;
-                maximum += delta;
-                minimum += delta;
+                Maximum += delta;
+                Minimum += delta;
             }
         }
 
-        public double Minimum { get { return minimum; } set { minimum = value; } }
-        public double Maximum { get { return maximum; } set { maximum = value; } }
+        public double Minimum { get; set; }
+        public double Maximum { get; set; }
 
-        public string Title { get { return title; } set { title = value; } }
-        public bool Logarithmic { get { return logarithmic; } set { logarithmic = value; } }
-        public bool Vertical { get { return vertical; } set { vertical = value; } }
-        public bool Reverse { get { return reverse; } set { reverse = value; } }
-        public bool MoveLocked { get { return moveLocked; } set { moveLocked = value; } }
-        public bool ZoomLocked { get { return zoomLocked; } set { zoomLocked = value; } }
+        public string Title { get; set; }
+        public bool Logarithmic { get; set; }
+        public bool Vertical { get; set; }
+        public bool Reverse { get; set; }
+        public bool MoveLocked { get; set; }
+        public bool ZoomLocked { get; set; }
 
-        public AxisPosition Position { get { return axisPosition; } set { axisPosition = value; } }
-        public double CrossValue { get { return crossValue; } set { crossValue = value; } }
+        public AxisPosition Position { get; set; }
+        public double CrossValue { get; set; }
 
-        public TickStyle MajorTickStyle { get { return majorTickStyle; } set { majorTickStyle = value; } }
-        public TickStyle MinorTickStyle { get { return minorTickStyle; } set { minorTickStyle = value; } }
-        public LabelsPosition TicksLabelsPosition { get { return ticksLabelsPosition; } set { ticksLabelsPosition = value; } }
-        public Alignment TicksLabelsAlignment { get { return ticksLabelsAlignment; } set { ticksLabelsAlignment = value; } }
-        public Alignment TicksLabelsLineAlignment { get { return ticksLabelsLineAlignment; } set { ticksLabelsLineAlignment = value; } }
-        public TicksLabelsRotation TicksLabelsRotation { get { return ticksLabelsRotation; } set { ticksLabelsRotation = value; } }
+        public TickStyle MajorTickStyle { get; set; }
+        public TickStyle MinorTickStyle { get; set; }
+        public LabelsPosition TicksLabelsPosition { get; set; }
+        public Alignment TicksLabelsAlignment { get; set; }
+        public Alignment TicksLabelsLineAlignment { get; set; }
+        public TicksLabelsRotation TicksLabelsRotation { get; set; }
 
-        public Alignment TitleAlignment { get { return titleAlignment; } set { titleAlignment = value; } }
-        public LabelsPosition TitlePosition { get { return titlePosition; } set { titlePosition = value; } }
-        public GridStyle GridStyle { get { return gridStyle; } set { gridStyle = value; } }
+        public Alignment TitleAlignment { get; set; }
+        public LabelsPosition TitlePosition { get; set; }
+        public GridStyle GridStyle { get; set; }
 
         public Font Font { get { return font; } set { font = value; } }
         public Color Color { get { return color; } set { color = value; brush = new SolidBrush(color); pen = new Pen(brush); } }
+        
+        public float SizeNear { get; private set; }
+        public float SizeFar { get; private set; }
+        public float OverflowNear { get; private set; }
+        public float OverflowFar { get; private set; }
 
         public void CalculateTranformVertical(float minimum, float maximum)
         {
-            if (!logarithmic)
+            if (!Logarithmic)
             {
-                if (!reverse)
+                if (!Reverse)
                 {
-                    res = (maximum - minimum) / (this.minimum - this.maximum);
-                    offset = maximum - this.minimum * res;
+                    res = (maximum - minimum) / (this.Minimum - this.Maximum);
+                    offset = maximum - this.Minimum * res;
                 }
                 else
                 {
-                    res = (maximum - minimum) / (this.maximum - this.minimum);
-                    offset = minimum - this.minimum * res;
+                    res = (maximum - minimum) / (this.Maximum - this.Minimum);
+                    offset = minimum - this.Minimum * res;
                 }
             }
             else
             {
-                if (!reverse)
+                if (!Reverse)
                 {
-                    res = (maximum - minimum) / (float)(Math.Log10(this.minimum) - Math.Log10(this.maximum));
-                    offset = maximum - (float)Math.Log10(this.minimum) * res;
+                    res = (maximum - minimum) / (float)(Math.Log10(this.Minimum) - Math.Log10(this.Maximum));
+                    offset = maximum - (float)Math.Log10(this.Minimum) * res;
                 }
                 else
                 {
-                    res = (maximum - minimum) / (float)(Math.Log10(this.maximum) - Math.Log10(this.minimum));
-                    offset = minimum - (float)Math.Log10(this.minimum) * res;
+                    res = (maximum - minimum) / (float)(Math.Log10(this.Maximum) - Math.Log10(this.Minimum));
+                    offset = minimum - (float)Math.Log10(this.Minimum) * res;
                 }
             }
         }
         public void CalculateTranformHorizontal(float minimum, float maximum)
         {
-            if (!logarithmic)
+            if (!Logarithmic)
             {
-                if (reverse)
+                if (Reverse)
                 {
-                    res = (maximum - minimum) / (this.minimum - this.maximum);
-                    offset = maximum - this.minimum * res;
+                    res = (maximum - minimum) / (this.Minimum - this.Maximum);
+                    offset = maximum - this.Minimum * res;
                 }
                 else
                 {
-                    res = (maximum - minimum) / (this.maximum - this.minimum);
-                    offset = minimum - this.minimum * res;
+                    res = (maximum - minimum) / (this.Maximum - this.Minimum);
+                    offset = minimum - this.Minimum * res;
                 }
             }
             else
             {
-                if (reverse)
+                if (Reverse)
                 {
-                    res = (maximum - minimum) / (float)(Math.Log10(this.minimum) - Math.Log10(this.maximum));
-                    offset = maximum - (float)Math.Log10(this.minimum) * res;
+                    res = (maximum - minimum) / (float)(Math.Log10(this.Minimum) - Math.Log10(this.Maximum));
+                    offset = maximum - (float)Math.Log10(this.Minimum) * res;
                 }
                 else
                 {
-                    res = (maximum - minimum) / (float)(Math.Log10(this.maximum) - Math.Log10(this.minimum));
-                    offset = minimum - (float)Math.Log10(this.minimum) * res;
+                    res = (maximum - minimum) / (float)(Math.Log10(this.Maximum) - Math.Log10(this.Minimum));
+                    offset = minimum - (float)Math.Log10(this.Minimum) * res;
                 }
             }
         }
-        double TransformBack(double value)
-        {
-            if (!logarithmic)
-                return (value - offset) / res;
-            return Math.Pow(10, (value - offset) / res);
-        }
-        public float Transform(double value)
-        {
-            return (float)(offset + (logarithmic ? Math.Log10(value) : value) * res);
-            /*float transformed = ;
-            if (transformed < -100)
-                return -100;
-            if (transformed > 10000)
-                return 10000;
-            return transformed;*/
-        }
+        double TransformBack(double value) { return Logarithmic ? Math.Pow(10, (value - offset) / res) : (value - offset) / res; }
+        public float Transform(double value) { return (float)(offset + (Logarithmic ? Math.Log10(value) : value) * res); }
 
-        public bool ActionOnAxis(float x, float y)
-        {
-            return drawnRectangle.InRectangle(x, y);
-        }
+        public bool ActionOnAxis(float x, float y) { return drawnRectangle.InRectangle(x, y); }
         public void Move(float length)
         {
-            if (!moveLocked)
+            if (!MoveLocked)
             {
-                if (!logarithmic)
+                if (!Logarithmic)
                 {
-                    minimum += length / res;
-                    maximum += length / res;
+                    Minimum += length / res;
+                    Maximum += length / res;
                 }
                 else
                 {
-                    minimum *= Math.Pow(10, length / res);
-                    maximum *= Math.Pow(10, length / res);
+                    Minimum *= Math.Pow(10, length / res);
+                    Maximum *= Math.Pow(10, length / res);
                 }
             }
         }
         public void Select(float min, float max)
         {
-            if (!zoomLocked)
+            if (!ZoomLocked)
             {
-                minimum = TransformBack(min);
-                maximum = TransformBack(max);
+                Minimum = TransformBack(min);
+                Maximum = TransformBack(max);
             }
         }
         public void Zoom(double zoom, float length)
         {
-            if (!zoomLocked)
+            if (!ZoomLocked)
             {
-                if (!logarithmic)
+                if (!Logarithmic)
                 {
-                    double halfscale = (maximum - minimum) / 2;
-                    minimum += (1 - zoom) * (halfscale + length / res);
-                    maximum -= (1 - zoom) * (halfscale - length / res);
+                    double halfscale = (Maximum - Minimum) / 2;
+                    Minimum += (1 - zoom) * (halfscale + length / res);
+                    Maximum -= (1 - zoom) * (halfscale - length / res);
                 }
                 else
                 {
-                    double halfscale = (Math.Log10(maximum) - Math.Log10(minimum)) / 2;
-                    minimum = Math.Pow(10, Math.Log10(minimum) + (1 - zoom) * (halfscale + length / res));
-                    maximum = Math.Pow(10, Math.Log10(maximum) - (1 - zoom) * (halfscale - length / res));
+                    double halfscale = (Math.Log10(Maximum) - Math.Log10(Minimum)) / 2;
+                    Minimum = Math.Pow(10, Math.Log10(Minimum) + (1 - zoom) * (halfscale + length / res));
+                    Maximum = Math.Pow(10, Math.Log10(Maximum) - (1 - zoom) * (halfscale - length / res));
                 }
             }
         }
 
         private void CalculateTicks(Graphics g)
         {
-            if (!logarithmic)
+            if (!Logarithmic)
             {
-                double step = (maximum - minimum) / TickNumber;
+                double step = (Maximum - Minimum) / TickNumber;
                 int roundStepSign = Accessories.FirstSignRound(step);
                 step = Accessories.Round(step, roundStepSign);
-                double mark = Math.Ceiling(minimum / step) * step;
+                double mark = Math.Ceiling(Minimum / step) * step;
                 int maxDegree = 0;
                 
                 double nextmark = mark + step;
                 if (mark - nextmark == 0) //step smaller than floating point resolution
                 {
-                    tick = new double[] { minimum, maximum };
+                    tick = new double[] { Minimum, Maximum };
                     subTick = new double[] { };
-                    maxDegree = Accessories.Degree(minimum);
-                    if (maxDegree < Accessories.Degree(maximum))
-                        maxDegree = Accessories.Degree(maximum);
+                    maxDegree = Accessories.Degree(Minimum);
+                    if (maxDegree < Accessories.Degree(Maximum))
+                        maxDegree = Accessories.Degree(Maximum);
                 }
                 else
                 {
@@ -273,7 +225,7 @@ namespace OMPlot
                         subMark -= subStep;
                     }
 
-                    while (mark <= maximum)
+                    while (mark <= Maximum)
                     {
                         tickList.Add(mark);
                         //if (Math.Abs(maxDegree) < Math.Abs(Accessories.Degree(mark)))
@@ -297,11 +249,11 @@ namespace OMPlot
             }
             else
             {
-                tick = new double[(int)(Math.Log10(maximum) - Math.Log10(minimum) + 1)];
+                tick = new double[(int)(Math.Log10(Maximum) - Math.Log10(Minimum) + 1)];
                 subTick = new double[0];
 
                 for (int i = 0; i < tick.Length; i++)
-                    tick[i] = Accessories.Pow10(i) * minimum;
+                    tick[i] = Accessories.Pow10(i) * Minimum;
 
                 tickLabelFormat = "###";
             }
@@ -316,7 +268,7 @@ namespace OMPlot
         }
         public void MeasureVertical(Graphics g, Size plotSize)
         {
-            if (ticksLabelsLineAlignment == Alignment.Center && (ticksLabelsRotation == TicksLabelsRotation.Parallel || ticksLabelsRotation == TicksLabelsRotation.Tilted))
+            if (TicksLabelsLineAlignment == Alignment.Center && (TicksLabelsRotation == TicksLabelsRotation.Parallel || TicksLabelsRotation == TicksLabelsRotation.Tilted))
                 throw new Exception("Central line alignment is not possible for parallel rotation of the tick`s labels.");
 
             bool decreaseTickNumber;
@@ -329,76 +281,76 @@ namespace OMPlot
                 tickLabelFormatSize.Width = tickLabelSize.Max(e => e.Width);
                 tickLabelFormatSize.Height = tickLabelSize.First().Height;
                 float ticksLabelsLengthTotal = tickLabelSize.Sum(e => e.Width + e.Height);
-                decreaseTickNumber = ticksLabelsPosition != LabelsPosition.None && ticksLabelsRotation == TicksLabelsRotation.Parallel && ticksLabelsLengthTotal > plotSize.Width;
+                decreaseTickNumber = TicksLabelsPosition != LabelsPosition.None && TicksLabelsRotation == TicksLabelsRotation.Parallel && ticksLabelsLengthTotal > plotSize.Width;
                 TickNumber = decreaseTickNumber ? (int)Math.Floor((double)(TickNumber) / 2.0) : TickNumber;
             }
             while (decreaseTickNumber);
 
-            sizeNear = ticksLabelsPosition == LabelsPosition.Near ? 6 : 0;
-            sizeFar = ticksLabelsPosition == LabelsPosition.Far ? 6 : 0;
-            overflowFar = tickLabelFormatSize.Height;
-            overflowNear = tickLabelFormatSize.Height;
-            if (ticksLabelsPosition != LabelsPosition.None && tickLabel.Any())
+            SizeNear = TicksLabelsPosition == LabelsPosition.Near ? 6 : 0;
+            SizeFar = TicksLabelsPosition == LabelsPosition.Far ? 6 : 0;
+            OverflowFar = tickLabelFormatSize.Height;
+            OverflowNear = tickLabelFormatSize.Height;
+            if (TicksLabelsPosition != LabelsPosition.None && tickLabel.Any())
             {
-                if (ticksLabelsPosition == LabelsPosition.Near)
+                if (TicksLabelsPosition == LabelsPosition.Near)
                 {
-                    if (ticksLabelsRotation == TicksLabelsRotation.Parallel)
-                        sizeNear += tickLabelFormatSize.Height;
-                    else if (ticksLabelsRotation == TicksLabelsRotation.Perpendicular)
-                        sizeNear += tickLabelFormatSize.Width;
+                    if (TicksLabelsRotation == TicksLabelsRotation.Parallel)
+                        SizeNear += tickLabelFormatSize.Height;
+                    else if (TicksLabelsRotation == TicksLabelsRotation.Perpendicular)
+                        SizeNear += tickLabelFormatSize.Width;
                     else
-                        sizeNear += tickLabelFormatSize.Width / 1.4f;
+                        SizeNear += tickLabelFormatSize.Width / 1.4f;
                 }
                 else
                 {
-                    if (ticksLabelsRotation == TicksLabelsRotation.Parallel)
-                        sizeFar += tickLabelFormatSize.Height;
-                    else if (ticksLabelsRotation == TicksLabelsRotation.Perpendicular)
-                        sizeFar += tickLabelFormatSize.Width;
+                    if (TicksLabelsRotation == TicksLabelsRotation.Parallel)
+                        SizeFar += tickLabelFormatSize.Height;
+                    else if (TicksLabelsRotation == TicksLabelsRotation.Perpendicular)
+                        SizeFar += tickLabelFormatSize.Width;
                     else
-                        sizeFar += tickLabelFormatSize.Width / 1.4f;
+                        SizeFar += tickLabelFormatSize.Width / 1.4f;
                 }
 
-                if (ticksLabelsAlignment == Alignment.Center)
+                if (TicksLabelsAlignment == Alignment.Center)
                 {
-                    overflowFar = tickLabelFormatSize.Width / 2.0f;
-                    overflowNear = overflowFar;
+                    OverflowFar = tickLabelFormatSize.Width / 2.0f;
+                    OverflowNear = OverflowFar;
                 }
-                else if (ticksLabelsRotation == TicksLabelsRotation.Parallel)
+                else if (TicksLabelsRotation == TicksLabelsRotation.Parallel)
                 {
-                    if ((TicksLabelsPosition == LabelsPosition.Near && ticksLabelsAlignment == ticksLabelsLineAlignment) ||
-                        (TicksLabelsPosition == LabelsPosition.Far && ticksLabelsAlignment != ticksLabelsLineAlignment))
-                        overflowFar = tickLabelFormatSize.Width;
+                    if ((TicksLabelsPosition == LabelsPosition.Near && TicksLabelsAlignment == TicksLabelsLineAlignment) ||
+                        (TicksLabelsPosition == LabelsPosition.Far && TicksLabelsAlignment != TicksLabelsLineAlignment))
+                        OverflowFar = tickLabelFormatSize.Width;
                     else
-                        overflowNear = tickLabelFormatSize.Width;
+                        OverflowNear = tickLabelFormatSize.Width;
                 }
-                else if (ticksLabelsRotation == TicksLabelsRotation.Tilted)
+                else if (TicksLabelsRotation == TicksLabelsRotation.Tilted)
                 {
-                    if ((TicksLabelsPosition == LabelsPosition.Far && ticksLabelsLineAlignment == Alignment.Far) ||
-                        (TicksLabelsPosition == LabelsPosition.Near && ticksLabelsLineAlignment == Alignment.Near))
-                        overflowNear = tickLabelFormatSize.Width / 1.4f;
+                    if ((TicksLabelsPosition == LabelsPosition.Far && TicksLabelsLineAlignment == Alignment.Far) ||
+                        (TicksLabelsPosition == LabelsPosition.Near && TicksLabelsLineAlignment == Alignment.Near))
+                        OverflowNear = tickLabelFormatSize.Width / 1.4f;
                     else
-                        overflowFar = tickLabelFormatSize.Width / 1.4f;
+                        OverflowFar = tickLabelFormatSize.Width / 1.4f;
                 }
             }
 
-            if (!string.IsNullOrEmpty(Title) && titlePosition != LabelsPosition.None)
+            if (!string.IsNullOrEmpty(Title) && TitlePosition != LabelsPosition.None)
             {
-                titleSize = g.MeasureString(title, this.font);
-                if (titlePosition == LabelsPosition.Near)
-                    sizeNear += titleSize.Height;
-                else if (titlePosition == LabelsPosition.Far)
-                    sizeFar += titleSize.Height;
+                titleSize = g.MeasureString(Title, this.font);
+                if (TitlePosition == LabelsPosition.Near)
+                    SizeNear += titleSize.Height;
+                else if (TitlePosition == LabelsPosition.Far)
+                    SizeFar += titleSize.Height;
 
-                if (titleAlignment == Alignment.Near)
-                    overflowNear = (titleSize.Width / 2) > overflowNear ? (titleSize.Width / 2) : overflowNear;
-                else if (titleAlignment == Alignment.Far)
-                    overflowFar = (titleSize.Width / 2) > overflowFar ? (titleSize.Width / 2) : overflowFar;
+                if (TitleAlignment == Alignment.Near)
+                    OverflowNear = (titleSize.Width / 2) > OverflowNear ? (titleSize.Width / 2) : OverflowNear;
+                else if (TitleAlignment == Alignment.Far)
+                    OverflowFar = (titleSize.Width / 2) > OverflowFar ? (titleSize.Width / 2) : OverflowFar;
             }
         }
         public void MeasureHorizontal(Graphics g, Size plotSize)
         {
-            if (ticksLabelsAlignment == Alignment.Center && ticksLabelsRotation != TicksLabelsRotation.Parallel)
+            if (TicksLabelsAlignment == Alignment.Center && TicksLabelsRotation != TicksLabelsRotation.Parallel)
                     throw new Exception("Central alignment is only possible for parallel rotation of the tick`s labels.");
 
             bool decreaseTickNumber;
@@ -411,70 +363,70 @@ namespace OMPlot
                 tickLabelFormatSize.Width = tickLabelSize.Max(e => e.Width);
                 tickLabelFormatSize.Height = tickLabelSize.First().Height;
                 float ticksLabelsLengthTotal = tickLabelSize.Sum(e => e.Width);
-                decreaseTickNumber = ticksLabelsPosition != LabelsPosition.None && ticksLabelsRotation == TicksLabelsRotation.Parallel && ticksLabelsLengthTotal > plotSize.Width;
+                decreaseTickNumber = TicksLabelsPosition != LabelsPosition.None && TicksLabelsRotation == TicksLabelsRotation.Parallel && ticksLabelsLengthTotal > plotSize.Width;
                 TickNumber = decreaseTickNumber ? (int)Math.Floor((double)(TickNumber) / 2.0) : TickNumber;
             }
             while (decreaseTickNumber);
 
-            sizeNear = ticksLabelsPosition == LabelsPosition.Near ? 6 : 0;
-            sizeFar = ticksLabelsPosition == LabelsPosition.Far ? 6 : 0;
-            overflowFar = tickLabelFormatSize.Height;
-            overflowNear = tickLabelFormatSize.Height;
+            SizeNear = TicksLabelsPosition == LabelsPosition.Near ? 6 : 0;
+            SizeFar = TicksLabelsPosition == LabelsPosition.Far ? 6 : 0;
+            OverflowFar = tickLabelFormatSize.Height;
+            OverflowNear = tickLabelFormatSize.Height;
 
-            if (ticksLabelsPosition != LabelsPosition.None && tickLabel.Any())
+            if (TicksLabelsPosition != LabelsPosition.None && tickLabel.Any())
             {
-                if (ticksLabelsPosition == LabelsPosition.Far)
+                if (TicksLabelsPosition == LabelsPosition.Far)
                 {
-                    if (ticksLabelsRotation == TicksLabelsRotation.Parallel)
-                        sizeFar += tickLabelFormatSize.Height;
-                    else if (ticksLabelsRotation == TicksLabelsRotation.Perpendicular)
-                        sizeFar += tickLabelFormatSize.Width;
+                    if (TicksLabelsRotation == TicksLabelsRotation.Parallel)
+                        SizeFar += tickLabelFormatSize.Height;
+                    else if (TicksLabelsRotation == TicksLabelsRotation.Perpendicular)
+                        SizeFar += tickLabelFormatSize.Width;
                     else
-                        sizeFar += tickLabelFormatSize.Width / 1.4f;
+                        SizeFar += tickLabelFormatSize.Width / 1.4f;
                 }
                 else
                 {
-                    if (ticksLabelsRotation == TicksLabelsRotation.Parallel)
-                        sizeNear += tickLabelFormatSize.Height;
-                    else if (ticksLabelsRotation == TicksLabelsRotation.Perpendicular)
-                        sizeNear += tickLabelFormatSize.Width;
+                    if (TicksLabelsRotation == TicksLabelsRotation.Parallel)
+                        SizeNear += tickLabelFormatSize.Height;
+                    else if (TicksLabelsRotation == TicksLabelsRotation.Perpendicular)
+                        SizeNear += tickLabelFormatSize.Width;
                     else
-                        sizeNear += tickLabelFormatSize.Width / 1.4f;
+                        SizeNear += tickLabelFormatSize.Width / 1.4f;
                 }
 
-                if (ticksLabelsAlignment == Alignment.Center)
+                if (TicksLabelsAlignment == Alignment.Center)
                 {
-                    overflowFar = tickLabelFormatSize.Width / 2.0f;
-                    overflowNear = overflowFar;
+                    OverflowFar = tickLabelFormatSize.Width / 2.0f;
+                    OverflowNear = OverflowFar;
                 }
-                else if (ticksLabelsRotation == TicksLabelsRotation.Parallel)
+                else if (TicksLabelsRotation == TicksLabelsRotation.Parallel)
                 {
-                    if (ticksLabelsAlignment == Alignment.Near)
-                        overflowFar = tickLabelFormatSize.Width;
+                    if (TicksLabelsAlignment == Alignment.Near)
+                        OverflowFar = tickLabelFormatSize.Width;
                     else
-                        overflowNear = tickLabelFormatSize.Width;
+                        OverflowNear = tickLabelFormatSize.Width;
                 }
-                else if(ticksLabelsRotation == TicksLabelsRotation.Tilted)
+                else if(TicksLabelsRotation == TicksLabelsRotation.Tilted)
                 {
-                    if (ticksLabelsAlignment == Alignment.Near)
-                        overflowFar = tickLabelFormatSize.Width / 1.4f;
+                    if (TicksLabelsAlignment == Alignment.Near)
+                        OverflowFar = tickLabelFormatSize.Width / 1.4f;
                     else
-                        overflowNear = tickLabelFormatSize.Width / 1.4f;
+                        OverflowNear = tickLabelFormatSize.Width / 1.4f;
                 }
             }
 
-            if (!string.IsNullOrEmpty(Title) && titlePosition != LabelsPosition.None)
+            if (!string.IsNullOrEmpty(Title) && TitlePosition != LabelsPosition.None)
             {
-                titleSize = g.MeasureString(title, this.font);
-                if (titlePosition == LabelsPosition.Near)
-                    sizeNear += titleSize.Height;
-                else if (titlePosition == LabelsPosition.Far)
-                    sizeFar += titleSize.Height;
+                titleSize = g.MeasureString(Title, this.font);
+                if (TitlePosition == LabelsPosition.Near)
+                    SizeNear += titleSize.Height;
+                else if (TitlePosition == LabelsPosition.Far)
+                    SizeFar += titleSize.Height;
 
-                if (titleAlignment == Alignment.Near)
-                    overflowNear = (titleSize.Width / 2) > overflowNear ? (titleSize.Width / 2) : overflowNear;
-                else if (titleAlignment == Alignment.Far)
-                    overflowFar = (titleSize.Width / 2) > overflowFar ? (titleSize.Width / 2) : overflowFar;
+                if (TitleAlignment == Alignment.Near)
+                    OverflowNear = (titleSize.Width / 2) > OverflowNear ? (titleSize.Width / 2) : OverflowNear;
+                else if (TitleAlignment == Alignment.Far)
+                    OverflowFar = (titleSize.Width / 2) > OverflowFar ? (titleSize.Width / 2) : OverflowFar;
             }
         }
         
@@ -482,10 +434,10 @@ namespace OMPlot
         {
             drawnRectangle = new RectangleExtended(x, y, 0, rect.Height);
 
-            if (ticksLabelsPosition == LabelsPosition.Near)
-                drawnRectangle.Left -= sizeNear;
-            else if (ticksLabelsPosition == LabelsPosition.Far)
-                drawnRectangle.Right += sizeFar;
+            if (TicksLabelsPosition == LabelsPosition.Near)
+                drawnRectangle.Left -= SizeNear;
+            else if (TicksLabelsPosition == LabelsPosition.Far)
+                drawnRectangle.Right += SizeFar;
             else
                 drawnRectangle.FullScaleX = 10;
 
@@ -493,19 +445,20 @@ namespace OMPlot
             int rotationSign = 1;
 
 
-            if (ticksLabelsRotation == TicksLabelsRotation.Parallel)
+            if (TicksLabelsRotation == TicksLabelsRotation.Parallel)
             {
-                stringFormat.LineAlignment = Alignment2StringAlignment(ticksLabelsLineAlignment);
-                stringFormat.Alignment = Alignment2StringAlignment(ticksLabelsAlignment);
-                if ((ticksLabelsPosition == LabelsPosition.Near && ticksLabelsLineAlignment == Alignment.Near) || (ticksLabelsPosition == LabelsPosition.Far && ticksLabelsLineAlignment == Alignment.Far))
+                stringFormat.LineAlignment = Alignment2StringAlignment(TicksLabelsLineAlignment);
+                stringFormat.Alignment = Alignment2StringAlignment(TicksLabelsAlignment);
+                if ((TicksLabelsPosition == LabelsPosition.Near && TicksLabelsLineAlignment == Alignment.Near) ||
+                    (TicksLabelsPosition == LabelsPosition.Far && TicksLabelsLineAlignment == Alignment.Far))
                     rotationSign = 1;
                 else
                     rotationSign = -1;
             }
-            else if(ticksLabelsRotation == TicksLabelsRotation.Perpendicular)
+            else if(TicksLabelsRotation == TicksLabelsRotation.Perpendicular)
             {
-                stringFormat.LineAlignment = Alignment2StringAlignment(ticksLabelsLineAlignment);
-                if (ticksLabelsPosition == LabelsPosition.Near)
+                stringFormat.LineAlignment = Alignment2StringAlignment(TicksLabelsLineAlignment);
+                if (TicksLabelsPosition == LabelsPosition.Near)
                     stringFormat.Alignment = StringAlignment.Far;
                 else
                     stringFormat.Alignment = StringAlignment.Near;
@@ -513,22 +466,22 @@ namespace OMPlot
             else
             {
                 stringFormat.LineAlignment = StringAlignment.Center;
-                if (ticksLabelsPosition == LabelsPosition.Near)
+                if (TicksLabelsPosition == LabelsPosition.Near)
                     stringFormat.Alignment = StringAlignment.Far;
                 else
                     stringFormat.Alignment = StringAlignment.Near;
-                if (ticksLabelsLineAlignment == Alignment.Near)
+                if (TicksLabelsLineAlignment == Alignment.Near)
                     rotationSign = 1;
                 else
                     rotationSign = -1;
             }
 
-            float tickLabelPositionX = ticksLabelsPosition == LabelsPosition.Near ? x - 6 : x + 6;
+            float tickLabelPositionX = TicksLabelsPosition == LabelsPosition.Near ? x - 6 : x + 6;
 
             for (int i = 0; i < tickLabel.Length; i++)
             {
                 float ticky = Transform(tick[i]);
-                if (gridStyle == GridStyle.Both || gridStyle == GridStyle.Major)
+                if (GridStyle == GridStyle.Both || GridStyle == GridStyle.Major)
                     g.DrawLine(Pens.Gray, rect.Left, ticky, rect.Right, ticky);
 
                 switch (MajorTickStyle)
@@ -539,9 +492,9 @@ namespace OMPlot
                     case TickStyle.None: break;
                 }
 
-                if (ticksLabelsPosition != LabelsPosition.None)
+                if (TicksLabelsPosition != LabelsPosition.None)
                 {
-                    if (ticksLabelsRotation == TicksLabelsRotation.Parallel)
+                    if (TicksLabelsRotation == TicksLabelsRotation.Parallel)
                     {
                         g.TranslateTransform(tickLabelPositionX, ticky);
                         g.RotateTransform(rotationSign * 90);
@@ -549,7 +502,7 @@ namespace OMPlot
                         g.DrawString(tickLabel[i], this.font, brush, tickLabelPositionX, ticky, stringFormat);
                         g.ResetTransform();
                     }
-                    else if (ticksLabelsRotation == TicksLabelsRotation.Tilted)
+                    else if (TicksLabelsRotation == TicksLabelsRotation.Tilted)
                     {
                         g.TranslateTransform(tickLabelPositionX, ticky);
                         g.RotateTransform(rotationSign * 45);
@@ -564,7 +517,7 @@ namespace OMPlot
             for (int i = 0; i < subTick.Length; i++)
             {
                 float ticky = Transform(subTick[i]);
-                if (gridStyle == GridStyle.Both || gridStyle == GridStyle.Minor)
+                if (GridStyle == GridStyle.Both || GridStyle == GridStyle.Minor)
                     g.DrawLine(Pens.Silver, rect.Left, ticky, rect.Right, ticky);
 
                 switch (MinorTickStyle)
@@ -577,24 +530,24 @@ namespace OMPlot
             }
 
             //Axis line
-            g.DrawLine(pen, x, Transform(minimum), x, Transform(maximum));
+            g.DrawLine(pen, x, Transform(Minimum), x, Transform(Maximum));
 
             //Title drawing
-            if (!string.IsNullOrEmpty(title))
+            if (!string.IsNullOrEmpty(Title) && TitlePosition != LabelsPosition.None)
             {
                 StringFormat titleFormat = new StringFormat();
                 float titleX = 0;
                 float titleY = 0;
-                if (titlePosition == LabelsPosition.Near)
+                if (TitlePosition == LabelsPosition.Near)
                 {
                     titleFormat.LineAlignment = StringAlignment.Near;
-                    if (titleAlignment == Alignment.Center)
+                    if (TitleAlignment == Alignment.Center)
                     {
                         titleFormat.Alignment = StringAlignment.Center;
                         titleX = x - SizeNear;
                         titleY = y + rect.Height / 2;
                     }
-                    else if (titleAlignment == Alignment.Near)
+                    else if (TitleAlignment == Alignment.Near)
                     {
                         titleFormat.Alignment = StringAlignment.Far;
                         titleX = x - SizeNear;
@@ -607,21 +560,21 @@ namespace OMPlot
                         titleY = y + rect.Height;
                     }
                 }
-                else if (titlePosition == LabelsPosition.Far)
+                else if (TitlePosition == LabelsPosition.Far)
                 {
                     titleFormat.LineAlignment = StringAlignment.Far;
-                    if (titleAlignment == Alignment.Center)
+                    if (TitleAlignment == Alignment.Center)
                     {
                         titleX = x + SizeFar;
                         titleY = y + rect.Height / 2;
                     }
-                    else if (titleAlignment == Alignment.Near)
+                    else if (TitleAlignment == Alignment.Near)
                     {
                         titleFormat.Alignment = StringAlignment.Far;
                         titleX = x + SizeFar;
                         titleY = y;
                     }
-                    else if (titleAlignment == Alignment.Far)
+                    else if (TitleAlignment == Alignment.Far)
                     {
                         titleFormat.Alignment = StringAlignment.Near;
                         titleX = x + SizeFar;
@@ -632,7 +585,7 @@ namespace OMPlot
                 g.TranslateTransform(titleX, titleY);
                 g.RotateTransform(-90);
                 g.TranslateTransform(-titleX, -titleY);
-                g.DrawString(title, this.font, brush, titleX, titleY, titleFormat);
+                g.DrawString(Title, this.font, brush, titleX, titleY, titleFormat);
                 g.ResetTransform();
             }
             //end of Horizontal drawing
@@ -641,25 +594,25 @@ namespace OMPlot
         {
             drawnRectangle = new RectangleExtended(x, y, rect.Width, 0);
 
-            if (ticksLabelsPosition == LabelsPosition.Far)
-                drawnRectangle.Bottom += sizeFar;
-            else if (ticksLabelsPosition == LabelsPosition.Near)
-                drawnRectangle.Top -= sizeNear;
+            if (TicksLabelsPosition == LabelsPosition.Far)
+                drawnRectangle.Bottom += SizeFar;
+            else if (TicksLabelsPosition == LabelsPosition.Near)
+                drawnRectangle.Top -= SizeNear;
             else
                 drawnRectangle.FullScaleY = 10;
 
             StringFormat stringFormat = new StringFormat();
 
-            if (ticksLabelsAlignment == Alignment.Near)
+            if (TicksLabelsAlignment == Alignment.Near)
                 stringFormat.Alignment = StringAlignment.Near;
-            else if (ticksLabelsAlignment == Alignment.Center)
+            else if (TicksLabelsAlignment == Alignment.Center)
                 stringFormat.Alignment = StringAlignment.Center;
             else
                 stringFormat.Alignment = StringAlignment.Far;
 
-            if (ticksLabelsRotation == TicksLabelsRotation.Parallel)
+            if (TicksLabelsRotation == TicksLabelsRotation.Parallel)
             {
-                if (ticksLabelsPosition == LabelsPosition.Far)
+                if (TicksLabelsPosition == LabelsPosition.Far)
                     stringFormat.LineAlignment = StringAlignment.Near;
                 else
                     stringFormat.LineAlignment = StringAlignment.Far;
@@ -668,16 +621,16 @@ namespace OMPlot
                 stringFormat.LineAlignment = StringAlignment.Center;
 
             int rotationSign = -1;
-            if (ticksLabelsPosition == LabelsPosition.Far && ticksLabelsAlignment == Alignment.Near ||
-                ticksLabelsPosition == LabelsPosition.Near && ticksLabelsAlignment == Alignment.Far)
+            if (TicksLabelsPosition == LabelsPosition.Far && TicksLabelsAlignment == Alignment.Near ||
+                TicksLabelsPosition == LabelsPosition.Near && TicksLabelsAlignment == Alignment.Far)
                 rotationSign = 1;
 
-            float tickLabelPositionY = ticksLabelsPosition == LabelsPosition.Far ? y + 6 : y - 6;
+            float tickLabelPositionY = TicksLabelsPosition == LabelsPosition.Far ? y + 6 : y - 6;
 
             for (int i = 0; i < tickLabel.Length; i++)
             {
                 float tickx = Transform(tick[i]);
-                if (gridStyle == GridStyle.Both || gridStyle == GridStyle.Major)
+                if (GridStyle == GridStyle.Both || GridStyle == GridStyle.Major)
                     g.DrawLine(Pens.Gray, tickx, rect.Top, tickx, rect.Bottom);
 
                 switch (MajorTickStyle)
@@ -687,10 +640,10 @@ namespace OMPlot
                     case TickStyle.Cross: g.DrawLine(pen, tickx, y + 5, tickx, y - 5); break;
                     case TickStyle.None: break;
                 }
-                if (ticksLabelsPosition != LabelsPosition.None)
+                if (TicksLabelsPosition != LabelsPosition.None)
                 {
 
-                    if (ticksLabelsRotation == TicksLabelsRotation.Perpendicular)
+                    if (TicksLabelsRotation == TicksLabelsRotation.Perpendicular)
                     {
                         g.TranslateTransform(tickx, tickLabelPositionY);
                         g.RotateTransform(rotationSign * 90);
@@ -698,7 +651,7 @@ namespace OMPlot
                         g.DrawString(tickLabel[i], this.font, brush, tickx, tickLabelPositionY, stringFormat);
                         g.ResetTransform();
                     }
-                    else if (ticksLabelsRotation == TicksLabelsRotation.Tilted)
+                    else if (TicksLabelsRotation == TicksLabelsRotation.Tilted)
                     {
                         g.TranslateTransform(tickx, tickLabelPositionY);
                         g.RotateTransform(rotationSign * 45);
@@ -713,7 +666,7 @@ namespace OMPlot
             for (int i = 0; i < subTick.Length; i++)
             {
                 float tickx = Transform(subTick[i]);
-                if (gridStyle == GridStyle.Both || gridStyle == GridStyle.Minor)
+                if (GridStyle == GridStyle.Both || GridStyle == GridStyle.Minor)
                     g.DrawLine(Pens.Silver, tickx, rect.Top, tickx, rect.Bottom);
 
                 switch (MinorTickStyle)
@@ -726,47 +679,47 @@ namespace OMPlot
             }
 
             //Axis line
-            g.DrawLine(pen, Transform(minimum), y, Transform(maximum), y);
+            g.DrawLine(pen, Transform(Minimum), y, Transform(Maximum), y);
 
             //Title drawing
-            if (!string.IsNullOrEmpty(title))
+            if (!string.IsNullOrEmpty(Title) && TitlePosition != LabelsPosition.None)
             {
                 StringFormat titleFormat = new StringFormat();
-                if (titlePosition == LabelsPosition.Near)
+                if (TitlePosition == LabelsPosition.Near)
                 {
                     titleFormat.LineAlignment = StringAlignment.Near;
-                    if (titleAlignment == Alignment.Center)
+                    if (TitleAlignment == Alignment.Center)
                     {
                         titleFormat.Alignment = StringAlignment.Center;
-                        g.DrawString(title, this.font, brush, x + rect.Width / 2, y - SizeNear, titleFormat);
+                        g.DrawString(Title, this.font, brush, x + rect.Width / 2, y - SizeNear, titleFormat);
                     }
-                    else if (titleAlignment == Alignment.Near)
+                    else if (TitleAlignment == Alignment.Near)
                     {
                         titleFormat.Alignment = StringAlignment.Near;
-                        g.DrawString(title, this.font, brush, x, y - SizeNear, titleFormat);
+                        g.DrawString(Title, this.font, brush, x, y - SizeNear, titleFormat);
                     }
                     else
                     {
                         titleFormat.Alignment = StringAlignment.Far;
-                        g.DrawString(title, this.font, brush, x + rect.Width, y - SizeNear, titleFormat);
+                        g.DrawString(Title, this.font, brush, x + rect.Width, y - SizeNear, titleFormat);
                     }
                 }
-                else if (titlePosition == LabelsPosition.Far)
+                else if (TitlePosition == LabelsPosition.Far)
                 {
                     titleFormat.LineAlignment = StringAlignment.Far;
-                    if (titleAlignment == Alignment.Center)
+                    if (TitleAlignment == Alignment.Center)
                     {
-                        g.DrawString(title, this.font, brush, x + rect.Width / 2, y + sizeFar, titleFormat);
+                        g.DrawString(Title, this.font, brush, x + rect.Width / 2, y + SizeFar, titleFormat);
                     }
-                    else if (titleAlignment == Alignment.Near)
+                    else if (TitleAlignment == Alignment.Near)
                     {
                         titleFormat.Alignment = StringAlignment.Near;
-                        g.DrawString(title, this.font, brush, x, y + sizeFar, titleFormat);
+                        g.DrawString(Title, this.font, brush, x, y + SizeFar, titleFormat);
                     }
-                    else if (titleAlignment == Alignment.Far)
+                    else if (TitleAlignment == Alignment.Far)
                     {
                         titleFormat.Alignment = StringAlignment.Far;
-                        g.DrawString(title, this.font, brush, x + rect.Width, y + sizeFar, titleFormat);
+                        g.DrawString(Title, this.font, brush, x + rect.Width, y + SizeFar, titleFormat);
                     }
                 }
             }

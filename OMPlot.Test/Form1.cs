@@ -42,6 +42,9 @@ namespace OMPlot.Test
             plot1.Data.Add(plotXY2);
             plot1.Data.Add(plotXY3);
 
+            plotXY1.Style = Data.XY.PlotStyle.Both;
+            plotXY1.MarkStyle = Data.MarkerStyle.Asterisk;
+
             OMPlot.Axis xAxis = new Axis();
             xAxis.Minimum = 0;
             xAxis.Maximum = (float)(dt * dataX.Length);

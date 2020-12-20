@@ -64,6 +64,7 @@
     <Compile Include="Accessories.cs" />
     <Compile Include="Axis.cs" />
     <Compile Include="Data\IData.cs" />
+    <Compile Include="Data\Marker.cs" />
     <Compile Include="Data\XY.cs" />
     <Compile Include="Plot.cs">
       <SubType>UserControl</SubType>
