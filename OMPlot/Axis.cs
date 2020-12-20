@@ -334,7 +334,7 @@ namespace OMPlot
                 }
             }
 
-            if (!string.IsNullOrEmpty(Title) && TitlePosition != LabelsPosition.None)
+            if (!string.IsNullOrWhiteSpace(Title) && TitlePosition != LabelsPosition.None)
             {
                 titleSize = g.MeasureString(Title, this.font);
                 if (TitlePosition == LabelsPosition.Near)
@@ -415,7 +415,7 @@ namespace OMPlot
                 }
             }
 
-            if (!string.IsNullOrEmpty(Title) && TitlePosition != LabelsPosition.None)
+            if (!string.IsNullOrWhiteSpace(Title) && TitlePosition != LabelsPosition.None)
             {
                 titleSize = g.MeasureString(Title, this.font);
                 if (TitlePosition == LabelsPosition.Near)
@@ -533,7 +533,7 @@ namespace OMPlot
             g.DrawLine(pen, x, Transform(Minimum), x, Transform(Maximum));
 
             //Title drawing
-            if (!string.IsNullOrEmpty(Title) && TitlePosition != LabelsPosition.None)
+            if (!string.IsNullOrWhiteSpace(Title) && TitlePosition != LabelsPosition.None)
             {
                 StringFormat titleFormat = new StringFormat();
                 float titleX = 0;
@@ -682,7 +682,7 @@ namespace OMPlot
             g.DrawLine(pen, Transform(Minimum), y, Transform(Maximum), y);
 
             //Title drawing
-            if (!string.IsNullOrEmpty(Title) && TitlePosition != LabelsPosition.None)
+            if (!string.IsNullOrWhiteSpace(Title) && TitlePosition != LabelsPosition.None)
             {
                 StringFormat titleFormat = new StringFormat();
                 if (TitlePosition == LabelsPosition.Near)

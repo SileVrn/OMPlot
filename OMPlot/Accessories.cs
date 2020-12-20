@@ -10,14 +10,6 @@ namespace OMPlot
     {
 		static readonly char[] SIPrefixes = { 'y', 'z', 'a', 'f', 'p', 'n', 'µ', 'm', ' ', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y' };
 
-		internal static int Nearest2Pow(int a)
-		{
-			int i = 1;
-			while (i < a)
-				i <<= 1;
-			return i;
-		}
-
 		internal static double Pow10(int a)
 		{
 			float b = 1;

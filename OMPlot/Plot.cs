@@ -38,18 +38,35 @@ namespace OMPlot
 			Vertical = new Dictionary<string, Axis>();
 			Horizontal = new Dictionary<string, Axis>();
 			this.MouseWheel += Analog_MouseWheel;
+
+			Axis xAxis = new Axis();
+			xAxis.Minimum = -10;
+			xAxis.Maximum = 10;
+			xAxis.Position = AxisPosition.Far;
+			xAxis.TitlePosition = LabelsPosition.Far;
+			xAxis.TicksLabelsPosition = LabelsPosition.Far;
+			xAxis.TicksLabelsRotation = TicksLabelsRotation.Parallel;
+			xAxis.TicksLabelsAlignment = Alignment.Center;
+
+			Axis yAxis = new Axis();
+			yAxis.Minimum = -10;
+			yAxis.Maximum = 10;
+			yAxis.TicksLabelsRotation = TicksLabelsRotation.Perpendicular;
+			yAxis.TicksLabelsAlignment = Alignment.Far;
+			yAxis.TicksLabelsLineAlignment = Alignment.Center;
+
+			AddHorizontalAxis(xAxis);
+			AddVerticalAxis(yAxis);
 		}
 
 		public void AddVerticalAxis(Axis axis)
 		{
 			if (axis != null)
 			{
-				if (string.IsNullOrEmpty(axis.Title))
-					axis.Title = axis.GetHashCode().ToString();
 				if(axis.Font == null)
 					axis.Font = this.Font;
 				axis.Vertical = true;
-				Vertical.Add(axis.Title, axis);
+				Vertical.Add(axis.GetHashCode().ToString(), axis);
 			}
 		}
 
@@ -57,11 +74,9 @@ namespace OMPlot
 		{
 			if (axis != null)
 			{
-				if (string.IsNullOrEmpty(axis.Title))
-					axis.Title = axis.GetHashCode().ToString();
 				if (axis.Font == null)
 					axis.Font = this.Font;
-				Horizontal.Add(axis.Title, axis);
+				Horizontal.Add(axis.GetHashCode().ToString(), axis);
 			}
 		}
 

@@ -42,55 +42,16 @@ namespace OMPlot.Test
             plot1.Data.Add(plotXY2);
             plot1.Data.Add(plotXY3);
 
-            //plotXY1.Style = Data.XY.PlotStyle.Both;
-            plotXY1.MarkStyle = Data.MarkerStyle.Asterisk;
 
-            OMPlot.Axis xAxis = new Axis();
+            Axis xAxis = plot1.GetHorizontalAxis();
             xAxis.Minimum = 0;
             xAxis.Maximum = (float)(dt * dataX.Length);
-            xAxis.Position = AxisPosition.Far;
-            xAxis.TitlePosition = LabelsPosition.Far;
-            xAxis.TicksLabelsPosition = LabelsPosition.Far;
-            xAxis.TicksLabelsRotation = TicksLabelsRotation.Parallel;
-            xAxis.TicksLabelsAlignment = Alignment.Center;
-            xAxis.Title = "X";
+            //xAxis.Title = "X";
 
-
-            OMPlot.Axis xxAxis = new Axis();
-            xxAxis.Minimum = 0;
-            xxAxis.Maximum = (float)(dt * dataX.Length);
-            xxAxis.Position = AxisPosition.Near;
-            xxAxis.TitlePosition = LabelsPosition.Near;
-            xxAxis.TicksLabelsPosition = LabelsPosition.Near;
-            xxAxis.TicksLabelsRotation = TicksLabelsRotation.Parallel;
-            xxAxis.TicksLabelsAlignment = Alignment.Center;
-            xxAxis.Title = "XX";
-
-
-            OMPlot.Axis yAxis = new Axis();
+            Axis yAxis = plot1.GetVerticalAxis();
             yAxis.Minimum = -2;
             yAxis.Maximum = 2;
-            yAxis.TicksLabelsRotation = TicksLabelsRotation.Perpendicular;
-            yAxis.TicksLabelsAlignment = Alignment.Far;
-            yAxis.TicksLabelsLineAlignment = Alignment.Center;
-            yAxis.Title = "Y";
-
-            OMPlot.Axis yyAxis = new Axis();
-            yyAxis.Minimum = -2;
-            yyAxis.Maximum = 2;
-            yyAxis.Position = AxisPosition.Far;
-            yyAxis.TicksLabelsRotation = TicksLabelsRotation.Perpendicular;
-            yyAxis.TicksLabelsAlignment = Alignment.Near;
-            yyAxis.TitlePosition = LabelsPosition.Far;
-            yyAxis.TicksLabelsPosition = LabelsPosition.Far;
-            yyAxis.TicksLabelsLineAlignment = Alignment.Center;
-            yyAxis.Title = "YY";
-
-            plot1.AddVerticalAxis(yAxis);
-            plot1.AddVerticalAxis(yyAxis);
-            plot1.AddHorizontalAxis(xAxis);
-            plot1.AddHorizontalAxis(xxAxis);
-
+            //yAxis.Title = "Y";
 
             /*plot1.Title = "Hello, OMPlot!";
 

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OMPlot.Data
 {
-    public class XY:IData
+    public class XY : IData
     {
         Color[] defaultPlotColors = new Color[] { Color.Red, Color.Blue, Color.Green };
 
@@ -72,7 +72,8 @@ namespace OMPlot.Data
             List<PointF> pointList = new List<PointF>();
             float prevX = horizontal.Transform(X[0]);
             float prevY = vertical.Transform(Y[0]);
-            pointList.Add(new PointF(prevX, prevY));
+            if (prevX > leftLimit && prevX < rightLimit && prevY > topLimit && prevY < bottomLimit)
+                pointList.Add(new PointF(prevX, prevY));
             float curX, curY;
             for (int i = 1; i < X.Length; i++)
             {
@@ -100,9 +101,7 @@ namespace OMPlot.Data
                     g.DrawLines(linePen, pointArray);
             }
             if (Style == PlotStyle.Marker || Style == PlotStyle.Both)
-            {
                 Marker.Draw(g, MarkColor, MarkStyle, MarkSize, pointArray);
-            }
         }
 
         public enum PlotStyle
@@ -111,7 +110,5 @@ namespace OMPlot.Data
             Marker,
             Both
         }
-
-        
     }
 }
