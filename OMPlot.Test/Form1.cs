@@ -18,7 +18,7 @@ namespace OMPlot.Test
 
             plot1.Title = "Hello, OMPlot!";
 
-            double[] dataX = new double[10000];
+            double[] dataX = new double[100000];
             double[] dataY1 = new double[dataX.Length];
             double[] dataY2 = new double[dataX.Length];
             double[] dataY3 = new double[dataX.Length];
@@ -42,7 +42,7 @@ namespace OMPlot.Test
             plot1.Data.Add(plotXY2);
             plot1.Data.Add(plotXY3);
 
-            plotXY1.Style = Data.XY.PlotStyle.Both;
+            //plotXY1.Style = Data.XY.PlotStyle.Both;
             plotXY1.MarkStyle = Data.MarkerStyle.Asterisk;
 
             OMPlot.Axis xAxis = new Axis();

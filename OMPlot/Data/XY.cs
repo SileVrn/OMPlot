@@ -10,10 +10,8 @@ namespace OMPlot.Data
     public class XY:IData
     {
         Color[] defaultPlotColors = new Color[] { Color.Red, Color.Blue, Color.Green };
-        
 
-        float[] X, Y;        
-        Pen linePen;
+        double[] X, Y;     
 
         public PlotStyle Style { get; set; }
         public Color LineColor { get; set; }
@@ -30,66 +28,38 @@ namespace OMPlot.Data
         public XY(double[] x, double[] y)
         {
             MarkSize = 10;
-            linePen = new Pen(Color.Empty);
-            X = new float[x.Length];
-            Y = new float[y.Length];
+            LineWidth = 1;
+            X = new double[x.Length];
+            Y = new double[y.Length];
             for (int i = 0; i < X.Length; i++)
             {
-                X[i] = (float)x[i];
-                Y[i] = (float)y[i];
+                X[i] = x[i];
+                Y[i] = y[i];
             }                
         }
 
-        public XY(double[] x, double[] y, string name)
+        public XY(double[] x, double[] y, string name) : this(x, y)
         {
-            MarkSize = 10;
-            linePen = new Pen(Color.Empty);
-            X = new float[x.Length];
-            Y = new float[y.Length];
-            for (int i = 0; i < X.Length; i++)
-            {
-                X[i] = (float)x[i];
-                Y[i] = (float)y[i];
-            }
             Name = name;
         }
 
-        public XY(double[] x, double[] y, string axisHorizontalName, string axisVerticalName)
+        public XY(double[] x, double[] y, string axisHorizontalName, string axisVerticalName) : this(x, y)
         {
-            MarkSize = 10;
-            linePen = new Pen(Color.Empty);
-            X = new float[x.Length];
-            Y = new float[y.Length];
-            for (int i = 0; i < X.Length; i++)
-            {
-                X[i] = (float)x[i];
-                Y[i] = (float)y[i];
-            }
             AxisHorizontalName = axisHorizontalName;
             AxisVerticalName = axisVerticalName;
         }
 
-        public XY(double[] x, double[] y, string name, string axisHorizontalName, string axisVerticalName)
+        public XY(double[] x, double[] y, string name, string axisHorizontalName, string axisVerticalName) : this(x, y)
         {
-            MarkSize = 10;
-            linePen = new Pen(Color.Empty);
-            X = new float[x.Length];
-            Y = new float[y.Length];
-            for (int i = 0; i < X.Length; i++)
-            {
-                X[i] = (float)x[i];
-                Y[i] = (float)y[i];
-            }
             Name = name;
             AxisHorizontalName = axisHorizontalName;
             AxisVerticalName = axisVerticalName;
         }
 
-
-        public void Draw(Graphics g, OMPlot.Axis vertical, OMPlot.Axis Horizontal, RectangleExtended plotRectangle, int plotIndex)
+        public void Draw(Graphics g, Axis vertical, Axis horizontal, RectangleExtended plotRectangle, int plotIndex)
         {
-            if (linePen.Color.R == 0 && linePen.Color.G == 0 && linePen.Color.B == 0 && linePen.Color.A == 0)
-                linePen.Color = defaultPlotColors[plotIndex % 3];
+            if (LineColor.R == 0 && LineColor.G == 0 && LineColor.B == 0 && LineColor.A == 0)
+                LineColor = defaultPlotColors[plotIndex % 3];
             if (MarkColor.R == 0 && MarkColor.G == 0 && MarkColor.B == 0 && MarkColor.A == 0)
                 MarkColor = defaultPlotColors[plotIndex % 3];
 
@@ -100,13 +70,13 @@ namespace OMPlot.Data
 
 
             List<PointF> pointList = new List<PointF>();
-            float prevX = Horizontal.Transform(X[0]);
+            float prevX = horizontal.Transform(X[0]);
             float prevY = vertical.Transform(Y[0]);
             pointList.Add(new PointF(prevX, prevY));
             float curX, curY;
             for (int i = 1; i < X.Length; i++)
             {
-                curX = Horizontal.Transform(X[i]);
+                curX = horizontal.Transform(X[i]);
                 if (curX > leftLimit && curX < rightLimit)
                 {
                     curY = vertical.Transform(Y[i]);
@@ -124,6 +94,8 @@ namespace OMPlot.Data
 
             if (Style == PlotStyle.Line || Style == PlotStyle.Both)
             {
+                Pen linePen = new Pen(LineColor, LineWidth);
+                linePen.DashStyle = LineStyle;
                 if(pointList.Count > 1)
                     g.DrawLines(linePen, pointArray);
             }

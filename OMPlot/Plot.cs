@@ -268,8 +268,8 @@ namespace OMPlot
 			g.ResetTransform();
 
 			g.FillRectangle(backgroungBrush, -1, -1, this.Width + 2, plotRectangle.Top);
-			g.FillRectangle(backgroungBrush, -1, plotRectangle.Top, plotRectangle.Left, plotRectangle.Height + 2);
-			g.FillRectangle(backgroungBrush, plotRectangle.Right + 1, plotRectangle.Top, this.Width - plotRectangle.Right, plotRectangle.Height + 2);
+			g.FillRectangle(backgroungBrush, -1, plotRectangle.Top - 2, plotRectangle.Left + 2, plotRectangle.Height + 4);
+			g.FillRectangle(backgroungBrush, plotRectangle.Right + 1, plotRectangle.Top - 2, this.Width - plotRectangle.Right, plotRectangle.Height + 4);
 			g.FillRectangle(backgroungBrush, -1, plotRectangle.Bottom + 1, this.Width + 2, this.Height - plotRectangle.Bottom);
 			//if()
 			g.DrawRectangle(mainPen, plotRectangle.X, plotRectangle.Y, plotRectangle.Width, plotRectangle.Height);
