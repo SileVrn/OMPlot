@@ -68,7 +68,6 @@ namespace OMPlot.Data
             float topLimit = plotRectangle.Left - 100;
             float bottomLimit = plotRectangle.Right + 100;
 
-
             List<PointF> pointList = new List<PointF>();
             float prevX = horizontal.Transform(X[0]);
             float prevY = vertical.Transform(Y[0]);

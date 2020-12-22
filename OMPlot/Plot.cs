@@ -69,7 +69,6 @@ namespace OMPlot
 				Vertical.Add(axis.GetHashCode().ToString(), axis);
 			}
 		}
-
 		public void AddHorizontalAxis(Axis axis)
 		{
 			if (axis != null)
@@ -79,27 +78,17 @@ namespace OMPlot
 				Horizontal.Add(axis.GetHashCode().ToString(), axis);
 			}
 		}
-
 		public Axis GetVerticalAxis(string name = "")
 		{
-			if (Vertical.Any())
-			{
-				if (string.IsNullOrEmpty(name))
-					return Vertical.First().Value;
-				return Vertical[name];
-			}
-			return null;
+			if (string.IsNullOrEmpty(name))
+				return Vertical.First().Value;
+			return Vertical[name];
 		}
-
 		public Axis GetHorizontalAxis(string name = "")
 		{
-			if (Horizontal.Any())
-			{
-				if (string.IsNullOrEmpty(name))
-					return Horizontal.First().Value;
-				return Horizontal[name];
-			}
-			return null;
+			if (string.IsNullOrEmpty(name))
+				return Horizontal.First().Value;
+			return Horizontal[name];
 		}
 
 		private void Analog_MouseWheel(object sender, MouseEventArgs e)
@@ -123,7 +112,6 @@ namespace OMPlot
 			}
 			this.Refresh();
 		}
-
 		private void Analog_MouseDown(object sender, MouseEventArgs e)
 		{
 			if (e.Button == MouseButtons.Right || e.Button == MouseButtons.Middle)
@@ -150,7 +138,6 @@ namespace OMPlot
 				mouseY = e.Y;
 			}
 		}
-
 		private void Analog_MouseMove(object sender, MouseEventArgs e)
 		{
 			if (e.Button == MouseButtons.Right)
@@ -188,7 +175,6 @@ namespace OMPlot
 				this.Refresh();
 			}
 		}
-
 		private void Analog_MouseUp(object sender, MouseEventArgs e)
 		{
 			if (e.Button == MouseButtons.Middle)
@@ -220,7 +206,15 @@ namespace OMPlot
 				this.Refresh();
 			}
 		}
-
+		
+		private void Analog_Paint(object sender, PaintEventArgs e)
+		{
+			ControlPaint(e.Graphics);
+		}
+		private void Control_Resize(object sender, EventArgs e)
+		{
+			this.Refresh();
+		}
 		public void ControlPaint(Graphics g)
 		{
 			Stopwatch sw = new Stopwatch();
@@ -396,17 +390,6 @@ namespace OMPlot
 
 			g.DrawString((1000.0 / (double)(sw.ElapsedMilliseconds > 0 ? sw.ElapsedMilliseconds : 1)).ToString("#.###"), this.Font, mainBrush, 0, 0);
 		}
-		
-		private void Analog_Paint(object sender, PaintEventArgs e)
-		{
-			ControlPaint(e.Graphics);
-		}
-
-		private void Control_Resize(object sender, EventArgs e)
-		{
-			this.Refresh();
-		}
-
 
 	}
 }

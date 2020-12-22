@@ -582,8 +582,21 @@ namespace OMPlot
                     }
                 }
 
+                if(rotationSign > 0)
+                {
+                    if (titleFormat.Alignment == StringAlignment.Far)
+                        titleFormat.Alignment = StringAlignment.Near;
+                    else if(titleFormat.Alignment == StringAlignment.Near)
+                        titleFormat.Alignment = StringAlignment.Far;
+
+                    if (titleFormat.LineAlignment == StringAlignment.Far)
+                        titleFormat.LineAlignment = StringAlignment.Near;
+                    else if (titleFormat.LineAlignment == StringAlignment.Near)
+                        titleFormat.LineAlignment = StringAlignment.Far;
+                }
+
                 g.TranslateTransform(titleX, titleY);
-                g.RotateTransform(-90);
+                g.RotateTransform(rotationSign * 90);
                 g.TranslateTransform(-titleX, -titleY);
                 g.DrawString(Title, this.font, brush, titleX, titleY, titleFormat);
                 g.ResetTransform();
@@ -602,13 +615,7 @@ namespace OMPlot
                 drawnRectangle.FullScaleY = 10;
 
             StringFormat stringFormat = new StringFormat();
-
-            if (TicksLabelsAlignment == Alignment.Near)
-                stringFormat.Alignment = StringAlignment.Near;
-            else if (TicksLabelsAlignment == Alignment.Center)
-                stringFormat.Alignment = StringAlignment.Center;
-            else
-                stringFormat.Alignment = StringAlignment.Far;
+            stringFormat.Alignment = Alignment2StringAlignment(TicksLabelsAlignment);
 
             if (TicksLabelsRotation == TicksLabelsRotation.Parallel)
             {
@@ -617,7 +624,9 @@ namespace OMPlot
                 else
                     stringFormat.LineAlignment = StringAlignment.Far;
             }
-            else
+            else if(TicksLabelsRotation == TicksLabelsRotation.Perpendicular)
+                stringFormat.LineAlignment = Alignment2StringAlignment(TicksLabelsLineAlignment);
+            else 
                 stringFormat.LineAlignment = StringAlignment.Center;
 
             int rotationSign = -1;

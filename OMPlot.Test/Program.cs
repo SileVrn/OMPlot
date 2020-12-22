@@ -38,20 +38,9 @@ namespace OMPlot.Test
             p.Width = 500;
             p.Data.Add(plotXY1);
 
-            OMPlot.Axis xAxis = new Axis();
-            xAxis.Minimum = 100000;
-            xAxis.Maximum = 100000.001;
-
-            OMPlot.Axis yAxis = new Axis();
-            yAxis.Minimum = -1.5;
-            yAxis.Maximum = 1.5;
-
-            p.AddVerticalAxis(yAxis);
-            p.AddHorizontalAxis(xAxis);
-
             //AxisTestBitmap(p, "Title", AxisPosition.Center, LabelsPosition.Near, Alignment.Center, LabelsPosition.Far, Alignment.Near, Alignment.Center, TicksLabelsRotation.Tilted);
 
-            /*foreach (AxisPosition ap in Enum.GetValues(typeof(AxisPosition)))
+            foreach (AxisPosition ap in Enum.GetValues(typeof(AxisPosition)))
                 foreach (LabelsPosition tp in Enum.GetValues(typeof(LabelsPosition)))
                     foreach (Alignment ta in Enum.GetValues(typeof(Alignment)))
                         foreach (LabelsPosition tlp in new LabelsPosition[] { LabelsPosition.Near, LabelsPosition.Far })
@@ -63,7 +52,7 @@ namespace OMPlot.Test
                                             AxisTestBitmap(p, "Title", ap, tp, ta, tlp, tla, tlla, tlr);
                                         }
                                         catch
-                                        { }*/
+                                        { }
 
             Application.Run(new Form1());            
         }
@@ -74,6 +63,8 @@ namespace OMPlot.Test
             Graphics g = Graphics.FromImage(img);
 
             Axis xAxis = p.GetHorizontalAxis();
+            xAxis.Minimum = 100000;
+            xAxis.Maximum = 100000.001;
             xAxis.Position = ap;
             /*if (tlp == LabelsPosition.Near)
                 xAxis.Position = AxisPosition.Near;
@@ -88,6 +79,8 @@ namespace OMPlot.Test
             xAxis.TicksLabelsRotation = tlr;
 
             Axis yAxis = p.GetVerticalAxis();
+            yAxis.Minimum = -1.5;
+            yAxis.Maximum = 1.5;
             yAxis.Position = ap;
             /*if (tlp == LabelsPosition.Near)
                 yAxis.Position = AxisPosition.Near;
