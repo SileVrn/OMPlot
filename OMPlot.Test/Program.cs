@@ -40,7 +40,7 @@ namespace OMPlot.Test
 
             //AxisTestBitmap(p, "Title", AxisPosition.Center, LabelsPosition.Near, Alignment.Center, LabelsPosition.Far, Alignment.Near, Alignment.Center, TicksLabelsRotation.Tilted);
 
-            foreach (AxisPosition ap in Enum.GetValues(typeof(AxisPosition)))
+            /*foreach (AxisPosition ap in Enum.GetValues(typeof(AxisPosition)))
                 foreach (LabelsPosition tp in Enum.GetValues(typeof(LabelsPosition)))
                     foreach (Alignment ta in Enum.GetValues(typeof(Alignment)))
                         foreach (LabelsPosition tlp in new LabelsPosition[] { LabelsPosition.Near, LabelsPosition.Far })
@@ -52,7 +52,7 @@ namespace OMPlot.Test
                                             AxisTestBitmap(p, "Title", ap, tp, ta, tlp, tla, tlla, tlr);
                                         }
                                         catch
-                                        { }
+                                        { }*/
 
             Application.Run(new Form1());            
         }

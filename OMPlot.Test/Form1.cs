@@ -48,6 +48,9 @@ namespace OMPlot.Test
             xAxis.Maximum = (float)(dt * dataX.Length);
             //xAxis.Title = "X";
 
+            //xAxis.CustomTicks = new double[] { 0, 0.3 * dt * dataX.Length, 0.5111 * dt * dataX.Length, 0.7 * dt * dataX.Length };
+            //xAxis.CustomTicksLabels = new string[] { "Zero", "Third", "Almost half", "O dot seven" };
+
             Axis yAxis = plot1.GetVerticalAxis();
             yAxis.Minimum = -2;
             yAxis.Maximum = 2;

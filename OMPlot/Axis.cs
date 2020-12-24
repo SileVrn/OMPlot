@@ -75,6 +75,9 @@ namespace OMPlot
         public Alignment TicksLabelsLineAlignment { get; set; }
         public TicksLabelsRotation TicksLabelsRotation { get; set; }
 
+        public double[] CustomTicks { get; set; }
+        public string[] CustomTicksLabels { get; set; }
+
         public Alignment TitleAlignment { get; set; }
         public LabelsPosition TitlePosition { get; set; }
         public GridStyle GridStyle { get; set; }
@@ -194,7 +197,28 @@ namespace OMPlot
 
         private void CalculateTicks(Graphics g)
         {
-            if (!Logarithmic)
+            if(CustomTicks != null && CustomTicks.Length > 0)
+            {
+                tick = new double[CustomTicks.Length];
+                CustomTicks.CopyTo(tick, 0);
+                subTick = new double[0];
+
+                if(CustomTicksLabels != null && CustomTicksLabels.Length > 0)
+                {
+                    if (CustomTicksLabels.Length != CustomTicks.Length)
+                        throw new Exception("Number of CustomTicks not equal to number of CustomTicksLabels.");
+
+                    tickLabel = new string[tick.Length];
+                    tickLabelSize = new SizeF[tick.Length];
+                    for (int i = 0; i < tick.Length; i++)
+                    {
+                        tickLabel[i] = CustomTicksLabels[i];
+                        tickLabelSize[i] = g.MeasureString(tickLabel[i], this.Font);
+                    }
+                    return;
+                }
+            }
+            else if (!Logarithmic)
             {
                 double step = (Maximum - Minimum) / TickNumber;
                 int roundStepSign = Accessories.FirstSignRound(step);
