@@ -199,8 +199,7 @@ namespace OMPlot
         {
             if(CustomTicks != null && CustomTicks.Length > 0)
             {
-                tick = new double[CustomTicks.Length];
-                CustomTicks.CopyTo(tick, 0);
+                tick = CustomTicks.Where(ct => ct >= Minimum && ct <= Maximum).ToArray();
                 subTick = new double[0];
 
                 if(CustomTicksLabels != null && CustomTicksLabels.Length > 0)
@@ -208,13 +207,8 @@ namespace OMPlot
                     if (CustomTicksLabels.Length != CustomTicks.Length)
                         throw new Exception("Number of CustomTicks not equal to number of CustomTicksLabels.");
 
-                    tickLabel = new string[tick.Length];
-                    tickLabelSize = new SizeF[tick.Length];
-                    for (int i = 0; i < tick.Length; i++)
-                    {
-                        tickLabel[i] = CustomTicksLabels[i];
-                        tickLabelSize[i] = g.MeasureString(tickLabel[i], this.Font);
-                    }
+                    tickLabel = CustomTicksLabels.Where((ctl, i) => CustomTicks[i] >= Minimum && CustomTicks[i] <= Maximum).ToArray();
+                    tickLabelSize = tickLabel.Select(tl => g.MeasureString(tl, this.Font)).ToArray();
                     return;
                 }
             }
@@ -282,13 +276,8 @@ namespace OMPlot
                 tickLabelFormat = "###";
             }
 
-            tickLabel = new string[tick.Length];
-            tickLabelSize = new SizeF[tick.Length];
-            for (int i = 0; i < tick.Length; i++)
-            {
-                tickLabel[i] = Accessories.ToSI(tick[i], tickLabelFormat);
-                tickLabelSize[i] = g.MeasureString(tickLabel[i], this.Font);
-            }
+            tickLabel = tick.Select(t => Accessories.ToSI(t, tickLabelFormat)).ToArray();
+            tickLabelSize = tickLabel.Select(tl => g.MeasureString(tl, this.Font)).ToArray();
         }
         public void MeasureVertical(Graphics g, Size plotSize)
         {
@@ -301,11 +290,9 @@ namespace OMPlot
             do
             {
                 CalculateTicks(g);
-                tickLabelFormatSize = new SizeF();
-                tickLabelFormatSize.Width = tickLabelSize.Max(e => e.Width);
-                tickLabelFormatSize.Height = tickLabelSize.First().Height;
+                tickLabelFormatSize = new SizeF(tickLabelSize.Max(e => e.Width), tickLabelSize.First().Height);
                 float ticksLabelsLengthTotal = tickLabelSize.Sum(e => e.Width + e.Height);
-                decreaseTickNumber = TicksLabelsPosition != LabelsPosition.None && TicksLabelsRotation == TicksLabelsRotation.Parallel && ticksLabelsLengthTotal > plotSize.Width;
+                decreaseTickNumber = TicksLabelsPosition != LabelsPosition.None && TicksLabelsRotation == TicksLabelsRotation.Parallel && ticksLabelsLengthTotal > plotSize.Width && (CustomTicks == null || CustomTicks.Length < 1);
                 TickNumber = decreaseTickNumber ? (int)Math.Floor((double)(TickNumber) / 2.0) : TickNumber;
             }
             while (decreaseTickNumber);
@@ -383,11 +370,9 @@ namespace OMPlot
             do
             {
                 CalculateTicks(g);
-                tickLabelFormatSize = new SizeF();
-                tickLabelFormatSize.Width = tickLabelSize.Max(e => e.Width);
-                tickLabelFormatSize.Height = tickLabelSize.First().Height;
+                tickLabelFormatSize = new SizeF(tickLabelSize.Max(e => e.Width), tickLabelSize.First().Height);
                 float ticksLabelsLengthTotal = tickLabelSize.Sum(e => e.Width);
-                decreaseTickNumber = TicksLabelsPosition != LabelsPosition.None && TicksLabelsRotation == TicksLabelsRotation.Parallel && ticksLabelsLengthTotal > plotSize.Width;
+                decreaseTickNumber = TicksLabelsPosition != LabelsPosition.None && TicksLabelsRotation == TicksLabelsRotation.Parallel && ticksLabelsLengthTotal > plotSize.Width && (CustomTicks == null || CustomTicks.Length < 1);
                 TickNumber = decreaseTickNumber ? (int)Math.Floor((double)(TickNumber) / 2.0) : TickNumber;
             }
             while (decreaseTickNumber);

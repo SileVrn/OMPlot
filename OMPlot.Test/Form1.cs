@@ -18,13 +18,13 @@ namespace OMPlot.Test
 
             plot1.Title = "Hello, OMPlot!";
 
-            double[] dataX = new double[100000];
+            double[] dataX = new double[1000000];
             double[] dataY1 = new double[dataX.Length];
             double[] dataY2 = new double[dataX.Length];
             double[] dataY3 = new double[dataX.Length];
 
             double f = 10;
-            double dt = 1e-5;
+            double dt = 5.0 / dataX.Length / f;
 
             for(int i = 0; i < dataX.Length; i++)
             {
@@ -48,8 +48,8 @@ namespace OMPlot.Test
             xAxis.Maximum = (float)(dt * dataX.Length);
             //xAxis.Title = "X";
 
-            //xAxis.CustomTicks = new double[] { 0, 0.3 * dt * dataX.Length, 0.5111 * dt * dataX.Length, 0.7 * dt * dataX.Length };
-            //xAxis.CustomTicksLabels = new string[] { "Zero", "Third", "Almost half", "O dot seven" };
+            xAxis.CustomTicks = new double[] { 0, 0.3 * dt * dataX.Length, 0.5111 * dt * dataX.Length, 0.7 * dt * dataX.Length };
+            xAxis.CustomTicksLabels = new string[] { "Zero", "Third", "Almost half", "O dot seven" };
 
             Axis yAxis = plot1.GetVerticalAxis();
             yAxis.Minimum = -2;
