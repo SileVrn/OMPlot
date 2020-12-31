@@ -21,12 +21,12 @@ namespace OMPlot.Test
             Application.SetCompatibleTextRenderingDefault(false);
 
 
-            double[] dataX = new double[100];
+            double[] dataX = new double[10];
             double[] dataY = new double[dataX.Length];
             for (int i = 0; i < dataX.Length; i++)
             {
-                dataX[i] = 1000f + i * 1e-6;
-                dataY[i] = Math.Sin(2 * Math.PI * dataX[i] * 100);
+                dataX[i] = i;
+                dataY[i] = Math.Sin(2 * Math.PI * dataX[i] * 0.1);
             }
 
             Image img = new Bitmap(500, 500);
@@ -35,7 +35,31 @@ namespace OMPlot.Test
             OMPlot.Plot p = new Plot();
             p.Height = 500;
             p.Width = 500;
-            p.Add(dataX, dataY);
+            var plot0 = p.Add(dataX, dataY);
+            plot0.Style = Data.PlotStyle.Both;
+
+            p.ControlPaint(g);
+            img.Save("Interpolation_Linear.png");
+
+            plot0.Interpolation = Data.Interpolation.StepFar;
+            p.ControlPaint(g);
+            img.Save("Interpolation_StepFar.png");
+
+            plot0.Interpolation = Data.Interpolation.StepNear;
+            p.ControlPaint(g);
+            img.Save("Interpolation_StepNear.png");
+
+            plot0.Interpolation = Data.Interpolation.StepCenter;
+            p.ControlPaint(g);
+            img.Save("Interpolation_StepCenter.png");
+
+            plot0.Interpolation = Data.Interpolation.StepVertical;
+            p.ControlPaint(g);
+            img.Save("Interpolation_StepVertical.png");
+
+            plot0.Interpolation = Data.Interpolation.Spline;
+            p.ControlPaint(g);
+            img.Save("Interpolation_Spline.png");
 
             //AxisTestBitmap(p, "Title", AxisPosition.Center, LabelsPosition.Near, Alignment.Center, LabelsPosition.Far, Alignment.Near, Alignment.Center, TicksLabelsRotation.Tilted);
 

@@ -20,6 +20,7 @@ namespace OMPlot.Data
         public Color MarkColor { get; set; }
         public MarkerStyle MarkStyle { get; set; }
         public float MarkSize { get; set; }
+        public Interpolation Interpolation { get; set; }
 
         public string Name { get; set; }
         public string AxisHorizontalName { get; set; }
@@ -104,12 +105,75 @@ namespace OMPlot.Data
             {
                 Pen linePen = new Pen(LineColor, LineWidth);
                 linePen.DashStyle = LineStyle;
-                if(pointList.Count > 1)
-                    g.DrawLines(linePen, pointArray);
+                if (pointList.Count > 1)
+                {
+                    if(Interpolation == Interpolation.Line)
+                        g.DrawLines(linePen, pointArray);
+                    else if (Interpolation == Interpolation.Spline)
+                        g.DrawCurve(linePen, pointArray);
+                    else if(Interpolation == Interpolation.StepNear)
+                    {
+                        for(int i = 0; i < pointArray.Length - 1; i++)
+                        {
+                            g.DrawLine(linePen, pointArray[i].X, pointArray[i].Y, pointArray[i].X, pointArray[i + 1].Y);
+                            g.DrawLine(linePen, pointArray[i].X, pointArray[i + 1].Y, pointArray[i + 1].X, pointArray[i + 1].Y);
+                        }
+                    }
+                    else if (Interpolation == Interpolation.StepFar)
+                    {
+                        for (int i = 0; i < pointArray.Length - 1; i++)
+                        {
+                            g.DrawLine(linePen, pointArray[i].X, pointArray[i].Y, pointArray[i + 1].X, pointArray[i].Y);
+                            g.DrawLine(linePen, pointArray[i + 1].X, pointArray[i].Y, pointArray[i + 1].X, pointArray[i + 1].Y);
+                        }
+                    }
+                    else if (Interpolation == Interpolation.StepCenter)
+                    {
+                        float center1 = (pointArray[1].X + pointArray[0].X) / 2;
+                        g.DrawLine(linePen, pointArray[0].X, pointArray[0].Y, center1, pointArray[0].Y);
+                        float center2;
+
+                        for (int i = 1; i < pointArray.Length - 1; i++)
+                        {
+                            g.DrawLine(linePen, center1, pointArray[i - 1].Y, center1, pointArray[i].Y);
+                            center2 = (pointArray[i + 1].X + pointArray[i].X) / 2;
+                            g.DrawLine(linePen, center1, pointArray[i].Y, center2, pointArray[i].Y);
+                            center1 = center2;
+                        }
+                        g.DrawLine(linePen, center1, pointArray[pointArray.Length - 2].Y, center1, pointArray[pointArray.Length - 1].Y);
+                        g.DrawLine(linePen, center1, pointArray[pointArray.Length - 1].Y, pointArray[pointArray.Length - 1].X, pointArray[pointArray.Length - 1].Y);
+                    }
+                    else if (Interpolation == Interpolation.StepVertical)
+                    {
+                        float center1 = (pointArray[1].Y + pointArray[0].Y) / 2;
+                        g.DrawLine(linePen, pointArray[0].X, pointArray[0].Y, pointArray[0].X, center1);
+                        float center2;
+
+                        for (int i = 1; i < pointArray.Length - 1; i++)
+                        {
+                            g.DrawLine(linePen, pointArray[i - 1].X, center1, pointArray[i].X, center1);
+                            center2 = (pointArray[i + 1].Y + pointArray[i].Y) / 2;
+                            g.DrawLine(linePen, pointArray[i].X, center1, pointArray[i].X, center2);
+                            center1 = center2;
+                        }
+                        g.DrawLine(linePen, pointArray[pointArray.Length - 2].X, center1, pointArray[pointArray.Length - 1].X, center1);
+                        g.DrawLine(linePen, pointArray[pointArray.Length - 1].X, center1, pointArray[pointArray.Length - 1].X, pointArray[pointArray.Length - 1].Y);
+                    }
+                }
             }
             if (Style == PlotStyle.Marker || Style == PlotStyle.Both)
                 Marker.Draw(g, MarkColor, MarkStyle, MarkSize, pointArray);
         }
 
+    }
+
+    public enum Interpolation
+    {
+        Line,
+        Spline,
+        StepNear, 
+        StepFar,
+        StepCenter, 
+        StepVertical
     }
 }

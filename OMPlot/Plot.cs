@@ -69,19 +69,26 @@ namespace OMPlot
 			XY data = new XY(x, y, name);
 			var axisX = GetHorizontalAxis();
 			var axisY = GetVerticalAxis();
+			double clearanceX = Math.Abs(0.01 * (data.MaximumX - data.MinimumX));
+			double clearanceY = Math.Abs(0.01 * (data.MaximumX - data.MinimumX));
+			double dataXMin = data.MinimumX - clearanceX;
+			double dataYMin = data.MinimumY - clearanceY;
+			double dataXMax = data.MaximumX + clearanceX;
+			double dataYMax = data.MaximumY + clearanceY;
+
 			if (Data.Count == 0)
 			{
-				axisX.Minimum = data.MinimumX;
-				axisY.Minimum = data.MinimumY;
-				axisX.Maximum = data.MaximumX;
-				axisY.Maximum = data.MaximumY;
+				axisX.Minimum = dataXMin;
+				axisY.Minimum = dataYMin;
+				axisX.Maximum = dataXMax;
+				axisY.Maximum = dataYMax;
 			}
 			else
 			{
-				axisX.Minimum = axisX.Minimum > data.MinimumX ? data.MinimumX : axisX.Minimum;
-				axisY.Minimum = axisY.Minimum > data.MinimumY ? data.MinimumY : axisY.Minimum;
-				axisX.Maximum = axisX.Maximum < data.MaximumX ? data.MaximumX : axisX.Maximum;
-				axisY.Maximum = axisY.Maximum < data.MaximumY ? data.MaximumY : axisY.Maximum;
+				axisX.Minimum = axisX.Minimum > dataXMin ? dataXMin : axisX.Minimum;
+				axisY.Minimum = axisY.Minimum > dataYMin ? dataYMin : axisY.Minimum;
+				axisX.Maximum = axisX.Maximum < dataXMax ? dataXMax : axisX.Maximum;
+				axisY.Maximum = axisY.Maximum < dataYMax ? dataYMax : axisY.Maximum;
 			}
 			Data.Add(data);
 			return data;
