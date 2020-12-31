@@ -15,4 +15,10 @@ namespace OMPlot.Data
 
         void Draw(Graphics g, OMPlot.Axis vertical, OMPlot.Axis Horizontal, RectangleExtended plotRectangle, int plotIndex);
     }
+    public enum PlotStyle
+    {
+        Line,
+        Marker,
+        Both
+    }
 }

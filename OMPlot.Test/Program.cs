@@ -28,7 +28,6 @@ namespace OMPlot.Test
                 dataX[i] = 1000f + i * 1e-6;
                 dataY[i] = Math.Sin(2 * Math.PI * dataX[i] * 100);
             }
-            Data.XY plotXY1 = new Data.XY(dataX, dataY);
 
             Image img = new Bitmap(500, 500);
             Graphics g = Graphics.FromImage(img);
@@ -36,7 +35,7 @@ namespace OMPlot.Test
             OMPlot.Plot p = new Plot();
             p.Height = 500;
             p.Width = 500;
-            p.Data.Add(plotXY1);
+            p.Add(dataX, dataY);
 
             //AxisTestBitmap(p, "Title", AxisPosition.Center, LabelsPosition.Near, Alignment.Center, LabelsPosition.Far, Alignment.Near, Alignment.Center, TicksLabelsRotation.Tilted);
 

@@ -24,32 +24,40 @@ namespace OMPlot.Data
         public string Name { get; set; }
         public string AxisHorizontalName { get; set; }
         public string AxisVerticalName { get; set; }
-        
-        public XY(double[] x, double[] y)
+
+        public double MinimumX { get; private set; }
+        public double MinimumY { get; private set; }
+        public double MaximumX { get; private set; }
+        public double MaximumY { get; private set; }
+
+        public XY(IEnumerable<double> x, IEnumerable<double> y)
         {
             MarkSize = 10;
             LineWidth = 1;
-            X = new double[x.Length];
-            Y = new double[y.Length];
+            X = x.ToArray();
+            Y = y.ToArray();
+            MinimumX = double.MaxValue;
+            MinimumY = double.MaxValue;
+            MaximumX = double.MinValue;
+            MaximumY = double.MinValue;
             for (int i = 0; i < X.Length; i++)
             {
-                X[i] = x[i];
-                Y[i] = y[i];
-            }                
+                MinimumX = MinimumX > X[i] ? X[i] : MinimumX;
+                MinimumY = MinimumY > Y[i] ? Y[i] : MinimumY;
+                MaximumX = MaximumX < X[i] ? X[i] : MaximumX;
+                MaximumY = MaximumY < Y[i] ? Y[i] : MaximumY;
+            }
         }
-
-        public XY(double[] x, double[] y, string name) : this(x, y)
+        public XY(IEnumerable<double> x, IEnumerable<double> y, string name) : this(x, y)
         {
             Name = name;
         }
-
-        public XY(double[] x, double[] y, string axisHorizontalName, string axisVerticalName) : this(x, y)
+        public XY(IEnumerable<double> x, IEnumerable<double> y, string axisHorizontalName, string axisVerticalName) : this(x, y)
         {
             AxisHorizontalName = axisHorizontalName;
             AxisVerticalName = axisVerticalName;
         }
-
-        public XY(double[] x, double[] y, string name, string axisHorizontalName, string axisVerticalName) : this(x, y)
+        public XY(IEnumerable<double> x, IEnumerable<double> y, string name, string axisHorizontalName, string axisVerticalName) : this(x, y)
         {
             Name = name;
             AxisHorizontalName = axisHorizontalName;
@@ -103,11 +111,5 @@ namespace OMPlot.Data
                 Marker.Draw(g, MarkColor, MarkStyle, MarkSize, pointArray);
         }
 
-        public enum PlotStyle
-        {
-            Line,
-            Marker,
-            Both
-        }
     }
 }

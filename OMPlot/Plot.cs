@@ -27,7 +27,7 @@ namespace OMPlot
 
 		public string Title { get; set; }
 
-		public List<IData> Data;
+		List<IData> Data;
 		Dictionary<string, Axis> Vertical;
 		Dictionary<string, Axis> Horizontal;
 
@@ -58,6 +58,36 @@ namespace OMPlot
 			AddHorizontalAxis(xAxis);
 			AddVerticalAxis(yAxis);
 		}
+
+		public void Add(IData data) { Data.Add(data); }
+		public XY Add(IEnumerable<double> x, IEnumerable<double> y)
+        {
+			return this.Add(x, y, "plot" + Data.Count().ToString());
+		}
+		public XY Add(IEnumerable<double> x, IEnumerable<double> y, string name)
+		{
+			XY data = new XY(x, y, name);
+			var axisX = GetHorizontalAxis();
+			var axisY = GetVerticalAxis();
+			if (Data.Count == 0)
+			{
+				axisX.Minimum = data.MinimumX;
+				axisY.Minimum = data.MinimumY;
+				axisX.Maximum = data.MaximumX;
+				axisY.Maximum = data.MaximumY;
+			}
+			else
+			{
+				axisX.Minimum = axisX.Minimum > data.MinimumX ? data.MinimumX : axisX.Minimum;
+				axisY.Minimum = axisY.Minimum > data.MinimumY ? data.MinimumY : axisY.Minimum;
+				axisX.Maximum = axisX.Maximum < data.MaximumX ? data.MaximumX : axisX.Maximum;
+				axisY.Maximum = axisY.Maximum < data.MaximumY ? data.MaximumY : axisY.Maximum;
+			}
+			Data.Add(data);
+			return data;
+		}
+
+		public void Clear() { Data.Clear(); }
 
 		public void AddVerticalAxis(Axis axis)
 		{
