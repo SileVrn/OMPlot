@@ -15,15 +15,14 @@ namespace OMPlot.Data
         double[] X, Y;
         PointF[] points;
 
-        public PlotStyle Style { get; set; }
-        public Color LineColor { get; set; }
-        public System.Drawing.Drawing2D.DashStyle LineStyle { get; set; }
+        public PlotInterpolation Interpolation { get; set; }
+        public LineStyle LineStyle { get; set; }
         public float LineWidth { get; set; }
-        public Color MarkColor { get; set; }
+        public Color LineColor { get; set; }
         public MarkerStyle MarkStyle { get; set; }
         public float MarkSize { get; set; }
-        public PlotInterpolation Interpolation { get; set; }
-        public PlotFill Fill { get; set; }
+        public Color MarkColor { get; set; }
+        public FillStyle FillStyle { get; set; }
         public Color FillColor { get; set; }
         public double FillValue { get; set; }
         public IData FillPlot { get; set; }
@@ -75,31 +74,31 @@ namespace OMPlot.Data
 
         public void Calculate(Axis vertical, Axis horizontal, RectangleExtended plotRectangle)
         {
-            float leftLimit = plotRectangle.Left - 100;
-            float rightLimit = plotRectangle.Right + 100;
-            float topLimit = plotRectangle.Top - 100;
-            float bottomLimit = plotRectangle.Bottom + 100;
+            //float leftLimit = plotRectangle.Left - 100;
+            //float rightLimit = plotRectangle.Right + 100;
+            //float topLimit = plotRectangle.Top - 100;
+            //float bottomLimit = plotRectangle.Bottom + 100;
 
             List<PointF> pointList = new List<PointF>();
             float prevX = horizontal.Transform(X[0]);
             float prevY = vertical.Transform(Y[0]);
-            if (prevX > leftLimit && prevX < rightLimit && prevY > topLimit && prevY < bottomLimit)
+            //if (prevX > leftLimit && prevX < rightLimit && prevY > topLimit && prevY < bottomLimit)
                 pointList.Add(new PointF(prevX, prevY));
             float curX, curY;
             for (int i = 1; i < X.Length; i++)
             {
                 curX = horizontal.Transform(X[i]);
-                if (curX > leftLimit && curX < rightLimit)
-                {
+                //if (curX > leftLimit && curX < rightLimit)
+                //{
                     curY = vertical.Transform(Y[i]);
-                    if (curY > topLimit && curY < bottomLimit)
-                        if (curX - prevX > 1 || curY - prevY > 1 || prevX - curX > 1 || prevY - curY > 1)
+                    //if (curY > topLimit && curY < bottomLimit)
+                        if (curX - prevX > 1.5 || curY - prevY > 1.5 || prevX - curX > 1.5 || prevY - curY > 1.5)
                         {
                             prevX = curX;
                             prevY = curY;
                             pointList.Add(new PointF(prevX, prevY));
                         }
-                }
+                //}
             }
 
             points = pointList.ToArray();
@@ -170,18 +169,17 @@ namespace OMPlot.Data
             if (FillColor.R == 0 && FillColor.G == 0 && FillColor.B == 0 && FillColor.A == 0)
                 FillColor = defaultPlotColors[plotIndex % 3];
 
-            if (Style == PlotStyle.Marker || Style == PlotStyle.Both)
-                Marker.Draw(g, MarkColor, MarkStyle, MarkSize, points);
+            Marker.Draw(g, MarkColor, MarkStyle, MarkSize, points);
 
             if (points.Length > 1)
             {
-                if (Style == PlotStyle.Line || Style == PlotStyle.Both)
+                if (LineStyle != LineStyle.None)
                 {
-                    Pen linePen = new Pen(LineColor, LineWidth) { DashStyle = LineStyle };
+                    Pen linePen = new Pen(LineColor, LineWidth) { DashStyle = (DashStyle)LineStyle };
                     g.DrawPath(linePen, GraphicsPath);
                 }
 
-                if (Fill == PlotFill.ToNInfitity)
+                if (FillStyle == FillStyle.ToNInfitity)
                 {
                     GraphicsPath path = new GraphicsPath();
                     path.AddPath(GraphicsPath, true);
@@ -191,7 +189,7 @@ namespace OMPlot.Data
                     Brush fillBrush = new SolidBrush(FillColor);
                     g.FillPath(fillBrush, path);
                 }
-                else if (Fill == PlotFill.ToPInfinity)
+                else if (FillStyle == FillStyle.ToPInfinity)
                 {
                     GraphicsPath path = new GraphicsPath();
                     path.AddPath(GraphicsPath, true);
@@ -201,7 +199,7 @@ namespace OMPlot.Data
                     Brush fillBrush = new SolidBrush(FillColor);
                     g.FillPath(fillBrush, path);
                 }
-                else if (Fill == PlotFill.ToValue)
+                else if (FillStyle == FillStyle.ToValue)
                 {
                     float fillValue = vertical.Transform(FillValue);
                     GraphicsPath path = new GraphicsPath();
@@ -213,7 +211,7 @@ namespace OMPlot.Data
 
                     g.FillPath(fillBrush, path);
                 }
-                else if (Fill == PlotFill.ToPlot)
+                else if (FillStyle == FillStyle.ToPlot && FillPlot != null)
                 {
                     GraphicsPath path = new GraphicsPath();
                     path.AddPath(GraphicsPath, true);
@@ -236,8 +234,17 @@ namespace OMPlot.Data
         StepCenter, 
         StepVertical
     }
-
-    public enum PlotFill
+    public enum LineStyle //: System.Drawing.Drawing2D.DashStyle
+    {
+        Solid = 0,
+        Dash = 1,
+        Dot = 2,
+        DashDot = 3,
+        DashDotDot = 4,
+        //Custom = 5,
+        None = -1
+    }
+    public enum FillStyle
     {
         None,
         ToValue,

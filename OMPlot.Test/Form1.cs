@@ -18,7 +18,7 @@ namespace OMPlot.Test
 
             plot1.Title = "Hello, OMPlot!";
 
-            double[] dataX = new double[100000];
+            double[] dataX = new double[1000000];
             double[] dataY1 = new double[dataX.Length];
             double[] dataY2 = new double[dataX.Length];
             List<double> dataY3 = new List<double>();
@@ -37,6 +37,7 @@ namespace OMPlot.Test
             var pl1 = plot1.Add(dataX, dataY1);
             var pl2 = plot1.Add(dataX, dataY2);
             var pl3 = plot1.Add(dataX, dataY3);
+            pl1.MarkStyle = Data.MarkerStyle.SolidCircle;
 
              //Axis xAxis = plot1.GetHorizontalAxis();
              //xAxis.Minimum = 0;

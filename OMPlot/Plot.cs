@@ -307,8 +307,8 @@ namespace OMPlot
 
 			if (Vertical.Any() && Horizontal.Any())
 			{
-				foreach (var data in Data)
-					data.Calculate(GetVerticalAxis(data.AxisVerticalName), GetHorizontalAxis(data.AxisHorizontalName), plotRectangle);
+				//foreach (var data in Data)
+				Parallel.ForEach(Data, data => data.Calculate(GetVerticalAxis(data.AxisVerticalName), GetHorizontalAxis(data.AxisHorizontalName), plotRectangle));
 				int plotIndex = 0;
 				foreach (var data in Data)
 					data.Draw(g, GetVerticalAxis(data.AxisVerticalName), GetHorizontalAxis(data.AxisHorizontalName), plotRectangle, plotIndex++);
@@ -430,5 +430,12 @@ namespace OMPlot
 			g.DrawString((1000.0 / (double)(sw.ElapsedMilliseconds > 0 ? sw.ElapsedMilliseconds : 1)).ToString("#.###"), this.Font, mainBrush, 0, 0);
 		}
 
+		public Image ToImage()
+        {
+			Image img = new Bitmap(this.Width, this.Height);
+			Graphics g = Graphics.FromImage(img);
+			ControlPaint(g);
+			return img;
+		}
 	}
 }

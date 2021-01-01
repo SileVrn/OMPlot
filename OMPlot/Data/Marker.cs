@@ -129,6 +129,7 @@ namespace OMPlot.Data
     }
     public enum MarkerStyle
     {
+        None,
         SolidCircle,
         SolidSquare,
         SolidTriangle,

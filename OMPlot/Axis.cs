@@ -149,7 +149,15 @@ namespace OMPlot
             }
         }
         double TransformBack(double value) { return Logarithmic ? Math.Pow(10, (value - offset) / res) : (value - offset) / res; }
-        public float Transform(double value) { return (float)(offset + (Logarithmic ? Math.Log10(value) : value) * res); }
+        public float Transform(double value)
+        {
+            float ret = (float)(offset + (Logarithmic ? Math.Log10(value) : value) * res);
+            if (ret < -1000)
+                return -1000;
+            if (ret > 10000)
+                return 10000;
+            return ret;
+        }
 
         public bool ActionOnAxis(float x, float y) { return drawnRectangle.InRectangle(x, y); }
         public void Move(float length)
