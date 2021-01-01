@@ -41,23 +41,23 @@ namespace OMPlot.Test
             p.ControlPaint(g);
             img.Save("Interpolation_Linear.png");
 
-            plot0.Interpolation = Data.Interpolation.StepFar;
+            plot0.Interpolation = Data.PlotInterpolation.StepFar;
             p.ControlPaint(g);
             img.Save("Interpolation_StepFar.png");
 
-            plot0.Interpolation = Data.Interpolation.StepNear;
+            plot0.Interpolation = Data.PlotInterpolation.StepNear;
             p.ControlPaint(g);
             img.Save("Interpolation_StepNear.png");
 
-            plot0.Interpolation = Data.Interpolation.StepCenter;
+            plot0.Interpolation = Data.PlotInterpolation.StepCenter;
             p.ControlPaint(g);
             img.Save("Interpolation_StepCenter.png");
 
-            plot0.Interpolation = Data.Interpolation.StepVertical;
+            plot0.Interpolation = Data.PlotInterpolation.StepVertical;
             p.ControlPaint(g);
             img.Save("Interpolation_StepVertical.png");
 
-            plot0.Interpolation = Data.Interpolation.Spline;
+            plot0.Interpolation = Data.PlotInterpolation.Spline;
             p.ControlPaint(g);
             img.Save("Interpolation_Spline.png");
 

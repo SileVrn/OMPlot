@@ -34,19 +34,19 @@ namespace OMPlot.Test
                 dataY3.Add(Math.Tan(2 * Math.PI * dataX[i] * f));
             }
 
-            plot1.Add(dataX, dataY1);
-            plot1.Add(dataX, dataY2);
-            plot1.Add(dataX, dataY3);
-                       
-            //Axis xAxis = plot1.GetHorizontalAxis();
-            //xAxis.Minimum = 0;
-            //xAxis.Maximum = (float)(dt * dataX.Length);
-            //xAxis.Title = "X";
+            var pl1 = plot1.Add(dataX, dataY1);
+            var pl2 = plot1.Add(dataX, dataY2);
+            var pl3 = plot1.Add(dataX, dataY3);
 
-            //xAxis.CustomTicks = new double[] { 0, 0.3 * dt * dataX.Length, 0.5111 * dt * dataX.Length, 0.7 * dt * dataX.Length };
-            //xAxis.CustomTicksLabels = new string[] { "Zero", "Third", "Almost half", "O dot seven" };
+             //Axis xAxis = plot1.GetHorizontalAxis();
+             //xAxis.Minimum = 0;
+             //xAxis.Maximum = (float)(dt * dataX.Length);
+             //xAxis.Title = "X";
 
-            Axis yAxis = plot1.GetVerticalAxis();
+             //xAxis.CustomTicks = new double[] { 0, 0.3 * dt * dataX.Length, 0.5111 * dt * dataX.Length, 0.7 * dt * dataX.Length };
+             //xAxis.CustomTicksLabels = new string[] { "Zero", "Third", "Almost half", "O dot seven" };
+
+             Axis yAxis = plot1.GetVerticalAxis();
             yAxis.Minimum = -2;
             yAxis.Maximum = 2;
             //yAxis.Title = "Y";

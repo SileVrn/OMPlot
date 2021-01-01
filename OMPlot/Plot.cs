@@ -307,6 +307,8 @@ namespace OMPlot
 
 			if (Vertical.Any() && Horizontal.Any())
 			{
+				foreach (var data in Data)
+					data.Calculate(GetVerticalAxis(data.AxisVerticalName), GetHorizontalAxis(data.AxisHorizontalName), plotRectangle);
 				int plotIndex = 0;
 				foreach (var data in Data)
 					data.Draw(g, GetVerticalAxis(data.AxisVerticalName), GetHorizontalAxis(data.AxisHorizontalName), plotRectangle, plotIndex++);
