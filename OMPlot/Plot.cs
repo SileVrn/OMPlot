@@ -307,6 +307,27 @@ namespace OMPlot
 
 			if (Vertical.Any() && Horizontal.Any())
 			{
+				//BarStyle.Vertical
+				var barData = Data.Where(data => data is IBar).Select(data => (IBar)data).Where(data => data.BarStyle == BarStyle.Vertical && data.BarStacking);
+				int barCount = barData.Count();
+				int barIndex = 0;
+				foreach (var bar in barData)
+				{
+					bar.BarIndex = barIndex;
+					bar.BarCount = barCount;
+					barIndex++;
+				}
+				//BarStyle.Horisontal
+				barData = Data.Where(data => data is IBar).Select(data => (IBar)data).Where(data => data.BarStyle == BarStyle.Horisontal && data.BarStacking);
+				barCount = barData.Count();
+				barIndex = 0;
+				foreach (var bar in barData)
+				{
+					bar.BarIndex = barIndex;
+					bar.BarCount = barCount;
+					barIndex++;
+				}
+
 				//foreach (var data in Data)
 				Parallel.ForEach(Data, data => data.Calculate(GetVerticalAxis(data.AxisVerticalName), GetHorizontalAxis(data.AxisHorizontalName), plotRectangle));
 				int plotIndex = 0;

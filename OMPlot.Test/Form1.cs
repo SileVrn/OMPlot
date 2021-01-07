@@ -23,33 +23,38 @@ namespace OMPlot.Test
             double[] dataY2 = new double[dataX.Length];
             List<double> dataY3 = new List<double>();
 
-            double f = 10;
-            double dt = 5.0 / dataX.Length / f;
+            double f = 3000;
+            double dt = 2.0 / dataX.Length;
 
             for(int i = 0; i < dataX.Length; i++)
             {
-                dataX[i] = i * dt;
-                dataY1[i] = Math.Sin(2 * Math.PI * dataX[i] * f);
-                dataY2[i] = Math.Cos(2 * Math.PI * dataX[i] * f);
-                dataY3.Add(Math.Tan(2 * Math.PI * dataX[i] * f));
+                double x = Math.PI * 10 * i / (dataX.Length - 1);
+                dataX[i] = x * Math.Cos(x);
+                dataY1[i] = x * Math.Sin(x); ;
+                //dataX[i] = (dataX.Length - 1 - i) * dt;
+                //dataY1[i] = Math.Sin(2 * Math.PI * dataX[i] * f) + 0.1;
+                //dataY2[i] = Math.Sin(2 * Math.PI * dataX[i] * f) + 0.2;
+                //dataY3.Add(Math.Sin(2 * Math.PI * dataX[i] * f) + 0.3);
             }
 
             var pl1 = plot1.Add(dataX, dataY1);
-            var pl2 = plot1.Add(dataX, dataY2);
-            var pl3 = plot1.Add(dataX, dataY3);
+            //var pl2 = plot1.Add(dataX, dataY2);
+            //var pl3 = plot1.Add(dataX, dataY3);
+
+            pl1.LineStyle = Data.LineStyle.None;
             pl1.MarkStyle = Data.MarkerStyle.SolidCircle;
 
-             //Axis xAxis = plot1.GetHorizontalAxis();
-             //xAxis.Minimum = 0;
-             //xAxis.Maximum = (float)(dt * dataX.Length);
-             //xAxis.Title = "X";
+            //Axis xAxis = plot1.GetHorizontalAxis();
+            //xAxis.Minimum = 0;
+            //xAxis.Maximum = (float)(dt * dataX.Length);
+            //xAxis.Title = "X";
 
-             //xAxis.CustomTicks = new double[] { 0, 0.3 * dt * dataX.Length, 0.5111 * dt * dataX.Length, 0.7 * dt * dataX.Length };
-             //xAxis.CustomTicksLabels = new string[] { "Zero", "Third", "Almost half", "O dot seven" };
+            //xAxis.CustomTicks = new double[] { 0, 0.3 * dt * dataX.Length, 0.5111 * dt * dataX.Length, 0.7 * dt * dataX.Length };
+            //xAxis.CustomTicksLabels = new string[] { "Zero", "Third", "Almost half", "O dot seven" };
 
-             Axis yAxis = plot1.GetVerticalAxis();
-            yAxis.Minimum = -2;
-            yAxis.Maximum = 2;
+            //Axis yAxis = plot1.GetVerticalAxis();
+            //yAxis.Minimum = -2;
+            //yAxis.Maximum = 2;
             //yAxis.Title = "Y";
 
             /*plot1.Title = "Hello, OMPlot!";

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OMPlot.Data
 {
-    public class XY : IData
+    public class XY : IData, IBar
     {
         Color[] defaultPlotColors = new Color[] { Color.Red, Color.Blue, Color.Green };
 
@@ -26,6 +26,14 @@ namespace OMPlot.Data
         public Color FillColor { get; set; }
         public double FillValue { get; set; }
         public IData FillPlot { get; set; }
+        public BarStyle BarStyle { get; set; }
+        public Color BarLineColor { get; set; }
+        public Color BarFillColor { get; set; }
+        public float BarDuty { get; set; }
+        public double BarValue { get; set; }
+        public bool BarStacking { get; set; }
+        public int BarIndex { get; set; }
+        public int BarCount { get; set; }
 
         public string Name { get; set; }
         public string AxisHorizontalName { get; set; }
@@ -220,9 +228,93 @@ namespace OMPlot.Data
                     Brush fillBrush = new SolidBrush(FillColor);
                     g.FillPath(fillBrush, path);
                 }
+
+                if(BarStyle != BarStyle.None)
+                {
+                    Brush barBrush = new SolidBrush(BarFillColor);
+                    Pen barPen = new Pen(BarLineColor);
+
+                    if (BarStyle == BarStyle.Vertical)
+                    {
+                        float refPositionY = vertical.Transform(BarValue);
+                        for (int i = 0; i < points.Length; i++)                        
+                            DrawVerticalBar(g, barBrush, barPen, refPositionY, i);
+                    }
+                    else if (BarStyle == BarStyle.Horisontal)
+                    {
+                        float refPositionX = horizontal.Transform(BarValue);
+                        for (int i = 0; i < points.Length; i++)
+                            DrawHorisontalBar(g, barBrush, barPen, refPositionX, i);
+                    }
+                }
             }
         }
 
+        private void DrawVerticalBar(Graphics g, Brush barBrush, Pen barPen, float refPositionY, int i)
+        {
+            float barCount = BarStacking ? BarCount : 1.0f;
+            float binWidth, barWidth, barX;
+            if (i == 0)
+                binWidth = Math.Abs(points[1].X - points[0].X) / barCount;
+            else if (i == points.Length - 1)
+                binWidth = Math.Abs(points[points.Length - 1].X - points[points.Length - 2].X) / barCount;
+            else
+                binWidth = Math.Abs(points[i + 1].X - points[i - 1].X) / 2.0f / barCount;
+            barWidth = binWidth * BarDuty;
+            barX = i == 0 ? points[0].X - binWidth * barCount / 2.0f : (points[i].X + points[i - 1].X) / 2.0f;
+            barX += BarIndex * binWidth + (binWidth - barWidth) / 2.0f;
+            barX -= (i != 0 && points[i].X < points[i - 1].X) ? barWidth * barCount : 0;
+
+            float barHeight, barY;
+            if (refPositionY > points[i].Y)
+            {
+                barY = points[i].Y;
+                barHeight = refPositionY - points[i].Y;
+            }
+            else
+            {
+                barY = refPositionY;
+                barHeight = points[i].Y - refPositionY;
+            }
+
+            if (BarFillColor.A > 0)
+                g.FillRectangle(barBrush, barX, barY, barWidth, barHeight);
+            if (BarLineColor.A > 0)
+                g.DrawRectangle(barPen, barX, barY, barWidth, barHeight);
+        }
+
+        private void DrawHorisontalBar(Graphics g, Brush barBrush, Pen barPen, float refPositionX, int i)
+        {
+            float barCount = BarStacking ? BarCount : 1.0f;
+            float binHeight, barHeight, barY;
+            if (i == 0)
+                binHeight = Math.Abs(points[1].Y - points[0].Y) / barCount;
+            else if (i == points.Length - 1)
+                binHeight = Math.Abs(points[points.Length - 1].Y - points[points.Length - 2].Y) / barCount;
+            else
+                binHeight = Math.Abs(points[i + 1].Y - points[i - 1].Y) / 2.0f / barCount;
+            barHeight = binHeight * BarDuty;
+            barY = i == 0 ? points[0].Y - binHeight * barCount / 2.0f : (points[i].Y + points[i - 1].Y) / 2.0f;
+            barY += BarIndex * binHeight + (binHeight - barHeight) / 2.0f;
+            barY -= (i != 0 && points[i].Y < points[i - 1].Y) ? barHeight * barCount : 0;
+
+            float barWidth, barX;
+            if (refPositionX > points[i].X)
+            {
+                barX = points[i].X;
+                barWidth = refPositionX - points[i].X;
+            }
+            else
+            {
+                barX = refPositionX;
+                barWidth = points[i].X - refPositionX;
+            }
+
+            if (BarFillColor.A > 0)
+                g.FillRectangle(barBrush, barX, barY, barWidth, barHeight);
+            if (BarLineColor.A > 0)
+                g.DrawRectangle(barPen, barX, barY, barWidth, barHeight);
+        }
     }
 
     public enum PlotInterpolation

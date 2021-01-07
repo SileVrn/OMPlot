@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="Accessories.cs" />
     <Compile Include="Axis.cs" />
+    <Compile Include="Data\IBar.cs" />
     <Compile Include="Data\IData.cs" />
     <Compile Include="Data\Marker.cs" />
     <Compile Include="Data\XY.cs" />
