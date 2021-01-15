@@ -136,32 +136,105 @@ namespace OMPlot.Test
             p.ToImage().Save("Bar_Horisontal_Stacking_Duty_Line.png");
 
             p.Clear();
-            List<double> dx = new List<double>();
-            List<double> dy = new List<double>();
-            dx.Add(0);
-            dy.Add(0);
-            dx.Add(20);
-            dy.Add(0);
-            dx.Add(45);
-            dy.Add(-47);
-            dx.Add(53);
-            dy.Add(335);
-            dx.Add(57);
-            dy.Add(26);
-            dx.Add(62);
-            dy.Add(387);
-            dx.Add(74);
-            dy.Add(104);
-            dx.Add(89);
-            dy.Add(0);
-            dx.Add(95);
-            dy.Add(100);
-            dx.Add(100);
-            dy.Add(0);
-            p.Add(dx, dy);            
-            var ppp = p.Add(dx, dy);
-            ppp.Interpolation = Data.PlotInterpolation.Spline;
-            p.ToImage().Save("SplineTest.png");
+            double[] sinX = new double[100];
+            double[] sinY1 = new double[sinX.Length];
+            double[] sinY2 = new double[sinX.Length];
+            double[] sinY3 = new double[sinX.Length];
+            double[] sinY4 = new double[sinX.Length];
+            double[] sinY5 = new double[sinX.Length];
+            double[] sinY6 = new double[sinX.Length];
+            double[] sinY7 = new double[sinX.Length];
+            double[] sinY8 = new double[sinX.Length];
+            double[] sinY9 = new double[sinX.Length];
+            double[] sinY11 = new double[sinX.Length];
+            double[] sinY12 = new double[sinX.Length];
+            double[] sinY13 = new double[sinX.Length];
+            double[] sinY14 = new double[sinX.Length];
+            double[] sinY15 = new double[sinX.Length];
+            double[] sinY16 = new double[sinX.Length];
+            double[] sinY17 = new double[sinX.Length];
+            double[] sinY18 = new double[sinX.Length];
+            double[] sinY19 = new double[sinX.Length];
+
+            double f = 3;
+            double dt = 2.0 / sinX.Length;
+
+            for (int i = 0; i < sinX.Length; i++)
+            {
+                sinX[i] = (sinX.Length - 1 - i) * dt;
+                sinY1[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.1;
+                sinY2[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.2;
+                sinY3[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.3;
+                sinY4[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.4;
+                sinY5[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.5;
+                sinY6[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.6;
+                sinY7[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.7;
+                sinY8[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.8;
+                sinY9[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.9;
+                sinY11[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.1;
+                sinY12[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.2;
+                sinY13[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.3;
+                sinY14[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.4;
+                sinY15[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.5;
+                sinY16[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.6;
+                sinY17[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.7;
+                sinY18[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.8;
+                sinY19[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.9;
+            }
+
+            var pl1 = p.Add(sinX, sinY1, "Plot1");
+            var pl2 = p.Add(sinX, sinY2, "Plot2");
+            var pl3 = p.Add(sinX, sinY3, "Plot3");
+            var pl4 = p.Add(sinX, sinY4, "Plot4");
+            var pl5 = p.Add(sinX, sinY5, "Plot5Plot5Plot5");
+            var pl6 = p.Add(sinX, sinY6, "Plot6");
+            var pl7 = p.Add(sinX, sinY7, "Plot7");
+            var pl8 = p.Add(sinX, sinY8, "Plot8");
+            var pl9 = p.Add(sinX, sinY9, "Plot9");
+            var pl11 = p.Add(sinX, sinY11, "Plot11");
+            var pl12 = p.Add(sinX, sinY12, "Plot12");
+            var pl13 = p.Add(sinX, sinY13, "Plot13");
+            var pl14 = p.Add(sinX, sinY14, "Plot14");
+            var pl15 = p.Add(sinX, sinY15, "Plot15");
+            var pl16 = p.Add(sinX, sinY16, "Plot16");
+            var pl17 = p.Add(sinX, sinY17, "Plot17");
+            var pl18 = p.Add(sinX, sinY18, "Plot18");
+            var pl19 = p.Add(sinX, sinY19, "Plot19");
+
+            pl1.BarStyle = Data.BarStyle.Vertical;
+            pl1.BarFillColor = Color.Red;
+            pl2.MarkStyle = Data.MarkerStyle.SolidCircle;
+            pl3.LineStyle = Data.LineStyle.Dash;
+            pl4.LineStyle = Data.LineStyle.DashDot;
+            pl5.LineStyle = Data.LineStyle.DashDotDot;
+            pl6.LineStyle = Data.LineStyle.Dot;
+
+            p.LegendStyle = LegendStyle.Outside;
+            p.LegendPosition = LegendPosition.Top;     p.ToImage().Save("Legend_Outside_Top.png");
+            p.LegendPosition = LegendPosition.Bottom;  p.ToImage().Save("Legend_Outside_Bottom.png");
+            p.LegendPosition = LegendPosition.Left;    p.ToImage().Save("Legend_Outside_Left.png");
+            p.LegendPosition = LegendPosition.Right;   p.ToImage().Save("Legend_Outside_Right.png");
+
+            p.LegendStyle = LegendStyle.Inside;
+            p.LegendAlign = LegendAlign.Near;
+            p.LegendPosition = LegendPosition.Top;      p.ToImage().Save("Legend_Inside_Near_Top.png");
+            p.LegendPosition = LegendPosition.Bottom;   p.ToImage().Save("Legend_Inside_Near_Bottom.png");
+            p.LegendPosition = LegendPosition.Left;     p.ToImage().Save("Legend_Inside_Near_Left.png");
+            p.LegendPosition = LegendPosition.Right;    p.ToImage().Save("Legend_Inside_Near_Right.png");
+
+            p.LegendStyle = LegendStyle.Inside;
+            p.LegendAlign = LegendAlign.Center;
+            p.LegendPosition = LegendPosition.Top;      p.ToImage().Save("Legend_Inside_Center_Top.png");
+            p.LegendPosition = LegendPosition.Bottom;   p.ToImage().Save("Legend_Inside_Center_Bottom.png");
+            p.LegendPosition = LegendPosition.Left;     p.ToImage().Save("Legend_Inside_Center_Left.png");
+            p.LegendPosition = LegendPosition.Right;    p.ToImage().Save("Legend_Inside_Center_Right.png");
+
+            p.LegendStyle = LegendStyle.Inside;
+            p.LegendAlign = LegendAlign.Far;
+            p.LegendPosition = LegendPosition.Top;      p.ToImage().Save("Legend_Inside_Far_Top.png");
+            p.LegendPosition = LegendPosition.Bottom;   p.ToImage().Save("Legend_Inside_Far_Bottom.png");
+            p.LegendPosition = LegendPosition.Left;     p.ToImage().Save("Legend_Inside_Far_Left.png");
+            p.LegendPosition = LegendPosition.Right;    p.ToImage().Save("Legend_Inside_Far_Right.png");
 
             Application.Run(new Form1());            
         }

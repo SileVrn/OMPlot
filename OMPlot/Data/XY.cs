@@ -48,6 +48,7 @@ namespace OMPlot.Data
 
         public XY(IEnumerable<double> x, IEnumerable<double> y)
         {
+            BarDuty = 1;
             MarkSize = 10;
             LineWidth = 1;
             X = x.ToArray();
@@ -186,7 +187,6 @@ namespace OMPlot.Data
                     Pen linePen = new Pen(LineColor, LineWidth) { DashStyle = (DashStyle)LineStyle };
                     g.DrawPath(linePen, GraphicsPath);
                 }
-
                 if (FillStyle == FillStyle.ToNInfitity)
                 {
                     GraphicsPath path = new GraphicsPath();
@@ -314,6 +314,45 @@ namespace OMPlot.Data
                 g.FillRectangle(barBrush, barX, barY, barWidth, barHeight);
             if (BarLineColor.A > 0)
                 g.DrawRectangle(barPen, barX, barY, barWidth, barHeight);
+        }
+
+        public void DrawLegend(Graphics g, RectangleF rect)
+        {
+            Marker.Draw(g, MarkColor, MarkStyle, MarkSize, new PointF[] { new PointF(rect.X + rect.Width / 2f, rect.Y + rect.Height / 2f) });
+
+            if (points.Length > 1)
+            {
+                if (LineStyle != LineStyle.None)
+                {
+                    Pen linePen = new Pen(LineColor, LineWidth) { DashStyle = (DashStyle)LineStyle };
+                    g.DrawLine(linePen, rect.X, rect.Y + 0.7f * rect.Height, rect.X + 0.5f * rect.Width, rect.Y + 0.5f * rect.Height);
+                    g.DrawLine(linePen, rect.X + 0.5f * rect.Width, rect.Y + 0.5f * rect.Height, rect.X + rect.Width, rect.Y + 0.7f * rect.Height);
+                }
+                if (FillStyle != FillStyle.None)
+                {
+                    Brush fillBrush = new SolidBrush(FillColor);
+                    g.FillRectangle(fillBrush, rect.X, rect.Y + rect.Height / 2f, rect.Width, rect.Height / 2f);
+                }
+
+                if (BarStyle != BarStyle.None)
+                {
+                    Brush barBrush = new SolidBrush(BarFillColor);
+                    Pen barPen = new Pen(BarLineColor);
+
+                    if (BarFillColor.A > 0)
+                    {
+                        g.FillRectangle(barBrush, rect.X, rect.Y + 0.7f * rect.Height, rect.Width * 0.25f, 0.3f * rect.Height);
+                        g.FillRectangle(barBrush, rect.X + 0.33f * rect.Width, rect.Y + 0.3f * rect.Height, rect.Width * 0.25f, 0.7f * rect.Height);
+                        g.FillRectangle(barBrush, rect.X + 0.66f * rect.Width, rect.Y + 0.5f * rect.Height, rect.Width * 0.25f, 0.5f * rect.Height);
+                    }
+                    if (BarLineColor.A > 0)
+                    {
+                        g.DrawRectangle(barPen, rect.X, rect.Y + 0.7f * rect.Height, rect.Width * 0.25f, 0.3f * rect.Height);
+                        g.DrawRectangle(barPen, rect.X + 0.33f * rect.Width, rect.Y + 0.3f * rect.Height, rect.Width * 0.25f, 0.7f * rect.Height);
+                        g.DrawRectangle(barPen, rect.X + 0.66f * rect.Width, rect.Y + 0.5f * rect.Height, rect.Width * 0.25f, 0.5f * rect.Height);
+                    }
+                }
+            }
         }
     }
 
