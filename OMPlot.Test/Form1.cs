@@ -48,52 +48,52 @@ namespace OMPlot.Test
             //pppp.Interpolation = Data.PlotInterpolation.NewSpline;
 
 
-            double[] dataX = new double[100];
-            double[] dataY1 = new double[dataX.Length];
-            double[] dataY2 = new double[dataX.Length];
-            double[] dataY3 = new double[dataX.Length];
-            double[] dataY4 = new double[dataX.Length];
-            double[] dataY5 = new double[dataX.Length];
-            double[] dataY6 = new double[dataX.Length];
-            double[] dataY7 = new double[dataX.Length];
-            double[] dataY8 = new double[dataX.Length];
-            double[] dataY9 = new double[dataX.Length];
-            double[] dataY11 = new double[dataX.Length];
-            double[] dataY12 = new double[dataX.Length];
-            double[] dataY13 = new double[dataX.Length];
-            double[] dataY14 = new double[dataX.Length];
-            double[] dataY15 = new double[dataX.Length];
-            double[] dataY16 = new double[dataX.Length];
-            double[] dataY17 = new double[dataX.Length];
-            double[] dataY18 = new double[dataX.Length];
-            double[] dataY19 = new double[dataX.Length];
+            double[] sinX = new double[1000];
+            double[] sinY1 = new double[sinX.Length];
+            double[] sinY2 = new double[sinX.Length];
+            double[] sinY3 = new double[sinX.Length];
+            double[] sinY4 = new double[sinX.Length];
+            double[] sinY5 = new double[sinX.Length];
+            double[] sinY6 = new double[sinX.Length];
+            double[] sinY7 = new double[sinX.Length];
+            double[] sinY8 = new double[sinX.Length];
+            double[] sinY9 = new double[sinX.Length];
 
             double f = 3;
-            double dt = 2.0 / dataX.Length;
+            double dt = 2.0 / sinX.Length;
 
-            for (int i = 0; i < dataX.Length; i++)
+            for (int i = 0; i < sinX.Length; i++)
             {
                 //double x = Math.PI * 10 * i / (dataX.Length - 1);
                 //dataX[i] = x * Math.Cos(x);
                 //dataY1[i] = x * Math.Sin(x);
-                dataX[i] = (dataX.Length - 1 - i) * dt;
-                dataY1[i] = Math.Sin(2 * Math.PI * dataX[i] * f) + 0.1;
-                dataY2[i] = Math.Sin(2 * Math.PI * dataX[i] * f) + 0.2;
-                dataY3[i] = Math.Sin(2 * Math.PI * dataX[i] * f) + 0.3;
+                sinX[i] = (sinX.Length - 1 - i) * dt;
+                sinY1[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.1;
+                sinY2[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.2;
+                sinY3[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.3;
+                sinY4[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.4;
+                sinY5[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.5;
+                sinY6[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.6;
+                sinY7[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.7;
+                sinY8[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.8;
+                sinY9[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.9;
             }
 
-            var pl1 = plot1.Add(dataX, dataY1, "Plot1");
-            var pl2 = plot1.Add(dataX, dataY2, "Plot2");
-            var pl3 = plot1.Add(dataX, dataY3, "Plot3");
+            var pl1 = plot1.Add(sinX, sinY1, "Plot1");
+            var pl2 = plot1.Add(sinX, sinY2, "Plot2");
+            var pl3 = plot1.Add(sinX, sinY3, "Plot3");
+            var pl4 = plot1.Add(sinX, sinY4, "Plot4");
 
-            pl1.BarStyle = Data.BarStyle.Vertical;
-            pl1.BarFillColor = Color.Red;
 
-            pl2.MarkStyle = Data.MarkerStyle.SolidCircle;
+            pl1.LineStyle = Data.LineStyle.Dash;
+            pl2.LineStyle = Data.LineStyle.DashDot;
+            pl3.LineStyle = Data.LineStyle.DashDotDot;
+            pl4.LineStyle = Data.LineStyle.Dot;
 
-            plot1.LegendStyle = LegendStyle.Inside;
-            plot1.LegendPosition = LegendPosition.Left;
-            plot1.LegendAlign = LegendAlign.Center;
+            pl1.LineWidth = 1;
+            pl2.LineWidth = 1;
+            pl3.LineWidth = 1;
+            pl4.LineWidth = 1;
         }
                 
     }

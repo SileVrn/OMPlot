@@ -182,11 +182,8 @@ namespace OMPlot.Data
 
             if (points.Length > 1)
             {
-                if (LineStyle != LineStyle.None)
-                {
-                    Pen linePen = new Pen(LineColor, LineWidth) { DashStyle = (DashStyle)LineStyle };
-                    g.DrawPath(linePen, GraphicsPath);
-                }
+                Line.DrawPath(g, LineColor, LineStyle, LineWidth, GraphicsPath);
+
                 if (FillStyle == FillStyle.ToNInfitity)
                 {
                     GraphicsPath path = new GraphicsPath();
@@ -324,9 +321,8 @@ namespace OMPlot.Data
             {
                 if (LineStyle != LineStyle.None)
                 {
-                    Pen linePen = new Pen(LineColor, LineWidth) { DashStyle = (DashStyle)LineStyle };
-                    g.DrawLine(linePen, rect.X, rect.Y + 0.7f * rect.Height, rect.X + 0.5f * rect.Width, rect.Y + 0.5f * rect.Height);
-                    g.DrawLine(linePen, rect.X + 0.5f * rect.Width, rect.Y + 0.5f * rect.Height, rect.X + rect.Width, rect.Y + 0.7f * rect.Height);
+                    Line.DrawLine(g, LineColor, LineStyle, LineWidth, rect.X, rect.Y + 0.7f * rect.Height, rect.X + 0.5f * rect.Width, rect.Y + 0.5f * rect.Height);
+                    Line.DrawLine(g, LineColor, LineStyle, LineWidth, rect.X + 0.5f * rect.Width, rect.Y + 0.5f * rect.Height, rect.X + rect.Width, rect.Y + 0.7f * rect.Height);
                 }
                 if (FillStyle != FillStyle.None)
                 {
@@ -364,16 +360,6 @@ namespace OMPlot.Data
         StepFar,
         StepCenter, 
         StepVertical
-    }
-    public enum LineStyle //: System.Drawing.Drawing2D.DashStyle
-    {
-        Solid = 0,
-        Dash = 1,
-        Dot = 2,
-        DashDot = 3,
-        DashDotDot = 4,
-        //Custom = 5,
-        None = -1
     }
     public enum FillStyle
     {
