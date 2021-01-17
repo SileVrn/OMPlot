@@ -339,5 +339,4 @@ namespace OMPlot.Data
             }
         }
     }
-
 }

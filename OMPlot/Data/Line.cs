@@ -12,7 +12,6 @@ namespace OMPlot.Data
     {
         static float[] dot = new float[] { 1.0F, 2.0F };
         static float[] longdot = new float[] { 1.0F, 4.0F };
-        static float[] doubledot = new float[] { 1.0F, 8.0F };
         static float[] dash = new float[] { 10.0F, 5.0F };
         static float[] longdash = new float[] { 20.0F, 5.0F };
         static float[] doubledash = new float[] { 30.0F, 5.0F };
@@ -27,8 +26,6 @@ namespace OMPlot.Data
                 linePen.DashPattern = dot;
             else if (s == LineStyle.LongDot)
                 linePen.DashPattern = longdot;
-            else if (s == LineStyle.DoubleDot)
-                linePen.DashPattern = doubledot;
             else if (s == LineStyle.Dash)
                 linePen.DashPattern = dash;
             else if (s == LineStyle.LongDash)
@@ -87,7 +84,7 @@ namespace OMPlot.Data
         double FillValue { get; set; }
         IData FillPlot { get; set; }
     }
-    public enum LineStyle { Solid, Dot, LongDot, DoubleDot, Dash, LongDash, DoubleDash, DashDot, LongDashDot, DashDotDot, None }
+    public enum LineStyle { Solid, Dash, LongDash, DoubleDash, Dot, LongDot, DashDot, LongDashDot, DashDotDot, None }
     public enum PlotInterpolation { Line, Spline, StepNear, StepFar, StepCenter, StepVertical }
     public enum FillStyle { None, ToValue, ToNInfitity, ToPInfinity, ToPlot }
 }
