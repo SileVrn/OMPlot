@@ -21,7 +21,7 @@ namespace OMPlot.Test
             Application.SetCompatibleTextRenderingDefault(false);
 
 
-            double[] dataX = new double[10];
+            /*double[] dataX = new double[10];
             double[] dataY1 = new double[dataX.Length];
             double[] dataY2 = new double[dataX.Length];
             for (int i = 0; i < dataX.Length; i++)
@@ -39,7 +39,7 @@ namespace OMPlot.Test
 
             var plot1 = p.Add(dataX, dataY2);
             plot1.LineStyle = Data.LineStyle.None;
-            plot0.FillPlot = plot1;
+            plot0.FillPlot = plot1;*/
 
 
             /*foreach (Data.PlotInterpolation inter in Enum.GetValues(typeof(Data.PlotInterpolation)))
@@ -63,7 +63,7 @@ namespace OMPlot.Test
                                         catch
                                         { }*/
 
-            dataX = new double[11];
+            /*dataX = new double[11];
             dataY1 = new double[dataX.Length];
             dataY2 = new double[dataX.Length];
             for (int i = 0; i < dataX.Length; i++)
@@ -234,7 +234,7 @@ namespace OMPlot.Test
             p.LegendPosition = LegendPosition.Top;      p.ToImage().Save("Legend_Inside_Far_Top.png");
             p.LegendPosition = LegendPosition.Bottom;   p.ToImage().Save("Legend_Inside_Far_Bottom.png");
             p.LegendPosition = LegendPosition.Left;     p.ToImage().Save("Legend_Inside_Far_Left.png");
-            p.LegendPosition = LegendPosition.Right;    p.ToImage().Save("Legend_Inside_Far_Right.png");
+            p.LegendPosition = LegendPosition.Right;    p.ToImage().Save("Legend_Inside_Far_Right.png");*/
 
             Application.Run(new Form1());            
         }

@@ -8,10 +8,8 @@ using System.Threading.Tasks;
 
 namespace OMPlot.Data
 {
-    public class XY : IData, IBar
-    {
-        Color[] defaultPlotColors = new Color[] { Color.Red, Color.Blue, Color.Green };
-
+    public class XY : IData, IBar, IMarker, ILine, IFill
+    {        
         double[] X, Y;
         PointF[] points;
 
@@ -171,13 +169,6 @@ namespace OMPlot.Data
         }
         public void Draw(Graphics g, Axis vertical, Axis horizontal, RectangleExtended plotRectangle, int plotIndex)
         {
-            if (LineColor.R == 0 && LineColor.G == 0 && LineColor.B == 0 && LineColor.A == 0)
-                LineColor = defaultPlotColors[plotIndex % 3];
-            if (MarkColor.R == 0 && MarkColor.G == 0 && MarkColor.B == 0 && MarkColor.A == 0)
-                MarkColor = defaultPlotColors[plotIndex % 3];
-            if (FillColor.R == 0 && FillColor.G == 0 && FillColor.B == 0 && FillColor.A == 0)
-                FillColor = defaultPlotColors[plotIndex % 3];
-
             Marker.Draw(g, MarkColor, MarkStyle, MarkSize, points);
 
             if (points.Length > 1)
@@ -246,7 +237,6 @@ namespace OMPlot.Data
                 }
             }
         }
-
         private void DrawVerticalBar(Graphics g, Brush barBrush, Pen barPen, float refPositionY, int i)
         {
             float barCount = BarStacking ? BarCount : 1.0f;
@@ -279,7 +269,6 @@ namespace OMPlot.Data
             if (BarLineColor.A > 0)
                 g.DrawRectangle(barPen, barX, barY, barWidth, barHeight);
         }
-
         private void DrawHorisontalBar(Graphics g, Brush barBrush, Pen barPen, float refPositionX, int i)
         {
             float barCount = BarStacking ? BarCount : 1.0f;
@@ -312,7 +301,6 @@ namespace OMPlot.Data
             if (BarLineColor.A > 0)
                 g.DrawRectangle(barPen, barX, barY, barWidth, barHeight);
         }
-
         public void DrawLegend(Graphics g, RectangleF rect)
         {
             Marker.Draw(g, MarkColor, MarkStyle, MarkSize, new PointF[] { new PointF(rect.X + rect.Width / 2f, rect.Y + rect.Height / 2f) });
@@ -352,21 +340,4 @@ namespace OMPlot.Data
         }
     }
 
-    public enum PlotInterpolation
-    {
-        Line,
-        Spline,
-        StepNear, 
-        StepFar,
-        StepCenter, 
-        StepVertical
-    }
-    public enum FillStyle
-    {
-        None,
-        ToValue,
-        ToNInfitity,
-        ToPInfinity,
-        ToPlot
-    }
 }

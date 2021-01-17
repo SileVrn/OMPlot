@@ -13,12 +13,12 @@ namespace OMPlot.Data
         static float[] dot = new float[] { 1.0F, 2.0F };
         static float[] longdot = new float[] { 1.0F, 4.0F };
         static float[] doubledot = new float[] { 1.0F, 8.0F };
-        static float[] dash = new float[] { 5.0F, 5.0F };
-        static float[] longdash = new float[] { 10.0F, 5.0F };
-        static float[] doubledash = new float[] { 20.0F, 5.0F };
-        static float[] dashdot = new float[] { 5.0F, 3.0F, 1.0F, 3.0F };
-        static float[] longdashdot = new float[] { 10.0F, 3.0F, 1.0F, 3.0F };
-        static float[] dashdotdot = new float[] { 5.0F, 2.0F, 1.0F, 2.0F, 1.0F, 2.0F };
+        static float[] dash = new float[] { 10.0F, 5.0F };
+        static float[] longdash = new float[] { 20.0F, 5.0F };
+        static float[] doubledash = new float[] { 30.0F, 5.0F };
+        static float[] dashdot = new float[] { 10.0F, 3.0F, 1.0F, 3.0F };
+        static float[] longdashdot = new float[] { 20.0F, 3.0F, 1.0F, 3.0F };
+        static float[] dashdotdot = new float[] { 10.0F, 3.0F, 1.0F, 3.0F, 1.0F, 3.0F };
 
         public static Pen GetPen(Color c, LineStyle s, float w)
         {
@@ -73,8 +73,21 @@ namespace OMPlot.Data
         }
 
     }
-        public enum LineStyle
-        {
-            Solid, Dot, LongDot, DoubleDot, Dash, LongDash, DoubleDash, DashDot, LongDashDot, DashDotDot, None
-        }
+    interface ILine
+    {
+        PlotInterpolation Interpolation { get; set; }
+        LineStyle LineStyle { get; set; }
+        float LineWidth { get; set; }
+        Color LineColor { get; set; }
+    }
+    interface IFill
+    {
+        FillStyle FillStyle { get; set; }
+        Color FillColor { get; set; }
+        double FillValue { get; set; }
+        IData FillPlot { get; set; }
+    }
+    public enum LineStyle { Solid, Dot, LongDot, DoubleDot, Dash, LongDash, DoubleDash, DashDot, LongDashDot, DashDotDot, None }
+    public enum PlotInterpolation { Line, Spline, StepNear, StepFar, StepCenter, StepVertical }
+    public enum FillStyle { None, ToValue, ToNInfitity, ToPInfinity, ToPlot }
 }

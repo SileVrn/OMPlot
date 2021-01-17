@@ -19,10 +19,4 @@ namespace OMPlot.Data
         void Draw(Graphics g, OMPlot.Axis vertical, OMPlot.Axis Horizontal, RectangleExtended plotRectangle, int plotIndex);
         void DrawLegend(Graphics g, RectangleF rect);
     }
-    public enum PlotStyle
-    {
-        Line,
-        Marker,
-        Both
-    }
 }

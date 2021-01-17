@@ -23,9 +23,17 @@ namespace OMPlot
         bool selectHorizontal, selectVertical;
         string selectedAxisName;
 
+        Pen selectionPen = new Pen(Color.FromArgb(200, 0, 50, 100));
+        Brush selectionBrush = new SolidBrush(Color.FromArgb(100, 0, 50, 100));
+
+        Color[] defaultPlotColors = new Color[] { Color.FromArgb(35, 80, 170), Color.FromArgb(200,30,30), Color.FromArgb(10,160,50), Color.FromArgb(200,100,30), Color.FromArgb(100,30,200), Color.FromArgb(0,0,0)};
+        LineStyle[] defaultLineStyle = ((LineStyle[])Enum.GetValues(typeof(LineStyle))).Where(e => e != LineStyle.None).ToArray();
+        MarkerStyle[] defaultMarkerStyle = ((MarkerStyle[])Enum.GetValues(typeof(MarkerStyle))).Where(e => e != MarkerStyle.None).ToArray();
+
         RectangleExtended plotRectangle;
 
         public string Title { get; set; }
+        public PlotStyle PlotStyle { get; set; }
 
         public LegendStyle LegendStyle { get; set; }
         public LegendPosition LegendPosition { get; set; }
@@ -66,11 +74,12 @@ namespace OMPlot
         public void Add(IData data) { Data.Add(data); }
         public XY Add(IEnumerable<double> x, IEnumerable<double> y)
         {
-            return this.Add(x, y, "plot" + Data.Count().ToString());
+            return this.Add(x, y, "Plot" + Data.Count().ToString());
         }
         public XY Add(IEnumerable<double> x, IEnumerable<double> y, string name)
         {
             XY data = new XY(x, y, name);
+            int plotIndex = Data.Count();
             var axisX = GetHorizontalAxis();
             var axisY = GetVerticalAxis();
             double clearanceX = Math.Abs(0.01 * (data.MaximumX - data.MinimumX));
@@ -94,6 +103,46 @@ namespace OMPlot
                 axisX.Maximum = axisX.Maximum < dataXMax ? dataXMax : axisX.Maximum;
                 axisY.Maximum = axisY.Maximum < dataYMax ? dataYMax : axisY.Maximum;
             }
+
+            if(PlotStyle == PlotStyle.Lines || PlotStyle == PlotStyle.Splines)
+            {
+                int colorIndex = plotIndex % defaultPlotColors.Length;
+                int lineStyleIndex = (plotIndex - colorIndex) / defaultPlotColors.Length % defaultLineStyle.Length;
+                data.LineColor = defaultPlotColors[colorIndex];
+                data.LineStyle = defaultLineStyle[lineStyleIndex];
+                if (PlotStyle == PlotStyle.Splines)
+                    data.Interpolation = PlotInterpolation.Spline;
+            }
+            else if(PlotStyle == PlotStyle.LinesMarkers || PlotStyle == PlotStyle.SplinesMarkers)
+            {
+                int colorIndex = plotIndex % defaultPlotColors.Length;
+                int markerStyleIndex = (plotIndex - colorIndex) / defaultPlotColors.Length % defaultMarkerStyle.Length;
+                data.LineColor = defaultPlotColors[colorIndex];
+                data.MarkColor = defaultPlotColors[colorIndex];
+                data.MarkStyle = defaultMarkerStyle[markerStyleIndex];
+                if (PlotStyle == PlotStyle.SplinesMarkers)
+                    data.Interpolation = PlotInterpolation.Spline;
+            }
+            else if(PlotStyle == PlotStyle.Markers)
+            {
+                int colorIndex = plotIndex % defaultPlotColors.Length;
+                int markerStyleIndex = (plotIndex - colorIndex) / defaultPlotColors.Length % defaultMarkerStyle.Length;
+                data.LineStyle = LineStyle.None;
+                data.MarkColor = defaultPlotColors[colorIndex];
+                data.MarkStyle = defaultMarkerStyle[markerStyleIndex];
+                if (PlotStyle == PlotStyle.SplinesMarkers)
+                    data.Interpolation = PlotInterpolation.Spline;
+            }
+            else if(PlotStyle == PlotStyle.VerticalBars || PlotStyle == PlotStyle.HorisontalBars)
+            {
+                int colorIndex = plotIndex % defaultPlotColors.Length;
+                data.LineStyle = LineStyle.None;
+                data.BarDuty = 1.0f;
+                data.BarFillColor = defaultPlotColors[colorIndex];
+                data.BarStacking = true;
+                data.BarStyle = PlotStyle == PlotStyle.HorisontalBars ? BarStyle.Horisontal : BarStyle.Vertical;
+            }
+
             Data.Add(data);
             return data;
         }
@@ -501,7 +550,7 @@ namespace OMPlot
             if (!string.IsNullOrEmpty(Title))
             {
                 StringFormat stringFormat = new StringFormat { Alignment = StringAlignment.Center };
-                g.DrawString(Title, titleFont, mainBrush, this.Width / 2.0f, 0, stringFormat);
+                g.DrawString(Title, titleFont, mainBrush, this.Width / 2.0f, paddingRectangle.Top, stringFormat);
             }
 
             if (LegendStyle != LegendStyle.None)
@@ -552,7 +601,7 @@ namespace OMPlot
                                 rightAxisPosition += axis.Value.SizeFar;
                             }
                             else
-                                axis.Value.DrawVertical(g, (int)Horizontal.First().Value.Transform(axis.Value.CrossValue), plotRectangle.Top, plotRectangle);
+                                axis.Value.DrawVertical(g, Horizontal.First().Value.Transform(axis.Value.CrossValue), plotRectangle.Top, plotRectangle);
                             break;
                         }
                 }
@@ -591,7 +640,7 @@ namespace OMPlot
                                 topAxisPosition -= axis.Value.SizeFar;
                             }
                             else
-                                axis.Value.DrawHorizontal(g, plotRectangle.Left, (int)Vertical.First().Value.Transform(axis.Value.CrossValue), plotRectangle);
+                                axis.Value.DrawHorizontal(g, plotRectangle.Left, Vertical.First().Value.Transform(axis.Value.CrossValue), plotRectangle);
                             break;
                         }
                 }
@@ -602,15 +651,10 @@ namespace OMPlot
                 Rectangle selectionRec = new Rectangle();
                 if (selectVertical && selectHorizontal)
                     selectionRec = new Rectangle(Math.Min(mouseX, currentmouseX), Math.Min(mouseY, currentmouseY), Math.Abs(mouseX - currentmouseX), Math.Abs(mouseY - currentmouseY));
-                else
-                {
-                    if (selectVertical)
-                        selectionRec = new Rectangle((int)plotRectangle.Left, Math.Min(mouseY, currentmouseY), (int)plotRectangle.Width, Math.Abs(mouseY - currentmouseY));
-                    if (selectHorizontal)
-                        selectionRec = new Rectangle(Math.Min(mouseX, currentmouseX), (int)plotRectangle.Top, Math.Abs(mouseX - currentmouseX), (int)plotRectangle.Height);
-                }
-                Pen selectionPen = new Pen(Color.FromArgb(200, 0, 50, 100));
-                Brush selectionBrush = new SolidBrush(Color.FromArgb(100, 0, 50, 100));
+                else if (selectVertical)
+                    selectionRec = new Rectangle((int)plotRectangle.Left, Math.Min(mouseY, currentmouseY), (int)plotRectangle.Width, Math.Abs(mouseY - currentmouseY));
+                else if (selectHorizontal)
+                    selectionRec = new Rectangle(Math.Min(mouseX, currentmouseX), (int)plotRectangle.Top, Math.Abs(mouseX - currentmouseX), (int)plotRectangle.Height);
                 g.DrawRectangle(selectionPen, selectionRec);
                 g.FillRectangle(selectionBrush, selectionRec);
             }
@@ -632,4 +676,5 @@ namespace OMPlot
     public enum LegendStyle { None, Inside, Outside }
     public enum LegendPosition { Top, Bottom, Left, Right }
     public enum LegendAlign { Far, Center, Near }
+    public enum PlotStyle { Lines, Splines, LinesMarkers, SplinesMarkers, Markers, VerticalBars, HorisontalBars, Custom }
 }

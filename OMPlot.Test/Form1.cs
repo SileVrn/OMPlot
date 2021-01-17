@@ -48,7 +48,7 @@ namespace OMPlot.Test
             //pppp.Interpolation = Data.PlotInterpolation.NewSpline;
 
 
-            double[] sinX = new double[1000];
+            double[] sinX = new double[100];
             double[] sinY1 = new double[sinX.Length];
             double[] sinY2 = new double[sinX.Length];
             double[] sinY3 = new double[sinX.Length];
@@ -58,6 +58,15 @@ namespace OMPlot.Test
             double[] sinY7 = new double[sinX.Length];
             double[] sinY8 = new double[sinX.Length];
             double[] sinY9 = new double[sinX.Length];
+            double[] sinY11 = new double[sinX.Length];
+            double[] sinY12 = new double[sinX.Length];
+            double[] sinY13 = new double[sinX.Length];
+            double[] sinY14 = new double[sinX.Length];
+            double[] sinY15 = new double[sinX.Length];
+            double[] sinY16 = new double[sinX.Length];
+            double[] sinY17 = new double[sinX.Length];
+            double[] sinY18 = new double[sinX.Length];
+            double[] sinY19 = new double[sinX.Length];
 
             double f = 3;
             double dt = 2.0 / sinX.Length;
@@ -77,23 +86,38 @@ namespace OMPlot.Test
                 sinY7[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.7;
                 sinY8[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.8;
                 sinY9[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.9;
+                sinY11[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.1;
+                sinY12[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.2;
+                sinY13[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.3;
+                sinY14[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.4;
+                sinY15[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.5;
+                sinY16[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.6;
+                sinY17[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.7;
+                sinY18[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.8;
+                sinY19[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.9;
             }
+
+            plot1.LegendStyle = LegendStyle.Outside;
+            plot1.LegendPosition = LegendPosition.Right;
 
             var pl1 = plot1.Add(sinX, sinY1, "Plot1");
             var pl2 = plot1.Add(sinX, sinY2, "Plot2");
             var pl3 = plot1.Add(sinX, sinY3, "Plot3");
             var pl4 = plot1.Add(sinX, sinY4, "Plot4");
-
-
-            pl1.LineStyle = Data.LineStyle.Dash;
-            pl2.LineStyle = Data.LineStyle.DashDot;
-            pl3.LineStyle = Data.LineStyle.DashDotDot;
-            pl4.LineStyle = Data.LineStyle.Dot;
-
-            pl1.LineWidth = 1;
-            pl2.LineWidth = 1;
-            pl3.LineWidth = 1;
-            pl4.LineWidth = 1;
+            var pl5 = plot1.Add(sinX, sinY5, "Plot5");
+            var pl6 = plot1.Add(sinX, sinY6, "Plot6");
+            var pl7 = plot1.Add(sinX, sinY7, "Plot7");
+            var pl8 = plot1.Add(sinX, sinY8, "Plot8");
+            var pl9 = plot1.Add(sinX, sinY9, "Plot9");
+            var pl11 = plot1.Add(sinX, sinY11, "Plot11");
+            var pl12 = plot1.Add(sinX, sinY12, "Plot12");
+            var pl13 = plot1.Add(sinX, sinY13, "Plot13");
+            var pl14 = plot1.Add(sinX, sinY14, "Plot14");
+            var pl15 = plot1.Add(sinX, sinY15, "Plot15");
+            var pl16 = plot1.Add(sinX, sinY16, "Plot16");
+            var pl17 = plot1.Add(sinX, sinY17, "Plot17");
+            var pl18 = plot1.Add(sinX, sinY18, "Plot18");
+            var pl19 = plot1.Add(sinX, sinY19, "Plot19");
         }
                 
     }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OMPlot.Data
 {
-    public static class Marker
+    static class Marker
     {
         static PointF[] markerTriangle = { new PointF(0, -0.6f), new PointF(0.6f * (float)Math.Cos(7.0 / 6.0 * Math.PI), -0.6f * (float)Math.Sin(7.0 / 6.0 * Math.PI)), new PointF(0.6f * (float)Math.Cos(11.0 / 6.0 * Math.PI), -0.6f * (float)Math.Sin(11.0 / 6.0 * Math.PI)) };
         static PointF[] markerPentagon = { new PointF(0, -0.6f), new PointF(0.6f * (float)Math.Cos(9.0 / 10.0 * Math.PI), -0.6f * (float)Math.Sin(9.0 / 10.0 * Math.PI)), new PointF(0.6f * (float)Math.Cos(13.0 / 10.0 * Math.PI), -0.6f * (float)Math.Sin(13.0 / 10.0 * Math.PI)), new PointF(0.6f * (float)Math.Cos(17.0 / 10.0 * Math.PI), -0.6f * (float)Math.Sin(17.0 / 10.0 * Math.PI)), new PointF(0.6f * (float)Math.Cos(21.0 / 10.0 * Math.PI), -0.6f * (float)Math.Sin(21.0 / 10.0 * Math.PI)) };
@@ -126,6 +126,12 @@ namespace OMPlot.Data
             }
 
         }
+    }
+    interface IMarker
+    {
+        MarkerStyle MarkStyle { get; set; }
+        float MarkSize { get; set; }
+        Color MarkColor { get; set; }
     }
     public enum MarkerStyle
     {

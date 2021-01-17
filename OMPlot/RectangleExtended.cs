@@ -48,13 +48,13 @@ namespace OMPlot
         }
         public float CenterX
         {
-            get { return x + (float)Math.Round(width / 2.0); }
-            set { x = value - (float)Math.Round(width / 2.0); }
+            get { return x + width / 2.0f; }
+            set { x = value - width / 2.0f; }
         }
         public float CenterY
         {
-            get { return y + (float)Math.Round(height / 2.0); }
-            set{ y = value - (float)Math.Round(height / 2.0); }
+            get { return y + height / 2.0f; }
+            set{ y = value - height / 2.0f; }
         }
         public float FullScaleX
         {
