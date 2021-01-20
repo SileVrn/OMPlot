@@ -12,7 +12,7 @@ namespace OMPlot
 
 		internal static double Pow10(int a)
 		{
-			float b = 1;
+			double b = 1;
 			if (a > 0)
 			{
 				while (a-- > 0)
@@ -75,7 +75,7 @@ namespace OMPlot
 
 		internal static string ToSI(float value, int degree, string format = "###.##")
 		{
-			if (value == 0.0f)
+			if (value == 0.0)
 				return "0";
 			if (float.IsPositiveInfinity(value))
 				return "+∞";
@@ -94,7 +94,7 @@ namespace OMPlot
 
 		internal static string ToSI(double value, string format = "###.##")
 		{
-			if (value == 0.0f)
+			if (value == 0.0)
 				return "0";
 			if (double.IsPositiveInfinity(value))
 				return "+∞";
@@ -120,38 +120,9 @@ namespace OMPlot
 				double b = Pow10(sign);
 				return Math.Round(a / b) * b;
 			}
-			else
-			{
-				return Math.Round(a, -1 * sign);
-			}
+			return Math.Round(a, -1 * sign);
 		}
 
-		internal static int FirstSignRound(double a)
-		{
-			double b = Math.Abs(a);
-			if (b > 10)
-			{
-				double c = 100;
-				int i = 1;
-				while (b > c)
-				{
-					i++;
-					c *= 10;
-				}
-				return i--;
-			}
-			else if (b < 1)
-			{
-				double c = 0.1f;
-				int i = -1;
-				while (b < c)
-				{
-					i--;
-					c /= 10;
-				}
-				return i++;
-			}
-			return 0;
-		}
+		internal static int FirstSignRound(double a) { return (int)(Math.Floor(Math.Log10(Math.Abs(a)))); }
 	}
 }

@@ -84,6 +84,8 @@ namespace OMPlot
             var axisY = GetVerticalAxis();
             double clearanceX = Math.Abs(0.01 * (data.MaximumX - data.MinimumX));
             double clearanceY = Math.Abs(0.01 * (data.MaximumX - data.MinimumX));
+            clearanceX = 0;
+            clearanceY = 0;
             double dataXMin = data.MinimumX - clearanceX;
             double dataYMin = data.MinimumY - clearanceY;
             double dataXMax = data.MaximumX + clearanceX;
@@ -385,6 +387,7 @@ namespace OMPlot
             foreach (var axis in Vertical)
             {
                 axis.Value.Font = this.Font;
+                axis.Value.CalculateTranformVertical(plotRectangle.Top, plotRectangle.Bottom); //preliminary calculation
                 axis.Value.MeasureVertical(g, this.Size);
                 if (axis.Value.Position == AxisPosition.Near || axis.Value.Position == AxisPosition.CrossValue)
                     plotRectangle.Left += axis.Value.SizeNear;
@@ -394,6 +397,7 @@ namespace OMPlot
             foreach (var axis in Horizontal)
             {
                 axis.Value.Font = this.Font;
+                axis.Value.CalculateTranformHorizontal(plotRectangle.Left, plotRectangle.Right); //preliminary calculation
                 axis.Value.MeasureHorizontal(g, this.Size);
                 if (axis.Value.Position == AxisPosition.Near || axis.Value.Position == AxisPosition.CrossValue)
                     plotRectangle.Top += axis.Value.SizeNear;
@@ -661,9 +665,11 @@ namespace OMPlot
 
             sw.Stop();
 
-            g.DrawString((1000.0 / (double)(sw.ElapsedMilliseconds > 0 ? sw.ElapsedMilliseconds : 1)).ToString("#.###"), this.Font, mainBrush, 0, 0);
+            ElapsedMilliseconds.Add(sw.ElapsedMilliseconds);
+            double ElapsedMillisecondsAvg = ElapsedMilliseconds.Average();
+            g.DrawString((1000.0 / (ElapsedMillisecondsAvg > 0 ? ElapsedMillisecondsAvg : 1)).ToString("#.###"), this.Font, mainBrush, 0, 0);
         }
-
+        List<long> ElapsedMilliseconds = new List<long>();
         public Image ToImage()
         {
             Image img = new Bitmap(this.Width, this.Height);

@@ -24,6 +24,7 @@ namespace OMPlot
         private double offset;
         private double[] tick;
         private string[] tickLabel;
+        private float[] tickLabelLocation;
         private SizeF[] tickLabelSize;
         private double[] subTick;
         private string tickLabelFormat;
@@ -217,10 +218,11 @@ namespace OMPlot
 
                     tickLabel = CustomTicksLabels.Where((ctl, i) => CustomTicks[i] >= Minimum && CustomTicks[i] <= Maximum).ToArray();
                     tickLabelSize = tickLabel.Select(tl => g.MeasureString(tl, this.Font)).ToArray();
+                    tickLabelLocation = CustomTicks.Where(ct => ct >= Minimum && ct <= Maximum).Select(ct => this.Transform(ct)).ToArray();
                     return;
                 }
             }
-            else if (!Logarithmic)
+            else if (!Logarithmic || (Maximum / Minimum) < 10)
             {
                 double step = (Maximum - Minimum) / TickNumber;
                 int roundStepSign = Accessories.FirstSignRound(step);
@@ -275,17 +277,41 @@ namespace OMPlot
             }
             else
             {
-                tick = new double[(int)(Math.Log10(Maximum) - Math.Log10(Minimum) + 1)];
-                subTick = new double[0];
+                List<double> tickList = new List<double>();
+                List<double> subTickList = new List<double>();
 
-                for (int i = 0; i < tick.Length; i++)
-                    tick[i] = Accessories.Pow10(i) * Minimum;
+                double mark = Accessories.Pow10(Accessories.FirstSignRound(Minimum));
+                mark = mark < Minimum ? mark * 10 : mark;
+                double subMark = 0.9 * mark;
+
+
+                for (int i = 0; i < SubTickNumber - 1 && subMark >= Minimum; i++)
+                {
+                    subTickList.Add(subMark);
+                    subMark -= 0.1 * mark;
+                }
+                while (mark < Maximum)
+                {
+                    mark = Accessories.Pow10(Accessories.FirstSignRound(mark));
+                    tickList.Add(mark);
+                    subMark = mark + mark;
+                    for (int i = 0; i < SubTickNumber - 1 && subMark < Maximum; i++)
+                    {
+                        subTickList.Add(subMark);
+                        subMark += mark;
+                    }
+                    mark *= 10;                    
+                }
+                tick = tickList.ToArray();
+                subTick = subTickList.ToArray();
+                var aaa = tick.Select(t => Accessories.Degree(t)).ToArray();
 
                 tickLabelFormat = "###";
             }
-
+                        
             tickLabel = tick.Select(t => Accessories.ToSI(t, tickLabelFormat)).ToArray();
             tickLabelSize = tickLabel.Select(tl => g.MeasureString(tl, this.Font)).ToArray();
+            tickLabelLocation = tick.Select(t => this.Transform(t)).ToArray();
         }
         public void MeasureVertical(Graphics g, Size plotSize)
         {
@@ -294,14 +320,38 @@ namespace OMPlot
 
             bool decreaseTickNumber;
             SizeF tickLabelFormatSize;
-            TickNumber = 10;
+            TickNumber = 20;
             do
             {
                 CalculateTicks(g);
                 tickLabelFormatSize = new SizeF(tickLabelSize.Max(e => e.Width), tickLabelSize.First().Height);
-                float ticksLabelsLengthTotal = tickLabelSize.Sum(e => e.Width + e.Height);
-                decreaseTickNumber = TicksLabelsPosition != LabelsPosition.None && TicksLabelsRotation == TicksLabelsRotation.Parallel && ticksLabelsLengthTotal > plotSize.Width && (CustomTicks == null || CustomTicks.Length < 1);
-                TickNumber = decreaseTickNumber ? (int)Math.Floor((double)(TickNumber) / 2.0) : TickNumber;
+                decreaseTickNumber = false;
+                if (TicksLabelsPosition != LabelsPosition.None && (CustomTicks == null || CustomTicks.Length < 1) && TickNumber > 1)
+                {
+                    if (TicksLabelsRotation == TicksLabelsRotation.Parallel)
+                    {
+                        for (int i = 0; i < tick.Length - 1; i++)
+                        {
+                            if (Math.Abs(tickLabelLocation[i + 1] - tickLabelLocation[i]) < Math.Max(tickLabelSize[i + 1].Width + tickLabelSize[i + 1].Height, tickLabelSize[i].Width + tickLabelSize[i].Height))
+                            {
+                                decreaseTickNumber = true;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < tick.Length - 1; i++)
+                        {
+                            if (Math.Abs(tickLabelLocation[i + 1] - tickLabelLocation[i]) < Math.Max(tickLabelSize[i + 1].Height + tickLabelSize[i + 1].Height, tickLabelSize[i].Height + tickLabelSize[i].Height))
+                            {
+                                decreaseTickNumber = true;
+                                break;
+                            }
+                        }
+                    }    
+                    TickNumber = decreaseTickNumber ? (int)Math.Floor((double)(TickNumber) / 2.0) : TickNumber;
+                }
             }
             while (decreaseTickNumber);
 
@@ -374,14 +424,38 @@ namespace OMPlot
 
             bool decreaseTickNumber;
             SizeF tickLabelFormatSize;
-            TickNumber = 10;
+            TickNumber = 20;
             do
             {
                 CalculateTicks(g);
                 tickLabelFormatSize = new SizeF(tickLabelSize.Max(e => e.Width), tickLabelSize.First().Height);
-                float ticksLabelsLengthTotal = tickLabelSize.Sum(e => e.Width);
-                decreaseTickNumber = TicksLabelsPosition != LabelsPosition.None && TicksLabelsRotation == TicksLabelsRotation.Parallel && ticksLabelsLengthTotal > plotSize.Width && (CustomTicks == null || CustomTicks.Length < 1);
-                TickNumber = decreaseTickNumber ? (int)Math.Floor((double)(TickNumber) / 2.0) : TickNumber;
+                decreaseTickNumber = false;
+                if (TicksLabelsPosition != LabelsPosition.None && (CustomTicks == null || CustomTicks.Length < 1) && TickNumber > 1)
+                {
+                    if (TicksLabelsRotation == TicksLabelsRotation.Parallel)
+                    {
+                        for (int i = 0; i < tick.Length - 1; i++)
+                        {
+                            if (Math.Abs(tickLabelLocation[i + 1] - tickLabelLocation[i]) < Math.Max(tickLabelSize[i + 1].Width + tickLabelSize[i + 1].Height, tickLabelSize[i].Width + tickLabelSize[i].Height))
+                            {
+                                decreaseTickNumber = true;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < tick.Length - 1; i++)
+                        {
+                            if (Math.Abs(tickLabelLocation[i + 1] - tickLabelLocation[i]) < Math.Max(tickLabelSize[i + 1].Height + tickLabelSize[i + 1].Height, tickLabelSize[i].Height + tickLabelSize[i].Height))
+                            {
+                                decreaseTickNumber = true;
+                                break;
+                            }
+                        }
+                    }
+                    TickNumber = decreaseTickNumber ? (int)Math.Floor((double)(TickNumber) / 2.0) : TickNumber;
+                }
             }
             while (decreaseTickNumber);
 
@@ -446,7 +520,6 @@ namespace OMPlot
                     OverflowFar = (titleSize.Width / 2) > OverflowFar ? (titleSize.Width / 2) : OverflowFar;
             }
         }
-        
         public void DrawVertical(Graphics g, float x, float y, RectangleExtended rect)
         {
             drawnRectangle = new RectangleExtended(x, y, 0, rect.Height);

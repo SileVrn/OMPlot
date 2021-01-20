@@ -109,6 +109,7 @@ namespace OMPlot.Data
             }
 
             points = pointList.ToArray();
+
             GraphicsPath = new GraphicsPath();
 
             if (points.Length > 1)

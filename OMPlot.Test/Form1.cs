@@ -48,7 +48,7 @@ namespace OMPlot.Test
             //pppp.Interpolation = Data.PlotInterpolation.NewSpline;
 
 
-            double[] sinX = new double[100];
+            double[] sinX = new double[1000000];
             double[] sinY1 = new double[sinX.Length];
             double[] sinY2 = new double[sinX.Length];
             double[] sinY3 = new double[sinX.Length];
@@ -97,28 +97,7 @@ namespace OMPlot.Test
                 sinY19[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.9;
             }
 
-            plot1.LegendStyle = LegendStyle.Outside;
-            plot1.LegendPosition = LegendPosition.Right;
-
             var pl1 = plot1.Add(sinX, sinY1, "Plot1");
-            var pl2 = plot1.Add(sinX, sinY2, "Plot2");
-            var pl3 = plot1.Add(sinX, sinY3, "Plot3");
-            var pl4 = plot1.Add(sinX, sinY4, "Plot4");
-            var pl5 = plot1.Add(sinX, sinY5, "Plot5");
-            var pl6 = plot1.Add(sinX, sinY6, "Plot6");
-            var pl7 = plot1.Add(sinX, sinY7, "Plot7");
-            var pl8 = plot1.Add(sinX, sinY8, "Plot8");
-            var pl9 = plot1.Add(sinX, sinY9, "Plot9");
-            var pl11 = plot1.Add(sinX, sinY11, "Plot11");
-            var pl12 = plot1.Add(sinX, sinY12, "Plot12");
-            var pl13 = plot1.Add(sinX, sinY13, "Plot13");
-            var pl14 = plot1.Add(sinX, sinY14, "Plot14");
-            var pl15 = plot1.Add(sinX, sinY15, "Plot15");
-            var pl16 = plot1.Add(sinX, sinY16, "Plot16");
-            var pl17 = plot1.Add(sinX, sinY17, "Plot17");
-            var pl18 = plot1.Add(sinX, sinY18, "Plot18");
-            var pl19 = plot1.Add(sinX, sinY19, "Plot19");
         }
-                
     }
 }
