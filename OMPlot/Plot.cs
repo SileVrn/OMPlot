@@ -23,6 +23,10 @@ namespace OMPlot
         bool selectHorizontal, selectVertical;
         string selectedAxisName;
 
+        /*PointF test0, test1;
+        double distance;
+        long time;*/
+
         Pen selectionPen = new Pen(Color.FromArgb(200, 0, 50, 100));
         Brush selectionBrush = new SolidBrush(Color.FromArgb(100, 0, 50, 100));
 
@@ -32,12 +36,20 @@ namespace OMPlot
 
         RectangleExtended plotRectangle;
 
+        public const float MouseEventDistance = 3;
+
         public string Title { get; set; }
         public PlotStyle PlotStyle { get; set; }
 
         public LegendStyle LegendStyle { get; set; }
         public LegendPosition LegendPosition { get; set; }
         public LegendAlign LegendAlign { get; set; }
+
+        public event PlotMouseEvent PlotClick;
+        public event PlotMouseEvent PlotDoubleClick;
+        public event PlotMouseEvent PlotMouseUp;
+        public event PlotMouseEvent PlotMouseDown;
+        public event PlotMouseEvent PlotMouseMove;
 
         List<IData> Data;
         Dictionary<string, Axis> Vertical;
@@ -49,7 +61,7 @@ namespace OMPlot
             Data = new List<IData>();
             Vertical = new Dictionary<string, Axis>();
             Horizontal = new Dictionary<string, Axis>();
-            this.MouseWheel += Analog_MouseWheel;
+            this.MouseWheel += Plot_MouseWheel;
 
             Axis xAxis = new Axis();
             xAxis.Minimum = -10;
@@ -128,7 +140,7 @@ namespace OMPlot
             else if(PlotStyle == PlotStyle.Markers)
             {
                 int colorIndex = plotIndex % defaultPlotColors.Length;
-                int markerStyleIndex = (plotIndex - colorIndex) / defaultPlotColors.Length % defaultMarkerStyle.Length;
+                int markerStyleIndex = plotIndex % defaultMarkerStyle.Length;
                 data.LineStyle = LineStyle.None;
                 data.MarkColor = defaultPlotColors[colorIndex];
                 data.MarkStyle = defaultMarkerStyle[markerStyleIndex];
@@ -179,7 +191,7 @@ namespace OMPlot
             return Horizontal[name];
         }
 
-        private void Analog_MouseWheel(object sender, MouseEventArgs e)
+        private void Plot_MouseWheel(object sender, MouseEventArgs e)
         {
             float zoom = 100 / (float)e.Delta;
             if (zoom < 0)
@@ -200,7 +212,7 @@ namespace OMPlot
             }
             this.Refresh();
         }
-        private void Analog_MouseDown(object sender, MouseEventArgs e)
+        private void Plot_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right || e.Button == MouseButtons.Middle)
             {
@@ -225,8 +237,16 @@ namespace OMPlot
                 mouseX = e.X;
                 mouseY = e.Y;
             }
+            if (PlotMouseDown != null && plotRectangle.InRectangle(e.X, e.Y))
+            {
+                var plotPoint = CalculateMinDistance(e.X, e.Y);
+                if (plotPoint.Item1 >= 0)
+                    PlotMouseDown(this, new PlotMouseEventArgs(e, Data[plotPoint.Item1], plotPoint.Item2.Point));
+                else
+                    PlotMouseDown(this, new PlotMouseEventArgs(e));
+            }
         }
-        private void Analog_MouseMove(object sender, MouseEventArgs e)
+        private void Plot_MouseMove(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
             {
@@ -262,8 +282,16 @@ namespace OMPlot
                 currentmouseY = e.Y;
                 this.Refresh();
             }
+            if (PlotMouseMove != null && plotRectangle.InRectangle(e.X, e.Y))
+            {
+                var plotPoint = CalculateMinDistance(e.X, e.Y);
+                if (plotPoint.Item1 >= 0)
+                    PlotMouseMove(this, new PlotMouseEventArgs(e, Data[plotPoint.Item1], plotPoint.Item2.Point));
+                else
+                    PlotMouseMove(this, new PlotMouseEventArgs(e));
+            }
         }
-        private void Analog_MouseUp(object sender, MouseEventArgs e)
+        private void Plot_MouseUp(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Middle)
             {
@@ -293,9 +321,44 @@ namespace OMPlot
                 currentmouseY = -1;
                 this.Refresh();
             }
+            if (PlotMouseUp != null && plotRectangle.InRectangle(e.X, e.Y))
+            {
+                var plotPoint = CalculateMinDistance(e.X, e.Y);
+                if (plotPoint.Item1 >= 0)
+                    PlotMouseUp(this, new PlotMouseEventArgs(e, Data[plotPoint.Item1], plotPoint.Item2.Point));
+                else
+                    PlotMouseUp(this, new PlotMouseEventArgs(e));
+            }
         }
-
-        private void Analog_Paint(object sender, PaintEventArgs e)
+        private void Plot_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (PlotDoubleClick != null && plotRectangle.InRectangle(e.X, e.Y))
+            {
+                var plotPoint = CalculateMinDistance(e.X, e.Y);
+                if (plotPoint.Item1 >= 0)
+                    PlotDoubleClick(this, new PlotMouseEventArgs(e, Data[plotPoint.Item1], plotPoint.Item2.Point));
+                else
+                    PlotDoubleClick(this, new PlotMouseEventArgs(e));
+            }
+        }
+        private void Plot_MouseCaptureChanged(object sender, EventArgs e)
+        {
+            currentmouseX = -1;
+            currentmouseY = -1;
+            this.Refresh();
+        }
+        private void Plot_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (PlotClick != null && plotRectangle.InRectangle(e.X, e.Y))
+            {
+                var plotPoint = CalculateMinDistance(e.X, e.Y);
+                if (plotPoint.Item1 >= 0)
+                    PlotClick(this, new PlotMouseEventArgs(e, Data[plotPoint.Item1], plotPoint.Item2.Point));
+                else
+                    PlotClick(this, new PlotMouseEventArgs(e));
+            }
+        }
+        private void Plot_Paint(object sender, PaintEventArgs e)
         {
             ControlPaint(e.Graphics);
         }
@@ -537,7 +600,7 @@ namespace OMPlot
                 }
 
                 //foreach (var data in Data)
-                Parallel.ForEach(Data, data => data.Calculate(GetVerticalAxis(data.AxisVerticalName), GetHorizontalAxis(data.AxisHorizontalName), plotRectangle));
+                Parallel.ForEach(Data, data => data.CalculateGraphics(GetVerticalAxis(data.AxisVerticalName), GetHorizontalAxis(data.AxisHorizontalName), plotRectangle));
                 int plotIndex = 0;
                 foreach (var data in Data)
                     data.Draw(g, GetVerticalAxis(data.AxisVerticalName), GetHorizontalAxis(data.AxisHorizontalName), plotRectangle, plotIndex++);
@@ -668,8 +731,11 @@ namespace OMPlot
             ElapsedMilliseconds.Add(sw.ElapsedMilliseconds);
             double ElapsedMillisecondsAvg = ElapsedMilliseconds.Average();
             g.DrawString((1000.0 / (ElapsedMillisecondsAvg > 0 ? ElapsedMillisecondsAvg : 1)).ToString("#.###"), this.Font, mainBrush, 0, 0);
+
+            /*if(!float.IsNaN(test1.X) && !float.IsNaN(test1.Y))
+                g.DrawLine(Pens.Black, test1, test0);
+            g.DrawString(time + "(" + distance + ")", this.Font, mainBrush, test0);*/
         }
-        List<long> ElapsedMilliseconds = new List<long>();
         public Image ToImage()
         {
             Image img = new Bitmap(this.Width, this.Height);
@@ -677,7 +743,42 @@ namespace OMPlot
             ControlPaint(g);
             return img;
         }
+
+        private Tuple<int, PointDistance> CalculateMinDistance(int X, int Y)
+        {
+            //Stopwatch sw = new Stopwatch();
+            //sw.Start();
+            var dist = Data.AsParallel().Select((data, i) => new { Index = i, PointDistance = data.DistanceToPoint(X, Y) }).ToArray();
+
+            double mindistance = Height * Height + Width * Width;
+            int index = -1;
+            PointDistance pd = new PointDistance();
+            for (int i = 0; i < dist.Length; i++)
+            {
+                if (dist[i].PointDistance.Distance < mindistance)
+                {
+                    mindistance = dist[i].PointDistance.Distance;
+                    pd = dist[i].PointDistance;
+                    index = dist[i].Index;
+                    //test0 = new PointF(e.X, e.Y);
+                    //test1 = dist[i].Distance.Point;
+                }
+            }
+            //sw.Stop();
+            //time = sw.ElapsedMilliseconds;
+            //this.Refresh();
+            return new Tuple<int, PointDistance>(index, pd);
+        }
+
+        
+
+        List<long> ElapsedMilliseconds = new List<long>();
+        
+
+        
     }
+
+    public delegate void PlotMouseEvent(object sender, PlotMouseEventArgs e);
 
     public enum LegendStyle { None, Inside, Outside }
     public enum LegendPosition { Top, Bottom, Left, Right }

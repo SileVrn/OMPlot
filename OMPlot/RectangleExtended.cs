@@ -1,7 +1,24 @@
 ﻿using System;
+using System.Drawing;
 
 namespace OMPlot
 {
+    public static class PointFExtension
+    {
+        public static double Distance(this PointF point1, PointF point2)
+        {            
+            return Math.Sqrt((point1.Y - point2.Y) * (point1.Y - point2.Y) + (point1.X - point2.X) * (point1.X - point2.X));
+        }
+        public static double Distance(this PointF point1, float x, float y)
+        {
+            return Math.Sqrt((point1.Y - y) * (point1.Y - y) + (point1.X - x) * (point1.X - x));
+        }
+        public static double Distance(this PointF point1, double x, double y)
+        {
+            return Math.Sqrt((point1.Y - y) * (point1.Y - y) + (point1.X - x) * (point1.X - x));
+        }
+    }
+
     public struct RectangleExtended
     {
         float x, y, width, height;

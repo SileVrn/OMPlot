@@ -14,9 +14,16 @@ namespace OMPlot.Data
         string AxisHorizontalName { get; set; }
         string AxisVerticalName { get; set; }
         GraphicsPath GraphicsPath { get; }
-
-        void Calculate(Axis vertical, Axis horizontal, RectangleExtended plotRectangle);
+        
+        PointDistance DistanceToPoint(double x, double y);
+        void CalculateGraphics(Axis vertical, Axis horizontal, RectangleExtended plotRectangle);
         void Draw(Graphics g, OMPlot.Axis vertical, OMPlot.Axis Horizontal, RectangleExtended plotRectangle, int plotIndex);
         void DrawLegend(Graphics g, RectangleF rect);
+    }
+
+    public struct PointDistance
+    {
+        public PointF Point;
+        public double Distance;
     }
 }

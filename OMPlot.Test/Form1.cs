@@ -48,7 +48,7 @@ namespace OMPlot.Test
             //pppp.Interpolation = Data.PlotInterpolation.NewSpline;
 
 
-            double[] sinX = new double[1000000];
+            double[] sinX = new double[30];
             double[] sinY1 = new double[sinX.Length];
             double[] sinY2 = new double[sinX.Length];
             double[] sinY3 = new double[sinX.Length];
@@ -97,7 +97,25 @@ namespace OMPlot.Test
                 sinY19[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.9;
             }
 
+            plot1.PlotStyle = PlotStyle.Markers;
             var pl1 = plot1.Add(sinX, sinY1, "Plot1");
+            var pl2 = plot1.Add(sinX, sinY2, "Plot2");
+            //var pl3 = plot1.Add(sinX, sinY3, "Plot3");
+            //var pl4 = plot1.Add(sinX, sinY4, "Plot4");
+            //var pl5 = plot1.Add(sinX, sinY5, "Plot5");
+            //var pl6 = plot1.Add(sinX, sinY6, "Plot6");
+            //var pl7 = plot1.Add(sinX, sinY7, "Plot7");
+            //var pl8 = plot1.Add(sinX, sinY8, "Plot8");
+
+            plot1.LegendStyle = LegendStyle.Inside;
+
+            plot1.PlotDoubleClick += Plot1_PlotDoubleClick;
+        }
+
+        private void Plot1_PlotDoubleClick(object sender, PlotMouseEventArgs e)
+        {
+            if(e.ClickOnPlot)
+                MessageBox.Show(e.Plot.Name);
         }
     }
 }

@@ -37,10 +37,13 @@
             this.DoubleBuffered = true;
             this.Name = "Plot";
             this.Size = new System.Drawing.Size(800, 450);
-            this.Paint += new System.Windows.Forms.PaintEventHandler(this.Analog_Paint);
-            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Analog_MouseDown);
-            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Analog_MouseMove);
-            this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Analog_MouseUp);
+            this.Paint += new System.Windows.Forms.PaintEventHandler(this.Plot_Paint);
+            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Plot_MouseClick);
+            this.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.Plot_MouseDoubleClick);
+            this.MouseCaptureChanged += new System.EventHandler(this.Plot_MouseCaptureChanged);
+            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Plot_MouseDown);
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Plot_MouseMove);
+            this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Plot_MouseUp);
             this.Resize += new System.EventHandler(this.Control_Resize);
             this.ResumeLayout(false);
 

@@ -149,7 +149,7 @@ namespace OMPlot
                 }
             }
         }
-        double TransformBack(double value) { return Logarithmic ? Math.Pow(10, (value - offset) / res) : (value - offset) / res; }
+        public double TransformBack(double value) { return Logarithmic ? Math.Pow(10, (value - offset) / res) : (value - offset) / res; }
         public float Transform(double value)
         {
             float ret = (float)(offset + (Logarithmic ? Math.Log10(value) : value) * res);

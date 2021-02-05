@@ -12,6 +12,9 @@ namespace OMPlot.Data
     {        
         double[] X, Y;
         PointF[] points;
+        PointF[] flatten;
+        RectangleF[] bars;
+        GraphicsPath fillPath;
 
         public PlotInterpolation Interpolation { get; set; }
         public LineStyle LineStyle { get; set; }
@@ -78,38 +81,116 @@ namespace OMPlot.Data
             AxisHorizontalName = axisHorizontalName;
             AxisVerticalName = axisVerticalName;
         }
-
-        public void Calculate(Axis vertical, Axis horizontal, RectangleExtended plotRectangle)
+        public PointDistance DistanceToPoint(double x, double y)
         {
-            //float leftLimit = plotRectangle.Left - 100;
-            //float rightLimit = plotRectangle.Right + 100;
-            //float topLimit = plotRectangle.Top - 100;
-            //float bottomLimit = plotRectangle.Bottom + 100;
+            if (LineStyle != LineStyle.None)
+            {
+                double minDistance = double.MaxValue;
+                PointF interpolatedPoint = new PointF(float.NaN, float.NaN);
 
+                for (int i = 1; i < flatten.Length; i++)
+                {
+                    double prod1 = (x - flatten[i].X) * (flatten[i - 1].X - flatten[i].X) + (y - flatten[i].Y) * (flatten[i - 1].Y - flatten[i].Y);
+                    double prod2 = (x - flatten[i - 1].X) * (flatten[i].X - flatten[i - 1].X) + (y - flatten[i - 1].Y) * (flatten[i].Y - flatten[i - 1].Y);
+
+                    if (prod1 >= 0 && prod2 >= 0)
+                    {
+                        double A = flatten[i].Y - flatten[i - 1].Y;
+                        double B = flatten[i - 1].X - flatten[i].X;
+                        double C = -A * flatten[i].X - B * flatten[i].Y;
+                        double d = A * A + B * B;
+
+                        if (Math.Abs(B) < float.Epsilon)
+                        {
+                            double distance = Math.Abs(A * (flatten[i].X - x)) / Math.Sqrt(d);
+                            if (minDistance > distance)
+                            {
+                                minDistance = distance;
+                                interpolatedPoint = new PointF(flatten[i].X, (float)y);
+                            }
+                        }
+                        else
+                        {
+                            double distance = Math.Abs(-B * (flatten[i - 1].Y - y) - A * (flatten[i - 1].X - x)) / Math.Sqrt(d);
+                            if (minDistance > distance)
+                            {
+                                minDistance = distance;
+                                var pointX = (B * B * x - A * B * y - A * C) / d;
+                                interpolatedPoint = new PointF((float)pointX, (float)((-A * pointX - C) / B));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        double distance1 = flatten[i].Distance(x, y);
+                        double distance2 = flatten[i - 1].Distance(x, y);
+                        if (distance1 > distance2 && minDistance > distance2)
+                        {
+                            minDistance = distance2;
+                            interpolatedPoint = flatten[i - 1];
+                        }
+                        else if (minDistance > distance1)
+                        {
+                            minDistance = distance1;
+                            interpolatedPoint = flatten[i];
+                        }
+                    }
+                }
+                if(minDistance < Plot.MouseEventDistance)
+                    return new PointDistance() { Point = interpolatedPoint, Distance = minDistance };
+            }
+            if(BarStyle != BarStyle.None)
+            {
+                for(int i = 0; i < bars.Length; i++)
+                {
+                    if(bars[i].Contains((float)x, (float)y))
+                        return new PointDistance() { Point = points[i], Distance = 0 };
+                }
+            }
+            if (MarkStyle != MarkerStyle.None)
+            {
+                double minDistance = double.MaxValue;
+                PointF point = new PointF(float.NaN, float.NaN);
+                double distance;
+
+                for (int i = 0; i < points.Length; i++)
+                {
+                    distance = points[i].Distance(x, y);
+                    if((distance < MarkSize / 2 + Plot.MouseEventDistance) && distance < minDistance)
+                    {
+                        point = points[i];
+                        minDistance = distance;
+                    }
+                }
+                return new PointDistance() { Point = point, Distance = minDistance };
+            }
+            return new PointDistance() { Point = new PointF(float.NaN, float.NaN), Distance = double.MaxValue };
+        }
+
+        private PointF[] CalculatePoints(Axis vertical, Axis horizontal)
+        {
             List<PointF> pointList = new List<PointF>();
             float prevX = horizontal.Transform(X[0]);
             float prevY = vertical.Transform(Y[0]);
-            //if (prevX > leftLimit && prevX < rightLimit && prevY > topLimit && prevY < bottomLimit)
-                pointList.Add(new PointF(prevX, prevY));
+            pointList.Add(new PointF(prevX, prevY));
             float curX, curY;
             for (int i = 1; i < X.Length; i++)
             {
                 curX = horizontal.Transform(X[i]);
-                //if (curX > leftLimit && curX < rightLimit)
-                //{
-                    curY = vertical.Transform(Y[i]);
-                    //if (curY > topLimit && curY < bottomLimit)
-                        if (curX - prevX > 1.5 || curY - prevY > 1.5 || prevX - curX > 1.5 || prevY - curY > 1.5)
-                        {
-                            prevX = curX;
-                            prevY = curY;
-                            pointList.Add(new PointF(prevX, prevY));
-                        }
-                //}
+                curY = vertical.Transform(Y[i]);
+                if (curX - prevX > 1.5 || curY - prevY > 1.5 || prevX - curX > 1.5 || prevY - curY > 1.5)
+                {
+                    prevX = curX;
+                    prevY = curY;
+                    pointList.Add(new PointF(prevX, prevY));
+                }
             }
+            return pointList.ToArray();
+        }
 
-            points = pointList.ToArray();
-
+        public void CalculateGraphics(Axis vertical, Axis horizontal, RectangleExtended plotRectangle)
+        {
+            points = CalculatePoints(vertical, horizontal);
             GraphicsPath = new GraphicsPath();
 
             if (points.Length > 1)
@@ -166,6 +247,110 @@ namespace OMPlot.Data
                     GraphicsPath.AddLine(points[points.Length - 2].X, center1, points[points.Length - 1].X, center1);
                     GraphicsPath.AddLine(points[points.Length - 1].X, center1, points[points.Length - 1].X, points[points.Length - 1].Y);
                 }
+
+                GraphicsPath flattenPath = new GraphicsPath();
+                flattenPath.AddPath(GraphicsPath, false);
+                flattenPath.Flatten();
+                flatten = flattenPath.PathPoints;
+
+                if (FillStyle == FillStyle.ToNInfitity)
+                {
+                    fillPath = new GraphicsPath();
+                    fillPath.AddPath(GraphicsPath, true);
+                    fillPath.AddLine(points[0].X, points[0].Y, points[0].X, plotRectangle.Bottom);
+                    fillPath.AddLine(points[0].X, plotRectangle.Bottom, points[points.Length - 1].X, plotRectangle.Bottom);
+                    fillPath.AddLine(points[points.Length - 1].X, plotRectangle.Bottom, points[points.Length - 1].X, points[points.Length - 1].Y);
+                }
+                else if (FillStyle == FillStyle.ToPInfinity)
+                {
+                    fillPath = new GraphicsPath();
+                    fillPath.AddPath(GraphicsPath, true);
+                    fillPath.AddLine(points[0].X, points[0].Y, points[0].X, plotRectangle.Top);
+                    fillPath.AddLine(points[0].X, plotRectangle.Top, points[points.Length - 1].X, plotRectangle.Top);
+                    fillPath.AddLine(points[points.Length - 1].X, plotRectangle.Top, points[points.Length - 1].X, points[points.Length - 1].Y);
+                }
+                else if (FillStyle == FillStyle.ToValue)
+                {
+                    float fillValue = vertical.Transform(FillValue);
+                    fillPath = new GraphicsPath();
+                    fillPath.AddPath(GraphicsPath, true);
+                    fillPath.AddLine(points[0].X, points[0].Y, points[0].X, fillValue);
+                    fillPath.AddLine(points[0].X, fillValue, points[points.Length - 1].X, fillValue);
+                    fillPath.AddLine(points[points.Length - 1].X, fillValue, points[points.Length - 1].X, points[points.Length - 1].Y);
+                }
+                else if (FillStyle == FillStyle.ToPlot && FillPlot != null)
+                {
+                    GraphicsPath path = new GraphicsPath();
+                    fillPath.AddPath(GraphicsPath, true);
+                    fillPath.Reverse();
+                    fillPath.AddPath(FillPlot.GraphicsPath, true);
+                }
+
+                if (BarStyle != BarStyle.None)
+                {
+                    bars = new RectangleF[points.Length];
+                    float barCount = BarStacking ? BarCount : 1.0f;
+
+                    if (BarStyle == BarStyle.Vertical)
+                    {
+                        float refPositionY = vertical.Transform(BarValue);
+
+                        for (int i = 0; i < points.Length; i++)
+                        {     
+                            bars[i] = new RectangleF();                       
+                            if (i == 0)
+                                bars[i].Width = Math.Abs(points[1].X - points[0].X) / barCount;
+                            else if (i == points.Length - 1)
+                                bars[i].Width = Math.Abs(points[points.Length - 1].X - points[points.Length - 2].X) / barCount;
+                            else
+                                bars[i].Width = Math.Abs(points[i + 1].X - points[i - 1].X) / 2.0f / barCount;
+                            bars[i].Width *= BarDuty;
+                            bars[i].X = i == 0 ? points[0].X - bars[i].Width * barCount / 2.0f : (points[i].X + points[i - 1].X) / 2.0f;
+                            bars[i].X += BarIndex * bars[i].Width + (bars[i].Width - bars[i].Width) / 2.0f;
+                            bars[i].X -= (i != 0 && points[i].X < points[i - 1].X) ? bars[i].Width * barCount : 0;
+
+                            if (refPositionY > points[i].Y)
+                            {
+                                bars[i].Y = points[i].Y;
+                                bars[i].Height = refPositionY - points[i].Y;
+                            }
+                            else
+                            {
+                                bars[i].Y = refPositionY;
+                                bars[i].Height = points[i].Y - refPositionY;
+                            }                            
+                        }
+                    }
+                    else if (BarStyle == BarStyle.Horisontal)
+                    {
+                        float refPositionX = horizontal.Transform(BarValue);
+                        for (int i = 0; i < points.Length; i++)
+                        {
+                            bars[i] = new RectangleF();
+                            if (i == 0)
+                                bars[i].Height = Math.Abs(points[1].Y - points[0].Y) / barCount;
+                            else if (i == points.Length - 1)
+                                bars[i].Height = Math.Abs(points[points.Length - 1].Y - points[points.Length - 2].Y) / barCount;
+                            else
+                                bars[i].Height = Math.Abs(points[i + 1].Y - points[i - 1].Y) / 2.0f / barCount;
+                            bars[i].Height *= BarDuty;
+                            bars[i].Y = i == 0 ? points[0].Y - bars[i].Height * barCount / 2.0f : (points[i].Y + points[i - 1].Y) / 2.0f;
+                            bars[i].Y += BarIndex * bars[i].Height + (bars[i].Height - bars[i].Height) / 2.0f;
+                            bars[i].Y -= (i != 0 && points[i].Y < points[i - 1].Y) ? bars[i].Height * barCount : 0;
+
+                            if (refPositionX > points[i].X)
+                            {
+                                bars[i].X = points[i].X;
+                                bars[i].Width = refPositionX - points[i].X;
+                            }
+                            else
+                            {
+                                bars[i].X = refPositionX;
+                                bars[i].Width = points[i].X - refPositionX;
+                            }
+                        }
+                    }
+                }
             }
         }
         public void Draw(Graphics g, Axis vertical, Axis horizontal, RectangleExtended plotRectangle, int plotIndex)
@@ -176,131 +361,17 @@ namespace OMPlot.Data
             {
                 Line.DrawPath(g, LineColor, LineStyle, LineWidth, GraphicsPath);
 
-                if (FillStyle == FillStyle.ToNInfitity)
-                {
-                    GraphicsPath path = new GraphicsPath();
-                    path.AddPath(GraphicsPath, true);
-                    path.AddLine(points[0].X, points[0].Y, points[0].X, plotRectangle.Bottom);
-                    path.AddLine(points[0].X, plotRectangle.Bottom, points[points.Length - 1].X, plotRectangle.Bottom);
-                    path.AddLine(points[points.Length - 1].X, plotRectangle.Bottom, points[points.Length - 1].X, points[points.Length - 1].Y);
-                    Brush fillBrush = new SolidBrush(FillColor);
-                    g.FillPath(fillBrush, path);
-                }
-                else if (FillStyle == FillStyle.ToPInfinity)
-                {
-                    GraphicsPath path = new GraphicsPath();
-                    path.AddPath(GraphicsPath, true);
-                    path.AddLine(points[0].X, points[0].Y, points[0].X, plotRectangle.Top);
-                    path.AddLine(points[0].X, plotRectangle.Top, points[points.Length - 1].X, plotRectangle.Top);
-                    path.AddLine(points[points.Length - 1].X, plotRectangle.Top, points[points.Length - 1].X, points[points.Length - 1].Y);
-                    Brush fillBrush = new SolidBrush(FillColor);
-                    g.FillPath(fillBrush, path);
-                }
-                else if (FillStyle == FillStyle.ToValue)
-                {
-                    float fillValue = vertical.Transform(FillValue);
-                    GraphicsPath path = new GraphicsPath();
-                    path.AddPath(GraphicsPath, true);
-                    path.AddLine(points[0].X, points[0].Y, points[0].X, fillValue);
-                    path.AddLine(points[0].X, fillValue, points[points.Length - 1].X, fillValue);
-                    path.AddLine(points[points.Length - 1].X, fillValue, points[points.Length - 1].X, points[points.Length - 1].Y);
-                    Brush fillBrush = new SolidBrush(FillColor);
+                if(FillStyle != FillStyle.None)
+                    g.FillPath(new SolidBrush(FillColor), fillPath);
 
-                    g.FillPath(fillBrush, path);
-                }
-                else if (FillStyle == FillStyle.ToPlot && FillPlot != null)
+                if (BarStyle != BarStyle.None)
                 {
-                    GraphicsPath path = new GraphicsPath();
-                    path.AddPath(GraphicsPath, true);
-                    path.Reverse();
-                    path.AddPath(FillPlot.GraphicsPath, true);
-                    Brush fillBrush = new SolidBrush(FillColor);
-                    g.FillPath(fillBrush, path);
-                }
-
-                if(BarStyle != BarStyle.None)
-                {
-                    Brush barBrush = new SolidBrush(BarFillColor);
-                    Pen barPen = new Pen(BarLineColor);
-
-                    if (BarStyle == BarStyle.Vertical)
-                    {
-                        float refPositionY = vertical.Transform(BarValue);
-                        for (int i = 0; i < points.Length; i++)                        
-                            DrawVerticalBar(g, barBrush, barPen, refPositionY, i);
-                    }
-                    else if (BarStyle == BarStyle.Horisontal)
-                    {
-                        float refPositionX = horizontal.Transform(BarValue);
-                        for (int i = 0; i < points.Length; i++)
-                            DrawHorisontalBar(g, barBrush, barPen, refPositionX, i);
-                    }
+                    if (BarFillColor.A > 0)
+                        g.FillRectangles(new SolidBrush(BarFillColor), bars);
+                    if (BarLineColor.A > 0)
+                        g.DrawRectangles(new Pen(BarLineColor), bars);
                 }
             }
-        }
-        private void DrawVerticalBar(Graphics g, Brush barBrush, Pen barPen, float refPositionY, int i)
-        {
-            float barCount = BarStacking ? BarCount : 1.0f;
-            float binWidth, barWidth, barX;
-            if (i == 0)
-                binWidth = Math.Abs(points[1].X - points[0].X) / barCount;
-            else if (i == points.Length - 1)
-                binWidth = Math.Abs(points[points.Length - 1].X - points[points.Length - 2].X) / barCount;
-            else
-                binWidth = Math.Abs(points[i + 1].X - points[i - 1].X) / 2.0f / barCount;
-            barWidth = binWidth * BarDuty;
-            barX = i == 0 ? points[0].X - binWidth * barCount / 2.0f : (points[i].X + points[i - 1].X) / 2.0f;
-            barX += BarIndex * binWidth + (binWidth - barWidth) / 2.0f;
-            barX -= (i != 0 && points[i].X < points[i - 1].X) ? barWidth * barCount : 0;
-
-            float barHeight, barY;
-            if (refPositionY > points[i].Y)
-            {
-                barY = points[i].Y;
-                barHeight = refPositionY - points[i].Y;
-            }
-            else
-            {
-                barY = refPositionY;
-                barHeight = points[i].Y - refPositionY;
-            }
-
-            if (BarFillColor.A > 0)
-                g.FillRectangle(barBrush, barX, barY, barWidth, barHeight);
-            if (BarLineColor.A > 0)
-                g.DrawRectangle(barPen, barX, barY, barWidth, barHeight);
-        }
-        private void DrawHorisontalBar(Graphics g, Brush barBrush, Pen barPen, float refPositionX, int i)
-        {
-            float barCount = BarStacking ? BarCount : 1.0f;
-            float binHeight, barHeight, barY;
-            if (i == 0)
-                binHeight = Math.Abs(points[1].Y - points[0].Y) / barCount;
-            else if (i == points.Length - 1)
-                binHeight = Math.Abs(points[points.Length - 1].Y - points[points.Length - 2].Y) / barCount;
-            else
-                binHeight = Math.Abs(points[i + 1].Y - points[i - 1].Y) / 2.0f / barCount;
-            barHeight = binHeight * BarDuty;
-            barY = i == 0 ? points[0].Y - binHeight * barCount / 2.0f : (points[i].Y + points[i - 1].Y) / 2.0f;
-            barY += BarIndex * binHeight + (binHeight - barHeight) / 2.0f;
-            barY -= (i != 0 && points[i].Y < points[i - 1].Y) ? barHeight * barCount : 0;
-
-            float barWidth, barX;
-            if (refPositionX > points[i].X)
-            {
-                barX = points[i].X;
-                barWidth = refPositionX - points[i].X;
-            }
-            else
-            {
-                barX = refPositionX;
-                barWidth = points[i].X - refPositionX;
-            }
-
-            if (BarFillColor.A > 0)
-                g.FillRectangle(barBrush, barX, barY, barWidth, barHeight);
-            if (BarLineColor.A > 0)
-                g.DrawRectangle(barPen, barX, barY, barWidth, barHeight);
         }
         public void DrawLegend(Graphics g, RectangleF rect)
         {
