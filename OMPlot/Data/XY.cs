@@ -13,6 +13,7 @@ namespace OMPlot.Data
         double[] X, Y;
         PointF[] points;
         PointF[] flatten;
+        PointF[] flattenFill;
         RectangleF[] bars;
         GraphicsPath fillPath;
 
@@ -164,6 +165,35 @@ namespace OMPlot.Data
                 }
                 return new PointDistance() { Point = point, Distance = minDistance };
             }
+            if(FillStyle != FillStyle.None)
+            {
+                double angleSum = 0;
+                double aX = flattenFill[0].X - x;
+                double aY = flattenFill[0].Y - y;
+                double aLength = Math.Sqrt(aX * aX + aY * aY);
+                double bX, bY, bLength;
+                for (int i = 0; i < flattenFill.Length - 1; i++)
+                {
+                    bX = flattenFill[i + 1].X - x;
+                    bY = flattenFill[i + 1].Y - y;
+                    bLength = Math.Sqrt(bX * bX + bY * bY);
+                    double dotProd = aX * bX + aY * bY;
+                    double angle = Math.Acos(dotProd / aLength / bLength);
+                    double crosProdZ = aX * bY - aY * bX;
+
+                    if (crosProdZ > 0)
+                        angleSum += angle;
+                    else
+                        angleSum -= angle;
+                    aX = bX;
+                    aY = bY;
+                    aLength = bLength;
+                }
+                angleSum = Math.Round(angleSum / 2 / Math.PI);
+                if(angleSum != 0)
+                    return new PointDistance() { Point = new PointF((float)x, (float)y), Distance = 0 };
+
+            }
             return new PointDistance() { Point = new PointF(float.NaN, float.NaN), Distance = double.MaxValue };
         }
 
@@ -251,40 +281,7 @@ namespace OMPlot.Data
                 GraphicsPath flattenPath = new GraphicsPath();
                 flattenPath.AddPath(GraphicsPath, false);
                 flattenPath.Flatten();
-                flatten = flattenPath.PathPoints;
-
-                if (FillStyle == FillStyle.ToNInfitity)
-                {
-                    fillPath = new GraphicsPath();
-                    fillPath.AddPath(GraphicsPath, true);
-                    fillPath.AddLine(points[0].X, points[0].Y, points[0].X, plotRectangle.Bottom);
-                    fillPath.AddLine(points[0].X, plotRectangle.Bottom, points[points.Length - 1].X, plotRectangle.Bottom);
-                    fillPath.AddLine(points[points.Length - 1].X, plotRectangle.Bottom, points[points.Length - 1].X, points[points.Length - 1].Y);
-                }
-                else if (FillStyle == FillStyle.ToPInfinity)
-                {
-                    fillPath = new GraphicsPath();
-                    fillPath.AddPath(GraphicsPath, true);
-                    fillPath.AddLine(points[0].X, points[0].Y, points[0].X, plotRectangle.Top);
-                    fillPath.AddLine(points[0].X, plotRectangle.Top, points[points.Length - 1].X, plotRectangle.Top);
-                    fillPath.AddLine(points[points.Length - 1].X, plotRectangle.Top, points[points.Length - 1].X, points[points.Length - 1].Y);
-                }
-                else if (FillStyle == FillStyle.ToValue)
-                {
-                    float fillValue = vertical.Transform(FillValue);
-                    fillPath = new GraphicsPath();
-                    fillPath.AddPath(GraphicsPath, true);
-                    fillPath.AddLine(points[0].X, points[0].Y, points[0].X, fillValue);
-                    fillPath.AddLine(points[0].X, fillValue, points[points.Length - 1].X, fillValue);
-                    fillPath.AddLine(points[points.Length - 1].X, fillValue, points[points.Length - 1].X, points[points.Length - 1].Y);
-                }
-                else if (FillStyle == FillStyle.ToPlot && FillPlot != null)
-                {
-                    GraphicsPath path = new GraphicsPath();
-                    fillPath.AddPath(GraphicsPath, true);
-                    fillPath.Reverse();
-                    fillPath.AddPath(FillPlot.GraphicsPath, true);
-                }
+                flatten = flattenPath.PathPoints;                             
 
                 if (BarStyle != BarStyle.None)
                 {
@@ -355,15 +352,8 @@ namespace OMPlot.Data
         }
         public void Draw(Graphics g, Axis vertical, Axis horizontal, RectangleExtended plotRectangle, int plotIndex)
         {
-            Marker.Draw(g, MarkColor, MarkStyle, MarkSize, points);
-
             if (points.Length > 1)
             {
-                Line.DrawPath(g, LineColor, LineStyle, LineWidth, GraphicsPath);
-
-                if(FillStyle != FillStyle.None)
-                    g.FillPath(new SolidBrush(FillColor), fillPath);
-
                 if (BarStyle != BarStyle.None)
                 {
                     if (BarFillColor.A > 0)
@@ -371,6 +361,48 @@ namespace OMPlot.Data
                     if (BarLineColor.A > 0)
                         g.DrawRectangles(new Pen(BarLineColor), bars);
                 }
+                if (FillStyle != FillStyle.None)
+                {
+                    if (FillStyle == FillStyle.ToNInfitity)
+                    {
+                        fillPath = new GraphicsPath();
+                        fillPath.AddPath(GraphicsPath, true);
+                        fillPath.AddLine(points[0].X, points[0].Y, points[0].X, plotRectangle.Bottom);
+                        fillPath.AddLine(points[0].X, plotRectangle.Bottom, points[points.Length - 1].X, plotRectangle.Bottom);
+                        fillPath.AddLine(points[points.Length - 1].X, plotRectangle.Bottom, points[points.Length - 1].X, points[points.Length - 1].Y);
+                    }
+                    else if (FillStyle == FillStyle.ToPInfinity)
+                    {
+                        fillPath = new GraphicsPath();
+                        fillPath.AddPath(GraphicsPath, true);
+                        fillPath.AddLine(points[0].X, points[0].Y, points[0].X, plotRectangle.Top);
+                        fillPath.AddLine(points[0].X, plotRectangle.Top, points[points.Length - 1].X, plotRectangle.Top);
+                        fillPath.AddLine(points[points.Length - 1].X, plotRectangle.Top, points[points.Length - 1].X, points[points.Length - 1].Y);
+                    }
+                    else if (FillStyle == FillStyle.ToValue)
+                    {
+                        float fillValue = vertical.Transform(FillValue);
+                        fillPath = new GraphicsPath();
+                        fillPath.AddPath(GraphicsPath, true);
+                        fillPath.AddLine(points[0].X, points[0].Y, points[0].X, fillValue);
+                        fillPath.AddLine(points[0].X, fillValue, points[points.Length - 1].X, fillValue);
+                        fillPath.AddLine(points[points.Length - 1].X, fillValue, points[points.Length - 1].X, points[points.Length - 1].Y);
+                    }
+                    else if (FillStyle == FillStyle.ToPlot && FillPlot != null)
+                    {
+                        fillPath = new GraphicsPath();
+                        fillPath.AddPath(GraphicsPath, true);
+                        fillPath.Reverse();
+                        fillPath.AddPath(FillPlot.GraphicsPath, true);
+                    }
+                    g.FillPath(new SolidBrush(FillColor), fillPath);
+                    GraphicsPath flattenFillPath = new GraphicsPath();
+                    flattenFillPath.AddPath(fillPath, true);
+                    flattenFillPath.Flatten();
+                    flattenFill = flattenFillPath.PathPoints;
+                }
+                Line.DrawPath(g, LineColor, LineStyle, LineWidth, GraphicsPath);
+                Marker.Draw(g, MarkColor, MarkStyle, MarkSize, points);
             }
         }
         public void DrawLegend(Graphics g, RectangleF rect)
@@ -379,15 +411,15 @@ namespace OMPlot.Data
 
             if (points.Length > 1)
             {
+                if (FillStyle != FillStyle.None)
+                {
+                    Brush fillBrush = new SolidBrush(FillColor);
+                    g.FillPolygon(fillBrush, new PointF[] { new PointF(rect.X, rect.Y + rect.Height), new PointF(rect.X, rect.Y + 0.7f * rect.Height), new PointF(rect.X + 0.5f * rect.Width, rect.Y + 0.5f * rect.Height), new PointF(rect.X + rect.Width, rect.Y + 0.7f * rect.Height), new PointF(rect.X + rect.Width, rect.Y + rect.Height) }); 
+                }
                 if (LineStyle != LineStyle.None)
                 {
                     Line.DrawLine(g, LineColor, LineStyle, LineWidth, rect.X, rect.Y + 0.7f * rect.Height, rect.X + 0.5f * rect.Width, rect.Y + 0.5f * rect.Height);
                     Line.DrawLine(g, LineColor, LineStyle, LineWidth, rect.X + 0.5f * rect.Width, rect.Y + 0.5f * rect.Height, rect.X + rect.Width, rect.Y + 0.7f * rect.Height);
-                }
-                if (FillStyle != FillStyle.None)
-                {
-                    Brush fillBrush = new SolidBrush(FillColor);
-                    g.FillRectangle(fillBrush, rect.X, rect.Y + rect.Height / 2f, rect.Width, rect.Height / 2f);
                 }
 
                 if (BarStyle != BarStyle.None)

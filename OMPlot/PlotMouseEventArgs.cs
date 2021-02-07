@@ -11,7 +11,7 @@ namespace OMPlot
     public class PlotMouseEventArgs : MouseEventArgs
     {
         public PointF PlotPoint { get; }
-        public OMPlot.Data.IData Plot { get; }
+        public Data.IData Plot { get; }
         public bool ClickOnPlot { get; }
         
         public PlotMouseEventArgs(MouseEventArgs e, Data.IData plot, PointF plotPoint) : base(e.Button, e.Clicks, e.X, e.Y, e.Delta)
