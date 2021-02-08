@@ -51,14 +51,14 @@ namespace OMPlot
         public event PlotMouseEvent PlotMouseDown;
         public event PlotMouseEvent PlotMouseMove;
 
-        List<IData> Data;
+        List<XYSeries> Data;
         Dictionary<string, Axis> Vertical;
         Dictionary<string, Axis> Horizontal;
 
         public Plot()
         {
             InitializeComponent();
-            Data = new List<IData>();
+            Data = new List<XYSeries>();
             Vertical = new Dictionary<string, Axis>();
             Horizontal = new Dictionary<string, Axis>();
             this.MouseWheel += Plot_MouseWheel;
@@ -83,17 +83,13 @@ namespace OMPlot
             AddVerticalAxis(yAxis);
         }
 
-        public void Add(IData data) { Data.Add(data); }
-        public XY Add(IEnumerable<double> x, IEnumerable<double> y)
+        public void Add(XYSeries data)
         {
-            return this.Add(x, y, "Plot" + Data.Count().ToString());
-        }
-        public XY Add(IEnumerable<double> x, IEnumerable<double> y, string name)
-        {
-            XY data = new XY(x, y, name);
-            int plotIndex = Data.Count();
-            var axisX = GetHorizontalAxis();
-            var axisY = GetVerticalAxis();
+            if (data.VerticalAxis == null)
+                data.VerticalAxis = GetVerticalAxis();
+            if (data.HorizontalAxis == null)
+                data.HorizontalAxis = GetHorizontalAxis();
+
             double clearanceX = Math.Abs(0.01 * (data.MaximumX - data.MinimumX));
             double clearanceY = Math.Abs(0.01 * (data.MaximumX - data.MinimumX));
             clearanceX = 0;
@@ -105,18 +101,28 @@ namespace OMPlot
 
             if (Data.Count == 0)
             {
-                axisX.Minimum = dataXMin;
-                axisY.Minimum = dataYMin;
-                axisX.Maximum = dataXMax;
-                axisY.Maximum = dataYMax;
+                data.HorizontalAxis.Minimum = dataXMin;
+                data.VerticalAxis.Minimum = dataYMin;
+                data.HorizontalAxis.Maximum = dataXMax;
+                data.VerticalAxis.Maximum = dataYMax;
             }
             else
             {
-                axisX.Minimum = axisX.Minimum > dataXMin ? dataXMin : axisX.Minimum;
-                axisY.Minimum = axisY.Minimum > dataYMin ? dataYMin : axisY.Minimum;
-                axisX.Maximum = axisX.Maximum < dataXMax ? dataXMax : axisX.Maximum;
-                axisY.Maximum = axisY.Maximum < dataYMax ? dataYMax : axisY.Maximum;
+                data.HorizontalAxis.Minimum = data.HorizontalAxis.Minimum > dataXMin ? dataXMin : data.HorizontalAxis.Minimum;
+                data.VerticalAxis.Minimum = data.VerticalAxis.Minimum > dataYMin ? dataYMin : data.VerticalAxis.Minimum;
+                data.HorizontalAxis.Maximum = data.HorizontalAxis.Maximum < dataXMax ? dataXMax : data.HorizontalAxis.Maximum;
+                data.VerticalAxis.Maximum = data.VerticalAxis.Maximum < dataYMax ? dataYMax : data.VerticalAxis.Maximum;
             }
+            Data.Add(data);
+        }
+        public XYSeries Add(IEnumerable<double> x, IEnumerable<double> y)
+        {
+            return this.Add(x, y, "Plot" + Data.Count().ToString());
+        }
+        public XYSeries Add(IEnumerable<double> x, IEnumerable<double> y, string name)
+        {
+            XYSeries data = new XYSeries(x, y, name);
+            int plotIndex = Data.Count();
 
             if(PlotStyle == PlotStyle.Lines || PlotStyle == PlotStyle.Splines)
             {
@@ -157,7 +163,7 @@ namespace OMPlot
                 data.BarStyle = PlotStyle == PlotStyle.HorisontalBars ? BarStyle.Horisontal : BarStyle.Vertical;
             }
 
-            Data.Add(data);
+            this.Add(data);
             return data;
         }
 
@@ -579,7 +585,7 @@ namespace OMPlot
             if (Vertical.Any() && Horizontal.Any())
             {
                 //BarStyle.Vertical
-                var barData = Data.Where(data => data is IBar).Select(data => (IBar)data).Where(data => data.BarStyle == BarStyle.Vertical && data.BarStacking);
+                var barData = Data.Where(data => data.BarStyle == BarStyle.Vertical && data.BarStacking);
                 int barCount = barData.Count();
                 int barIndex = 0;
                 foreach (var bar in barData)
@@ -589,7 +595,7 @@ namespace OMPlot
                     barIndex++;
                 }
                 //BarStyle.Horisontal
-                barData = Data.Where(data => data is IBar).Select(data => (IBar)data).Where(data => data.BarStyle == BarStyle.Horisontal && data.BarStacking);
+                barData = Data.Where(data => data.BarStyle == BarStyle.Horisontal && data.BarStacking);
                 barCount = barData.Count();
                 barIndex = 0;
                 foreach (var bar in barData)
@@ -600,10 +606,10 @@ namespace OMPlot
                 }
 
                 //foreach (var data in Data)
-                Parallel.ForEach(Data, data => data.CalculateGraphics(GetVerticalAxis(data.AxisVerticalName), GetHorizontalAxis(data.AxisHorizontalName), plotRectangle));
+                Parallel.ForEach(Data, data => data.CalculateGraphics(plotRectangle));
                 int plotIndex = 0;
                 foreach (var data in Data)
-                    data.Draw(g, GetVerticalAxis(data.AxisVerticalName), GetHorizontalAxis(data.AxisHorizontalName), plotRectangle, plotIndex++);
+                    data.Draw(g, plotRectangle, plotIndex++);
             }
             g.ResetTransform();
 
@@ -668,7 +674,7 @@ namespace OMPlot
                                 rightAxisPosition += axis.Value.SizeFar;
                             }
                             else
-                                axis.Value.DrawVertical(g, Horizontal.First().Value.Transform(axis.Value.CrossValue), plotRectangle.Top, plotRectangle);
+                                axis.Value.DrawVertical(g, (float)Horizontal.First().Value.Transform(axis.Value.CrossValue), plotRectangle.Top, plotRectangle);
                             break;
                         }
                 }
@@ -707,7 +713,7 @@ namespace OMPlot
                                 topAxisPosition -= axis.Value.SizeFar;
                             }
                             else
-                                axis.Value.DrawHorizontal(g, plotRectangle.Left, Vertical.First().Value.Transform(axis.Value.CrossValue), plotRectangle);
+                                axis.Value.DrawHorizontal(g, plotRectangle.Left, (float)Vertical.First().Value.Transform(axis.Value.CrossValue), plotRectangle);
                             break;
                         }
                 }

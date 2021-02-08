@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Drawing;
 
 namespace OMPlot.Test
-{
+{    
     static class Program
     {
         /// <summary>
@@ -239,7 +239,7 @@ namespace OMPlot.Test
             Application.Run(new Form1());            
         }
 
-        static void PlotStyleTestBitmap(Plot p, Data.XY plot, Data.PlotInterpolation inter, Data.FillStyle fill)
+        static void PlotStyleTestBitmap(Plot p, Data.XYSeries plot, Data.PlotInterpolation inter, Data.FillStyle fill)
         {
             plot.Interpolation = inter;
             plot.FillStyle = fill;

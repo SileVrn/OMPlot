@@ -48,25 +48,25 @@ namespace OMPlot.Test
             //pppp.Interpolation = Data.PlotInterpolation.NewSpline;
 
 
-            double[] sinX = new double[1000];
+            double[] sinX = new double[100];
             double[] sinY1 = new double[sinX.Length];
             double[] sinY2 = new double[sinX.Length];
-            double[] sinY3 = new double[sinX.Length];
-            double[] sinY4 = new double[sinX.Length];
-            double[] sinY5 = new double[sinX.Length];
-            double[] sinY6 = new double[sinX.Length];
-            double[] sinY7 = new double[sinX.Length];
-            double[] sinY8 = new double[sinX.Length];
-            double[] sinY9 = new double[sinX.Length];
-            double[] sinY11 = new double[sinX.Length];
-            double[] sinY12 = new double[sinX.Length];
-            double[] sinY13 = new double[sinX.Length];
-            double[] sinY14 = new double[sinX.Length];
-            double[] sinY15 = new double[sinX.Length];
-            double[] sinY16 = new double[sinX.Length];
-            double[] sinY17 = new double[sinX.Length];
-            double[] sinY18 = new double[sinX.Length];
-            double[] sinY19 = new double[sinX.Length];
+            //double[] sinY3 = new double[sinX.Length];
+            //double[] sinY4 = new double[sinX.Length];
+            //double[] sinY5 = new double[sinX.Length];
+            //double[] sinY6 = new double[sinX.Length];
+            //double[] sinY7 = new double[sinX.Length];
+            //double[] sinY8 = new double[sinX.Length];
+            //double[] sinY9 = new double[sinX.Length];
+            //double[] sinY11 = new double[sinX.Length];
+            //double[] sinY12 = new double[sinX.Length];
+            //double[] sinY13 = new double[sinX.Length];
+            //double[] sinY14 = new double[sinX.Length];
+            //double[] sinY15 = new double[sinX.Length];
+            //double[] sinY16 = new double[sinX.Length];
+            //double[] sinY17 = new double[sinX.Length];
+            //double[] sinY18 = new double[sinX.Length];
+            //double[] sinY19 = new double[sinX.Length];
 
             double f = 3;
             double dt = 2.0 / sinX.Length;
@@ -76,30 +76,33 @@ namespace OMPlot.Test
                 //double x = Math.PI * 10 * i / (dataX.Length - 1);
                 //dataX[i] = x * Math.Cos(x);
                 //dataY1[i] = x * Math.Sin(x);
-                sinX[i] = (sinX.Length - 1 - i) * dt;
+                sinX[i] = i * dt;
                 sinY1[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.1;
                 sinY2[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.2;
-                sinY3[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.3;
-                sinY4[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.4;
-                sinY5[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.5;
-                sinY6[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.6;
-                sinY7[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.7;
-                sinY8[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.8;
-                sinY9[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.9;
-                sinY11[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.1;
-                sinY12[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.2;
-                sinY13[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.3;
-                sinY14[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.4;
-                sinY15[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.5;
-                sinY16[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.6;
-                sinY17[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.7;
-                sinY18[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.8;
-                sinY19[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.9;
+                //sinY3[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.3;
+                //sinY4[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.4;
+                //sinY5[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.5;
+                //sinY6[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.6;
+                //sinY7[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.7;
+                //sinY8[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.8;
+                //sinY9[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.9;
+                //sinY11[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.1;
+                //sinY12[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.2;
+                //sinY13[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.3;
+                //sinY14[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.4;
+                //sinY15[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.5;
+                //sinY16[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.6;
+                //sinY17[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.7;
+                //sinY18[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.8;
+                //sinY19[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.9;
             }
+
+            Data.LineSeries sir = new Data.LineSeries(sinY2, dt);
+            sir.Name = "LineSir";
 
             plot1.PlotStyle = PlotStyle.Lines;
             var pl1 = plot1.Add(sinX, sinY1, "Plot1");
-            var pl2 = plot1.Add(sinX, sinY2, "Plot2");
+            //var pl2 = plot1.Add(sinX, sinY2, "Plot2");
             //var pl3 = plot1.Add(sinX, sinY3, "Plot3");
             //var pl4 = plot1.Add(sinX, sinY4, "Plot4");
             //var pl5 = plot1.Add(sinX, sinY5, "Plot5");
@@ -107,8 +110,10 @@ namespace OMPlot.Test
             //var pl7 = plot1.Add(sinX, sinY7, "Plot7");
             //var pl8 = plot1.Add(sinX, sinY8, "Plot8");
 
-            pl1.FillPlot = pl2;
-            pl1.FillColor = Color.Red;
+            plot1.Add(sir);
+
+            pl1.FillColor = pl1.LineColor;
+            pl1.FillPlot = sir;
             pl1.FillStyle = Data.FillStyle.ToPlot;
 
             plot1.LegendStyle = LegendStyle.Inside;
@@ -118,8 +123,17 @@ namespace OMPlot.Test
 
         private void Plot1_PlotDoubleClick(object sender, PlotMouseEventArgs e)
         {
-            if(e.ClickOnPlot)
-                MessageBox.Show(e.Plot.Name);
+            if (e.ClickOnPlot)
+            {
+                //MessageBox.Show(e.Plot.Name);
+                var pl = e.Plot;
+                if(pl.FillColor == Color.Red)
+                    pl.FillColor = Color.Blue;
+                else
+                    pl.FillColor = Color.Red;
+                plot1.Refresh();
+
+            }
         }
     }
 }

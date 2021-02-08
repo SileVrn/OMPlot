@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace OMPlot.Data
 {
-    public class XY : IData, IBar, IMarker, ILine, IFill
+    public class XYSeries
     {        
         double[] X, Y;
-        PointF[] points;
-        PointF[] flatten;
-        PointF[] flattenFill;
-        RectangleF[] bars;
-        GraphicsPath fillPath;
+
+        protected PointF[] points;
+        protected PointF[] flatten;
+        protected PointF[] flattenFill;
+        protected RectangleF[] bars;
 
         public PlotInterpolation Interpolation { get; set; }
         public LineStyle LineStyle { get; set; }
@@ -27,7 +27,7 @@ namespace OMPlot.Data
         public FillStyle FillStyle { get; set; }
         public Color FillColor { get; set; }
         public double FillValue { get; set; }
-        public IData FillPlot { get; set; }
+        public XYSeries FillPlot { get; set; }
         public BarStyle BarStyle { get; set; }
         public Color BarLineColor { get; set; }
         public Color BarFillColor { get; set; }
@@ -38,27 +38,36 @@ namespace OMPlot.Data
         public int BarCount { get; set; }
 
         public string Name { get; set; }
-        public string AxisHorizontalName { get; set; }
-        public string AxisVerticalName { get; set; }
+        public Axis HorizontalAxis { get; set; }
+        public Axis VerticalAxis { get; set; }
 
-        public double MinimumX { get; private set; }
-        public double MinimumY { get; private set; }
-        public double MaximumX { get; private set; }
-        public double MaximumY { get; private set; }
+        public double MinimumX { get; protected set; }
+        public double MinimumY { get; protected set; }
+        public double MaximumX { get; protected set; }
+        public double MaximumY { get; protected set; }
 
         public GraphicsPath GraphicsPath { get; private set; }
 
-        public XY(IEnumerable<double> x, IEnumerable<double> y)
+
+        protected XYSeries()
         {
             BarDuty = 1;
             MarkSize = 10;
             LineWidth = 1;
-            X = x.ToArray();
-            Y = y.ToArray();
+            LineStyle = LineStyle.Solid;
+            MarkStyle = MarkerStyle.None;
+            BarStyle = BarStyle.None;
+            FillStyle = FillStyle.None;
+            LineColor = Color.Black;
             MinimumX = double.MaxValue;
             MinimumY = double.MaxValue;
             MaximumX = double.MinValue;
             MaximumY = double.MinValue;
+        }
+        public XYSeries(IEnumerable<double> x, IEnumerable<double> y) : this()
+        {
+            X = x.ToArray();
+            Y = y.ToArray();
             for (int i = 0; i < X.Length; i++)
             {
                 MinimumX = MinimumX > X[i] ? X[i] : MinimumX;
@@ -67,20 +76,20 @@ namespace OMPlot.Data
                 MaximumY = MaximumY < Y[i] ? Y[i] : MaximumY;
             }
         }
-        public XY(IEnumerable<double> x, IEnumerable<double> y, string name) : this(x, y)
+        public XYSeries(IEnumerable<double> x, IEnumerable<double> y, string name) : this(x, y)
         {
             Name = name;
         }
-        public XY(IEnumerable<double> x, IEnumerable<double> y, string axisHorizontalName, string axisVerticalName) : this(x, y)
+        public XYSeries(IEnumerable<double> x, IEnumerable<double> y, Axis horizontalAxis, Axis verticalAxis) : this(x, y)
         {
-            AxisHorizontalName = axisHorizontalName;
-            AxisVerticalName = axisVerticalName;
+            HorizontalAxis = horizontalAxis;
+            VerticalAxis = verticalAxis;
         }
-        public XY(IEnumerable<double> x, IEnumerable<double> y, string name, string axisHorizontalName, string axisVerticalName) : this(x, y)
+        public XYSeries(IEnumerable<double> x, IEnumerable<double> y, string name, Axis horizontalAxis, Axis verticalAxis) : this(x, y)
         {
             Name = name;
-            AxisHorizontalName = axisHorizontalName;
-            AxisVerticalName = axisVerticalName;
+            HorizontalAxis = horizontalAxis;
+            VerticalAxis = verticalAxis;
         }
         public PointDistance DistanceToPoint(double x, double y)
         {
@@ -172,14 +181,15 @@ namespace OMPlot.Data
                 double aY = flattenFill[0].Y - y;
                 double aLength = Math.Sqrt(aX * aX + aY * aY);
                 double bX, bY, bLength;
+                double dotProd, angle, crosProdZ;
                 for (int i = 0; i < flattenFill.Length - 1; i++)
                 {
                     bX = flattenFill[i + 1].X - x;
                     bY = flattenFill[i + 1].Y - y;
                     bLength = Math.Sqrt(bX * bX + bY * bY);
-                    double dotProd = aX * bX + aY * bY;
-                    double angle = Math.Acos(dotProd / aLength / bLength);
-                    double crosProdZ = aX * bY - aY * bX;
+                    dotProd = aX * bX + aY * bY;
+                    angle = Math.Acos(dotProd / aLength / bLength);
+                    crosProdZ = aX * bY - aY * bX;
 
                     if (crosProdZ > 0)
                         angleSum += angle;
@@ -189,7 +199,18 @@ namespace OMPlot.Data
                     aY = bY;
                     aLength = bLength;
                 }
-                angleSum = Math.Round(angleSum / 2 / Math.PI);
+                bX = flattenFill[0].X - x;
+                bY = flattenFill[0].Y - y;
+                bLength = Math.Sqrt(bX * bX + bY * bY);
+                dotProd = aX * bX + aY * bY;
+                angle = Math.Acos(dotProd / aLength / bLength);
+                crosProdZ = aX * bY - aY * bX;
+                if (crosProdZ > 0)
+                    angleSum += angle;
+                else
+                    angleSum -= angle;
+                angleSum /= 2 * Math.PI;
+                angleSum = Math.Round(angleSum);
                 if(angleSum != 0)
                     return new PointDistance() { Point = new PointF((float)x, (float)y), Distance = 0 };
 
@@ -197,17 +218,17 @@ namespace OMPlot.Data
             return new PointDistance() { Point = new PointF(float.NaN, float.NaN), Distance = double.MaxValue };
         }
 
-        private PointF[] CalculatePoints(Axis vertical, Axis horizontal)
+        protected virtual PointF[] CalculatePoints()
         {
             List<PointF> pointList = new List<PointF>();
-            float prevX = horizontal.Transform(X[0]);
-            float prevY = vertical.Transform(Y[0]);
+            float prevX = (float)HorizontalAxis.Transform(X[0]);
+            float prevY = (float)VerticalAxis.Transform(Y[0]);
             pointList.Add(new PointF(prevX, prevY));
             float curX, curY;
             for (int i = 1; i < X.Length; i++)
             {
-                curX = horizontal.Transform(X[i]);
-                curY = vertical.Transform(Y[i]);
+                curX = (float)HorizontalAxis.Transform(X[i]);
+                curY = (float)VerticalAxis.Transform(Y[i]);
                 if (curX - prevX > 1.5 || curY - prevY > 1.5 || prevX - curX > 1.5 || prevY - curY > 1.5)
                 {
                     prevX = curX;
@@ -218,9 +239,9 @@ namespace OMPlot.Data
             return pointList.ToArray();
         }
 
-        public void CalculateGraphics(Axis vertical, Axis horizontal, RectangleExtended plotRectangle)
+        public void CalculateGraphics(RectangleExtended plotRectangle)
         {
-            points = CalculatePoints(vertical, horizontal);
+            points = CalculatePoints();
             GraphicsPath = new GraphicsPath();
 
             if (points.Length > 1)
@@ -290,7 +311,7 @@ namespace OMPlot.Data
 
                     if (BarStyle == BarStyle.Vertical)
                     {
-                        float refPositionY = vertical.Transform(BarValue);
+                        float refPositionY = (float)VerticalAxis.Transform(BarValue);
 
                         for (int i = 0; i < points.Length; i++)
                         {     
@@ -320,7 +341,7 @@ namespace OMPlot.Data
                     }
                     else if (BarStyle == BarStyle.Horisontal)
                     {
-                        float refPositionX = horizontal.Transform(BarValue);
+                        float refPositionX = (float)HorizontalAxis.Transform(BarValue);
                         for (int i = 0; i < points.Length; i++)
                         {
                             bars[i] = new RectangleF();
@@ -350,7 +371,7 @@ namespace OMPlot.Data
                 }
             }
         }
-        public void Draw(Graphics g, Axis vertical, Axis horizontal, RectangleExtended plotRectangle, int plotIndex)
+        public void Draw(Graphics g, RectangleExtended plotRectangle, int plotIndex)
         {
             if (points.Length > 1)
             {
@@ -363,9 +384,9 @@ namespace OMPlot.Data
                 }
                 if (FillStyle != FillStyle.None)
                 {
+                    GraphicsPath fillPath = new GraphicsPath();
                     if (FillStyle == FillStyle.ToNInfitity)
                     {
-                        fillPath = new GraphicsPath();
                         fillPath.AddPath(GraphicsPath, true);
                         fillPath.AddLine(points[0].X, points[0].Y, points[0].X, plotRectangle.Bottom);
                         fillPath.AddLine(points[0].X, plotRectangle.Bottom, points[points.Length - 1].X, plotRectangle.Bottom);
@@ -373,7 +394,6 @@ namespace OMPlot.Data
                     }
                     else if (FillStyle == FillStyle.ToPInfinity)
                     {
-                        fillPath = new GraphicsPath();
                         fillPath.AddPath(GraphicsPath, true);
                         fillPath.AddLine(points[0].X, points[0].Y, points[0].X, plotRectangle.Top);
                         fillPath.AddLine(points[0].X, plotRectangle.Top, points[points.Length - 1].X, plotRectangle.Top);
@@ -381,8 +401,7 @@ namespace OMPlot.Data
                     }
                     else if (FillStyle == FillStyle.ToValue)
                     {
-                        float fillValue = vertical.Transform(FillValue);
-                        fillPath = new GraphicsPath();
+                        float fillValue = (float)VerticalAxis.Transform(FillValue);
                         fillPath.AddPath(GraphicsPath, true);
                         fillPath.AddLine(points[0].X, points[0].Y, points[0].X, fillValue);
                         fillPath.AddLine(points[0].X, fillValue, points[points.Length - 1].X, fillValue);
@@ -390,16 +409,13 @@ namespace OMPlot.Data
                     }
                     else if (FillStyle == FillStyle.ToPlot && FillPlot != null)
                     {
-                        fillPath = new GraphicsPath();
                         fillPath.AddPath(GraphicsPath, true);
                         fillPath.Reverse();
                         fillPath.AddPath(FillPlot.GraphicsPath, true);
                     }
                     g.FillPath(new SolidBrush(FillColor), fillPath);
-                    GraphicsPath flattenFillPath = new GraphicsPath();
-                    flattenFillPath.AddPath(fillPath, true);
-                    flattenFillPath.Flatten();
-                    flattenFill = flattenFillPath.PathPoints;
+                    fillPath.Flatten();
+                    flattenFill = fillPath.PathPoints;
                 }
                 Line.DrawPath(g, LineColor, LineStyle, LineWidth, GraphicsPath);
                 Marker.Draw(g, MarkColor, MarkStyle, MarkSize, points);

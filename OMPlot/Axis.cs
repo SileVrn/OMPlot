@@ -150,9 +150,9 @@ namespace OMPlot
             }
         }
         public double TransformBack(double value) { return Logarithmic ? Math.Pow(10, (value - offset) / res) : (value - offset) / res; }
-        public float Transform(double value)
+        public double Transform(double value)
         {
-            float ret = (float)(offset + (Logarithmic ? Math.Log10(value) : value) * res);
+            double ret = offset + (Logarithmic ? Math.Log10(value) : value) * res;
             if (ret < -1000)
                 return -1000;
             if (ret > 10000)
@@ -218,7 +218,7 @@ namespace OMPlot
 
                     tickLabel = CustomTicksLabels.Where((ctl, i) => CustomTicks[i] >= Minimum && CustomTicks[i] <= Maximum).ToArray();
                     tickLabelSize = tickLabel.Select(tl => g.MeasureString(tl, this.Font)).ToArray();
-                    tickLabelLocation = CustomTicks.Where(ct => ct >= Minimum && ct <= Maximum).Select(ct => this.Transform(ct)).ToArray();
+                    tickLabelLocation = CustomTicks.Where(ct => ct >= Minimum && ct <= Maximum).Select(ct => (float)this.Transform(ct)).ToArray();
                     return;
                 }
             }
@@ -311,7 +311,7 @@ namespace OMPlot
                         
             tickLabel = tick.Select(t => Accessories.ToSI(t, tickLabelFormat)).ToArray();
             tickLabelSize = tickLabel.Select(tl => g.MeasureString(tl, this.Font)).ToArray();
-            tickLabelLocation = tick.Select(t => this.Transform(t)).ToArray();
+            tickLabelLocation = tick.Select(t => (float)this.Transform(t)).ToArray();
         }
         public void MeasureVertical(Graphics g, Size plotSize)
         {
@@ -570,7 +570,7 @@ namespace OMPlot
 
             for (int i = 0; i < tickLabel.Length; i++)
             {
-                float ticky = Transform(tick[i]);
+                float ticky = (float)Transform(tick[i]);
                 if (GridStyle == GridStyle.Both || GridStyle == GridStyle.Major)
                     g.DrawLine(Pens.Gray, rect.Left, ticky, rect.Right, ticky);
 
@@ -606,7 +606,7 @@ namespace OMPlot
             }
             for (int i = 0; i < subTick.Length; i++)
             {
-                float ticky = Transform(subTick[i]);
+                float ticky = (float)Transform(subTick[i]);
                 if (GridStyle == GridStyle.Both || GridStyle == GridStyle.Minor)
                     g.DrawLine(Pens.Silver, rect.Left, ticky, rect.Right, ticky);
 
@@ -620,7 +620,7 @@ namespace OMPlot
             }
 
             //Axis line
-            g.DrawLine(pen, x, Transform(Minimum), x, Transform(Maximum));
+            g.DrawLine(pen, x, (float)Transform(Minimum), x, (float)Transform(Maximum));
 
             //Title drawing
             if (!string.IsNullOrWhiteSpace(Title) && TitlePosition != LabelsPosition.None)
@@ -728,7 +728,7 @@ namespace OMPlot
 
             for (int i = 0; i < tickLabel.Length; i++)
             {
-                float tickx = Transform(tick[i]);
+                float tickx = (float)Transform(tick[i]);
                 if (GridStyle == GridStyle.Both || GridStyle == GridStyle.Major)
                     g.DrawLine(Pens.Gray, tickx, rect.Top, tickx, rect.Bottom);
 
@@ -764,7 +764,7 @@ namespace OMPlot
             }
             for (int i = 0; i < subTick.Length; i++)
             {
-                float tickx = Transform(subTick[i]);
+                float tickx = (float)Transform(subTick[i]);
                 if (GridStyle == GridStyle.Both || GridStyle == GridStyle.Minor)
                     g.DrawLine(Pens.Silver, tickx, rect.Top, tickx, rect.Bottom);
 
@@ -778,7 +778,7 @@ namespace OMPlot
             }
 
             //Axis line
-            g.DrawLine(pen, Transform(Minimum), y, Transform(Maximum), y);
+            g.DrawLine(pen, (float)Transform(Minimum), y, (float)Transform(Maximum), y);
 
             //Title drawing
             if (!string.IsNullOrWhiteSpace(Title) && TitlePosition != LabelsPosition.None)
