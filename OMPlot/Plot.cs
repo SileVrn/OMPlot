@@ -27,8 +27,9 @@ namespace OMPlot
         double distance;
         long time;*/
 
-        Pen selectionPen = new Pen(Color.FromArgb(200, 0, 50, 100));
-        Brush selectionBrush = new SolidBrush(Color.FromArgb(100, 0, 50, 100));
+        Pen selectionPen, mainPen;
+        Brush selectionBrush, legendBoxBrush, backgroungBrush, mainBrush;
+        Font titleFont;
 
         Color[] defaultPlotColors = new Color[] { Color.FromArgb(35, 80, 170), Color.FromArgb(200,30,30), Color.FromArgb(10,160,50), Color.FromArgb(200,100,30), Color.FromArgb(100,30,200), Color.FromArgb(0,0,0)};
         LineStyle[] defaultLineStyle = ((LineStyle[])Enum.GetValues(typeof(LineStyle))).Where(e => e != LineStyle.None).ToArray();
@@ -58,6 +59,15 @@ namespace OMPlot
         public Plot()
         {
             InitializeComponent();
+
+            selectionPen = new Pen(Color.FromArgb(200, 0, 50, 100));
+            selectionBrush = new SolidBrush(Color.FromArgb(100, 0, 50, 100));
+            titleFont = new Font(this.Font.FontFamily, this.Font.Size + 4, this.Font.Style, this.Font.Unit, this.Font.GdiCharSet, this.Font.GdiVerticalFont);
+            mainBrush = new SolidBrush(this.ForeColor);
+            mainPen = new Pen(this.ForeColor);
+            backgroungBrush = new SolidBrush(this.BackColor);
+            legendBoxBrush = new SolidBrush(Color.FromArgb(200, this.BackColor));
+
             Data = new List<XYSeries>();
             Vertical = new Dictionary<string, Axis>();
             Horizontal = new Dictionary<string, Axis>();
@@ -376,13 +386,7 @@ namespace OMPlot
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
-
-            Font titleFont = new Font(this.Font.FontFamily, this.Font.Size + 4, this.Font.Style, this.Font.Unit, this.Font.GdiCharSet, this.Font.GdiVerticalFont);
-
-            Brush backgroungBrush = new SolidBrush(this.BackColor);
-            Brush mainBrush = new SolidBrush(this.ForeColor);
-            Pen mainPen = new Pen(this.ForeColor);
-
+                        
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
             g.Clear(this.BackColor);
@@ -630,7 +634,7 @@ namespace OMPlot
             {
                 if (LegendStyle == LegendStyle.Inside)
                 {
-                    g.FillRectangle(new SolidBrush(Color.FromArgb(200, this.BackColor)), legendRectangle);
+                    g.FillRectangle(legendBoxBrush, legendRectangle);
                     g.DrawRectangle(mainPen, legendRectangle.X, legendRectangle.Y, legendRectangle.Width, legendRectangle.Height);
                 }
                 for (int i = 0; i < Data.Count; i++)
@@ -734,7 +738,9 @@ namespace OMPlot
 
             sw.Stop();
 
-            ElapsedMilliseconds.Add(sw.ElapsedMilliseconds);
+            if (ElapsedMilliseconds.Count > 100)
+                ElapsedMilliseconds.Dequeue();
+            ElapsedMilliseconds.Enqueue(sw.ElapsedMilliseconds);
             double ElapsedMillisecondsAvg = ElapsedMilliseconds.Average();
             g.DrawString((1000.0 / (ElapsedMillisecondsAvg > 0 ? ElapsedMillisecondsAvg : 1)).ToString("#.###"), this.Font, mainBrush, 0, 0);
 
@@ -742,6 +748,24 @@ namespace OMPlot
                 g.DrawLine(Pens.Black, test1, test0);
             g.DrawString(time + "(" + distance + ")", this.Font, mainBrush, test0);*/
         }
+
+        private void Plot_FontChanged(object sender, EventArgs e)
+        {
+            titleFont = new Font(this.Font.FontFamily, this.Font.Size + 4, this.Font.Style, this.Font.Unit, this.Font.GdiCharSet, this.Font.GdiVerticalFont);
+        }
+
+        private void Plot_ForeColorChanged(object sender, EventArgs e)
+        {
+            mainBrush = new SolidBrush(this.ForeColor);
+            mainPen = new Pen(this.ForeColor);
+        }
+
+        private void Plot_BackColorChanged(object sender, EventArgs e)
+        {
+            backgroungBrush = new SolidBrush(this.BackColor);
+            legendBoxBrush = new SolidBrush(Color.FromArgb(200, this.BackColor));
+        }
+
         public Image ToImage()
         {
             Image img = new Bitmap(this.Width, this.Height);
@@ -776,12 +800,11 @@ namespace OMPlot
             return new Tuple<int, PointDistance>(index, pd);
         }
 
-        
 
-        List<long> ElapsedMilliseconds = new List<long>();
-        
+        Queue<long> ElapsedMilliseconds = new Queue<long>(100);
 
-        
+
+
     }
 
     public delegate void PlotMouseEvent(object sender, PlotMouseEventArgs e);

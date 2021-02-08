@@ -46,7 +46,7 @@ namespace OMPlot.Data
         public double MaximumX { get; protected set; }
         public double MaximumY { get; protected set; }
 
-        public GraphicsPath GraphicsPath { get; private set; }
+        public GraphicsPath GraphicsPath { get; protected set; }
 
 
         protected XYSeries()
@@ -91,7 +91,7 @@ namespace OMPlot.Data
             HorizontalAxis = horizontalAxis;
             VerticalAxis = verticalAxis;
         }
-        public PointDistance DistanceToPoint(double x, double y)
+        public virtual PointDistance DistanceToPoint(double x, double y)
         {
             if (LineStyle != LineStyle.None)
             {
@@ -238,8 +238,7 @@ namespace OMPlot.Data
             }
             return pointList.ToArray();
         }
-
-        public void CalculateGraphics(RectangleExtended plotRectangle)
+        public virtual void CalculateGraphics(RectangleExtended plotRectangle)
         {
             points = CalculatePoints();
             GraphicsPath = new GraphicsPath();
@@ -371,7 +370,7 @@ namespace OMPlot.Data
                 }
             }
         }
-        public void Draw(Graphics g, RectangleExtended plotRectangle, int plotIndex)
+        public virtual void Draw(Graphics g, RectangleExtended plotRectangle, int plotIndex)
         {
             if (points.Length > 1)
             {
@@ -421,7 +420,7 @@ namespace OMPlot.Data
                 Marker.Draw(g, MarkColor, MarkStyle, MarkSize, points);
             }
         }
-        public void DrawLegend(Graphics g, RectangleF rect)
+        public virtual void DrawLegend(Graphics g, RectangleF rect)
         {
             Marker.Draw(g, MarkColor, MarkStyle, MarkSize, new PointF[] { new PointF(rect.X + rect.Width / 2f, rect.Y + rect.Height / 2f) });
 

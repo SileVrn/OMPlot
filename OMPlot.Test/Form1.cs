@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace OMPlot.Test
@@ -48,7 +42,7 @@ namespace OMPlot.Test
             //pppp.Interpolation = Data.PlotInterpolation.NewSpline;
 
 
-            double[] sinX = new double[100];
+            double[] sinX = new double[10000];
             double[] sinY1 = new double[sinX.Length];
             double[] sinY2 = new double[sinX.Length];
             //double[] sinY3 = new double[sinX.Length];
@@ -112,9 +106,9 @@ namespace OMPlot.Test
 
             plot1.Add(sir);
 
-            pl1.FillColor = pl1.LineColor;
-            pl1.FillPlot = sir;
-            pl1.FillStyle = Data.FillStyle.ToPlot;
+            sir.FillColor = pl1.LineColor;
+            sir.FillPlot = pl1;
+            sir.FillStyle = Data.FillStyle.ToPlot;
 
             plot1.LegendStyle = LegendStyle.Inside;
 

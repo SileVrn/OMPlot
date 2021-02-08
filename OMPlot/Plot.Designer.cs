@@ -37,6 +37,9 @@
             this.DoubleBuffered = true;
             this.Name = "Plot";
             this.Size = new System.Drawing.Size(800, 450);
+            this.BackColorChanged += new System.EventHandler(this.Plot_BackColorChanged);
+            this.FontChanged += new System.EventHandler(this.Plot_FontChanged);
+            this.ForeColorChanged += new System.EventHandler(this.Plot_ForeColorChanged);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Plot_Paint);
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Plot_MouseClick);
             this.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.Plot_MouseDoubleClick);
