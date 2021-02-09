@@ -11,7 +11,7 @@ namespace OMPlot.Data
     {
         double[] Y;
         double dX, X0;
-        public LineSeries (IEnumerable<double> y, double dx, double x0 = 0)
+        public LineSeries (IEnumerable<double> y, double dx = 1, double x0 = 0)
         {
             Y = y.ToArray();
             dX = dx;
@@ -26,9 +26,8 @@ namespace OMPlot.Data
         }
         protected override PointF[] CalculatePoints()
         {
-            double minx = HorizontalAxis.TransformBack(HorizontalAxis.Minimum);
             double maxX = HorizontalAxis.Transform(HorizontalAxis.Maximum);
-            double DX = HorizontalAxis.Transform(minx + dX) - HorizontalAxis.Minimum;
+            double DX = HorizontalAxis.Transform(HorizontalAxis.Minimum + dX) - HorizontalAxis.Transform(HorizontalAxis.Minimum);
             int start = 0;
             if (MinimumX < HorizontalAxis.Minimum)
                 start = (int)Math.Floor((HorizontalAxis.Minimum - MinimumX) / dX);

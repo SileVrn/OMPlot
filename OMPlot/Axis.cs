@@ -9,7 +9,6 @@ namespace OMPlot
 {
     public class Axis
     {
-        Font font;
         Brush brush;
         Pen pen;
         Color color;
@@ -83,7 +82,7 @@ namespace OMPlot
         public LabelsPosition TitlePosition { get; set; }
         public GridStyle GridStyle { get; set; }
 
-        public Font Font { get { return font; } set { font = value; } }
+        public Font Font { get; set; }
         public Color Color { get { return color; } set { color = value; brush = new SolidBrush(color); pen = new Pen(brush); } }
         
         public float SizeNear { get; private set; }
@@ -405,7 +404,7 @@ namespace OMPlot
 
             if (!string.IsNullOrWhiteSpace(Title) && TitlePosition != LabelsPosition.None)
             {
-                titleSize = g.MeasureString(Title, this.font);
+                titleSize = g.MeasureString(Title, Font);
                 if (TitlePosition == LabelsPosition.Near)
                     SizeNear += titleSize.Height;
                 else if (TitlePosition == LabelsPosition.Far)
@@ -508,7 +507,7 @@ namespace OMPlot
 
             if (!string.IsNullOrWhiteSpace(Title) && TitlePosition != LabelsPosition.None)
             {
-                titleSize = g.MeasureString(Title, this.font);
+                titleSize = g.MeasureString(Title, Font);
                 if (TitlePosition == LabelsPosition.Near)
                     SizeNear += titleSize.Height;
                 else if (TitlePosition == LabelsPosition.Far)
@@ -589,7 +588,7 @@ namespace OMPlot
                         g.TranslateTransform(tickLabelPositionX, ticky);
                         g.RotateTransform(rotationSign * 90);
                         g.TranslateTransform(-tickLabelPositionX, -ticky);
-                        g.DrawString(tickLabel[i], this.font, brush, tickLabelPositionX, ticky, stringFormat);
+                        g.DrawString(tickLabel[i], Font, brush, tickLabelPositionX, ticky, stringFormat);
                         g.ResetTransform();
                     }
                     else if (TicksLabelsRotation == TicksLabelsRotation.Tilted)
@@ -597,11 +596,11 @@ namespace OMPlot
                         g.TranslateTransform(tickLabelPositionX, ticky);
                         g.RotateTransform(rotationSign * 45);
                         g.TranslateTransform(-tickLabelPositionX, -ticky);
-                        g.DrawString(tickLabel[i], this.font, brush, tickLabelPositionX, ticky, stringFormat);
+                        g.DrawString(tickLabel[i], Font, brush, tickLabelPositionX, ticky, stringFormat);
                         g.ResetTransform();
                     }
                     else
-                        g.DrawString(tickLabel[i], this.font, brush, tickLabelPositionX, ticky, stringFormat);
+                        g.DrawString(tickLabel[i], Font, brush, tickLabelPositionX, ticky, stringFormat);
                 }
             }
             for (int i = 0; i < subTick.Length; i++)
@@ -688,7 +687,7 @@ namespace OMPlot
                 g.TranslateTransform(titleX, titleY);
                 g.RotateTransform(rotationSign * 90);
                 g.TranslateTransform(-titleX, -titleY);
-                g.DrawString(Title, this.font, brush, titleX, titleY, titleFormat);
+                g.DrawString(Title, Font, brush, titleX, titleY, titleFormat);
                 g.ResetTransform();
             }
             //end of Horizontal drawing
@@ -747,7 +746,7 @@ namespace OMPlot
                         g.TranslateTransform(tickx, tickLabelPositionY);
                         g.RotateTransform(rotationSign * 90);
                         g.TranslateTransform(-tickx, -tickLabelPositionY);
-                        g.DrawString(tickLabel[i], this.font, brush, tickx, tickLabelPositionY, stringFormat);
+                        g.DrawString(tickLabel[i], Font, brush, tickx, tickLabelPositionY, stringFormat);
                         g.ResetTransform();
                     }
                     else if (TicksLabelsRotation == TicksLabelsRotation.Tilted)
@@ -755,11 +754,11 @@ namespace OMPlot
                         g.TranslateTransform(tickx, tickLabelPositionY);
                         g.RotateTransform(rotationSign * 45);
                         g.TranslateTransform(-tickx, -tickLabelPositionY);
-                        g.DrawString(tickLabel[i], this.font, brush, tickx, tickLabelPositionY, stringFormat);
+                        g.DrawString(tickLabel[i], Font, brush, tickx, tickLabelPositionY, stringFormat);
                         g.ResetTransform();
                     }
                     else
-                        g.DrawString(tickLabel[i], this.font, brush, tickx, tickLabelPositionY, stringFormat);
+                        g.DrawString(tickLabel[i], Font, brush, tickx, tickLabelPositionY, stringFormat);
                 }
             }
             for (int i = 0; i < subTick.Length; i++)
@@ -790,17 +789,17 @@ namespace OMPlot
                     if (TitleAlignment == Alignment.Center)
                     {
                         titleFormat.Alignment = StringAlignment.Center;
-                        g.DrawString(Title, this.font, brush, x + rect.Width / 2, y - SizeNear, titleFormat);
+                        g.DrawString(Title, Font, brush, x + rect.Width / 2, y - SizeNear, titleFormat);
                     }
                     else if (TitleAlignment == Alignment.Near)
                     {
                         titleFormat.Alignment = StringAlignment.Near;
-                        g.DrawString(Title, this.font, brush, x, y - SizeNear, titleFormat);
+                        g.DrawString(Title, Font, brush, x, y - SizeNear, titleFormat);
                     }
                     else
                     {
                         titleFormat.Alignment = StringAlignment.Far;
-                        g.DrawString(Title, this.font, brush, x + rect.Width, y - SizeNear, titleFormat);
+                        g.DrawString(Title, Font, brush, x + rect.Width, y - SizeNear, titleFormat);
                     }
                 }
                 else if (TitlePosition == LabelsPosition.Far)
@@ -808,17 +807,17 @@ namespace OMPlot
                     titleFormat.LineAlignment = StringAlignment.Far;
                     if (TitleAlignment == Alignment.Center)
                     {
-                        g.DrawString(Title, this.font, brush, x + rect.Width / 2, y + SizeFar, titleFormat);
+                        g.DrawString(Title, Font, brush, x + rect.Width / 2, y + SizeFar, titleFormat);
                     }
                     else if (TitleAlignment == Alignment.Near)
                     {
                         titleFormat.Alignment = StringAlignment.Near;
-                        g.DrawString(Title, this.font, brush, x, y + SizeFar, titleFormat);
+                        g.DrawString(Title, Font, brush, x, y + SizeFar, titleFormat);
                     }
                     else if (TitleAlignment == Alignment.Far)
                     {
                         titleFormat.Alignment = StringAlignment.Far;
-                        g.DrawString(Title, this.font, brush, x + rect.Width, y + SizeFar, titleFormat);
+                        g.DrawString(Title, Font, brush, x + rect.Width, y + SizeFar, titleFormat);
                     }
                 }
             }

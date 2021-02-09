@@ -42,7 +42,7 @@ namespace OMPlot.Test
             //pppp.Interpolation = Data.PlotInterpolation.NewSpline;
 
 
-            double[] sinX = new double[10000];
+            double[] sinX = new double[100000];
             double[] sinY1 = new double[sinX.Length];
             double[] sinY2 = new double[sinX.Length];
             //double[] sinY3 = new double[sinX.Length];
@@ -90,25 +90,16 @@ namespace OMPlot.Test
                 //sinY18[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.8;
                 //sinY19[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.9;
             }
-
-            Data.LineSeries sir = new Data.LineSeries(sinY2, dt);
-            sir.Name = "LineSir";
-
+                       
             plot1.PlotStyle = PlotStyle.Lines;
-            var pl1 = plot1.Add(sinX, sinY1, "Plot1");
-            //var pl2 = plot1.Add(sinX, sinY2, "Plot2");
+            var pl1 = plot1.Add(sinX, sinY1);
+            var pl2 = plot1.Add(sinY2);
             //var pl3 = plot1.Add(sinX, sinY3, "Plot3");
             //var pl4 = plot1.Add(sinX, sinY4, "Plot4");
             //var pl5 = plot1.Add(sinX, sinY5, "Plot5");
             //var pl6 = plot1.Add(sinX, sinY6, "Plot6");
             //var pl7 = plot1.Add(sinX, sinY7, "Plot7");
             //var pl8 = plot1.Add(sinX, sinY8, "Plot8");
-
-            plot1.Add(sir);
-
-            sir.FillColor = pl1.LineColor;
-            sir.FillPlot = pl1;
-            sir.FillStyle = Data.FillStyle.ToPlot;
 
             plot1.LegendStyle = LegendStyle.Inside;
 

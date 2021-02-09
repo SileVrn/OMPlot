@@ -176,6 +176,74 @@ namespace OMPlot
             this.Add(data);
             return data;
         }
+        public LineSeries Add(IEnumerable<double> y)
+        {
+            return this.Add(y, 1, 0, "Plot" + Data.Count().ToString());
+        }
+        public LineSeries Add(IEnumerable<double> y, double dx)
+        {
+            return this.Add(y, dx, 0, "Plot" + Data.Count().ToString());
+        }
+        public LineSeries Add(IEnumerable<double> y, double dx, double x0)
+        {
+            return this.Add(y, dx, x0, "Plot" + Data.Count().ToString());
+        }
+        public LineSeries Add(IEnumerable<double> y, string name)
+        {
+            return this.Add(y, 1, 0, name);
+        }
+        public LineSeries Add(IEnumerable<double> y, double dx, string name)
+        {
+            return this.Add(y, dx, 0, name);
+        }
+        public LineSeries Add(IEnumerable<double> y, double dx, double x0, string name)
+        {
+            LineSeries data = new LineSeries(y, dx, x0);
+            data.Name = name;
+            int plotIndex = Data.Count();
+
+            if (PlotStyle == PlotStyle.Lines || PlotStyle == PlotStyle.Splines)
+            {
+                int colorIndex = plotIndex % defaultPlotColors.Length;
+                int lineStyleIndex = (plotIndex - colorIndex) / defaultPlotColors.Length % defaultLineStyle.Length;
+                data.LineColor = defaultPlotColors[colorIndex];
+                data.LineStyle = defaultLineStyle[lineStyleIndex];
+                if (PlotStyle == PlotStyle.Splines)
+                    data.Interpolation = PlotInterpolation.Spline;
+            }
+            else if (PlotStyle == PlotStyle.LinesMarkers || PlotStyle == PlotStyle.SplinesMarkers)
+            {
+                int colorIndex = plotIndex % defaultPlotColors.Length;
+                int markerStyleIndex = (plotIndex - colorIndex) / defaultPlotColors.Length % defaultMarkerStyle.Length;
+                data.LineColor = defaultPlotColors[colorIndex];
+                data.MarkColor = defaultPlotColors[colorIndex];
+                data.MarkStyle = defaultMarkerStyle[markerStyleIndex];
+                if (PlotStyle == PlotStyle.SplinesMarkers)
+                    data.Interpolation = PlotInterpolation.Spline;
+            }
+            else if (PlotStyle == PlotStyle.Markers)
+            {
+                int colorIndex = plotIndex % defaultPlotColors.Length;
+                int markerStyleIndex = plotIndex % defaultMarkerStyle.Length;
+                data.LineStyle = LineStyle.None;
+                data.MarkColor = defaultPlotColors[colorIndex];
+                data.MarkStyle = defaultMarkerStyle[markerStyleIndex];
+                if (PlotStyle == PlotStyle.SplinesMarkers)
+                    data.Interpolation = PlotInterpolation.Spline;
+            }
+            else if (PlotStyle == PlotStyle.VerticalBars || PlotStyle == PlotStyle.HorisontalBars)
+            {
+                int colorIndex = plotIndex % defaultPlotColors.Length;
+                data.LineStyle = LineStyle.None;
+                data.BarDuty = 1.0f;
+                data.BarFillColor = defaultPlotColors[colorIndex];
+                data.BarStacking = true;
+                data.BarStyle = PlotStyle == PlotStyle.HorisontalBars ? BarStyle.Horisontal : BarStyle.Vertical;
+            }
+
+            this.Add(data);
+            return data;
+        }
 
         public void Clear() { Data.Clear(); }
 
@@ -753,13 +821,11 @@ namespace OMPlot
         {
             titleFont = new Font(this.Font.FontFamily, this.Font.Size + 4, this.Font.Style, this.Font.Unit, this.Font.GdiCharSet, this.Font.GdiVerticalFont);
         }
-
         private void Plot_ForeColorChanged(object sender, EventArgs e)
         {
             mainBrush = new SolidBrush(this.ForeColor);
             mainPen = new Pen(this.ForeColor);
         }
-
         private void Plot_BackColorChanged(object sender, EventArgs e)
         {
             backgroungBrush = new SolidBrush(this.BackColor);
