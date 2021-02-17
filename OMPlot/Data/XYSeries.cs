@@ -307,6 +307,7 @@ namespace OMPlot.Data
                 {
                     bars = new RectangleF[points.Length];
                     float barCount = BarStacking ? BarCount : 1.0f;
+                    float W;
 
                     if (BarStyle == BarStyle.Vertical)
                     {
@@ -316,16 +317,16 @@ namespace OMPlot.Data
                         {     
                             bars[i] = new RectangleF();                       
                             if (i == 0)
-                                bars[i].Width = Math.Abs(points[1].X - points[0].X) / barCount;
+                                W = Math.Abs(points[1].X - points[0].X) / barCount;
                             else if (i == points.Length - 1)
-                                bars[i].Width = Math.Abs(points[points.Length - 1].X - points[points.Length - 2].X) / barCount;
+                                W = Math.Abs(points[points.Length - 1].X - points[points.Length - 2].X) / barCount;
                             else
-                                bars[i].Width = Math.Abs(points[i + 1].X - points[i - 1].X) / 2.0f / barCount;
-                            bars[i].Width *= BarDuty;
-                            bars[i].X = i == 0 ? points[0].X - bars[i].Width * barCount / 2.0f : (points[i].X + points[i - 1].X) / 2.0f;
-                            bars[i].X += BarIndex * bars[i].Width + (bars[i].Width - bars[i].Width) / 2.0f;
-                            bars[i].X -= (i != 0 && points[i].X < points[i - 1].X) ? bars[i].Width * barCount : 0;
-
+                                W = Math.Abs(points[i + 1].X - points[i - 1].X) / 2.0f / barCount;
+                            bars[i].Width = W * BarDuty;
+                            bars[i].X = points[i].X;
+                            bars[i].X -= i == 0 ? (BarDuty * Math.Abs(points[1].X - points[0].X) / 2.0f) : (BarDuty * Math.Abs(points[i].X - points[i - 1].X) / 2.0f);
+                            bars[i].X += BarIndex * bars[i].Width;
+                            
                             if (refPositionY > points[i].Y)
                             {
                                 bars[i].Y = points[i].Y;
@@ -341,19 +342,20 @@ namespace OMPlot.Data
                     else if (BarStyle == BarStyle.Horisontal)
                     {
                         float refPositionX = (float)HorizontalAxis.Transform(BarValue);
+                        float H;
                         for (int i = 0; i < points.Length; i++)
                         {
                             bars[i] = new RectangleF();
                             if (i == 0)
-                                bars[i].Height = Math.Abs(points[1].Y - points[0].Y) / barCount;
+                                H = Math.Abs(points[1].Y - points[0].Y) / barCount;
                             else if (i == points.Length - 1)
-                                bars[i].Height = Math.Abs(points[points.Length - 1].Y - points[points.Length - 2].Y) / barCount;
+                                H = Math.Abs(points[points.Length - 1].Y - points[points.Length - 2].Y) / barCount;
                             else
-                                bars[i].Height = Math.Abs(points[i + 1].Y - points[i - 1].Y) / 2.0f / barCount;
-                            bars[i].Height *= BarDuty;
-                            bars[i].Y = i == 0 ? points[0].Y - bars[i].Height * barCount / 2.0f : (points[i].Y + points[i - 1].Y) / 2.0f;
-                            bars[i].Y += BarIndex * bars[i].Height + (bars[i].Height - bars[i].Height) / 2.0f;
-                            bars[i].Y -= (i != 0 && points[i].Y < points[i - 1].Y) ? bars[i].Height * barCount : 0;
+                                H = Math.Abs(points[i + 1].Y - points[i - 1].Y) / 2.0f / barCount;
+                            bars[i].Height = H * BarDuty;
+                            bars[i].Y = points[i].Y;
+                            bars[i].Y -= i == 0 ? (BarDuty * Math.Abs(points[1].Y - points[0].Y) / 2.0f) : (BarDuty * Math.Abs(points[i].Y - points[i - 1].Y) / 2.0f);
+                            bars[i].Y += (barCount - BarIndex - 1) * bars[i].Height;
 
                             if (refPositionX > points[i].X)
                             {

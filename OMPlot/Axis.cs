@@ -25,7 +25,7 @@ namespace OMPlot
         private string[] tickLabel;
         private float[] tickLabelLocation;
         private SizeF[] tickLabelSize;
-        private double[] subTick;
+        private double[] subTicks;
         private string tickLabelFormat;
 
         public Axis()
@@ -208,7 +208,7 @@ namespace OMPlot
             if(CustomTicks != null && CustomTicks.Length > 0)
             {
                 tick = CustomTicks.Where(ct => ct >= Minimum && ct <= Maximum).ToArray();
-                subTick = new double[0];
+                subTicks = new double[0];
 
                 if(CustomTicksLabels != null && CustomTicksLabels.Length > 0)
                 {
@@ -218,6 +218,19 @@ namespace OMPlot
                     tickLabel = CustomTicksLabels.Where((ctl, i) => CustomTicks[i] >= Minimum && CustomTicks[i] <= Maximum).ToArray();
                     tickLabelSize = tickLabel.Select(tl => g.MeasureString(tl, this.Font)).ToArray();
                     tickLabelLocation = CustomTicks.Where(ct => ct >= Minimum && ct <= Maximum).Select(ct => (float)this.Transform(ct)).ToArray();
+
+                    List<double> subTicksList = new List<double>();
+                    double subTick;
+                    for (int i = 0; i < CustomTicks.Length - 1; i++)
+                    {
+                        for (int j = 0; j < SubTickNumber; j++)
+                        {
+                            subTick = CustomTicks[i] + (j + 1) * (CustomTicks[i + 1] - CustomTicks[i]) / (SubTickNumber + 1);
+                            if (subTick >= Minimum && subTick <= Maximum)
+                                subTicksList.Add(subTick);
+                        }
+                    }
+                    subTicks = subTicksList.ToArray();
                     return;
                 }
             }
@@ -233,7 +246,7 @@ namespace OMPlot
                 if (mark - nextmark == 0) //step smaller than floating point resolution
                 {
                     tick = new double[] { Minimum, Maximum };
-                    subTick = new double[] { };
+                    subTicks = new double[] { };
                     maxDegree = Accessories.Degree(Minimum);
                     if (maxDegree < Accessories.Degree(Maximum))
                         maxDegree = Accessories.Degree(Maximum);
@@ -269,7 +282,7 @@ namespace OMPlot
                         mark = Accessories.Round(mark + step, roundStepSign);
                     }
                     tick = tickList.ToArray();
-                    subTick = subTickList.ToArray();
+                    subTicks = subTickList.ToArray();
                 }
 
                 tickLabelFormat = Accessories.FloatFormat(Accessories.FirstSignRound(step / Accessories.Pow1000(maxDegree)));
@@ -302,7 +315,7 @@ namespace OMPlot
                     mark *= 10;                    
                 }
                 tick = tickList.ToArray();
-                subTick = subTickList.ToArray();
+                subTicks = subTickList.ToArray();
                 var aaa = tick.Select(t => Accessories.Degree(t)).ToArray();
 
                 tickLabelFormat = "###";
@@ -318,11 +331,13 @@ namespace OMPlot
                 throw new Exception("Central line alignment is not possible for parallel rotation of the tick`s labels.");
 
             bool decreaseTickNumber;
-            SizeF tickLabelFormatSize;
+            SizeF tickLabelFormatSize = new SizeF();
             TickNumber = 20;
             do
             {
                 CalculateTicks(g);
+                if (!tickLabelSize.Any())
+                    break;
                 tickLabelFormatSize = new SizeF(tickLabelSize.Max(e => e.Width), tickLabelSize.First().Height);
                 decreaseTickNumber = false;
                 if (TicksLabelsPosition != LabelsPosition.None && (CustomTicks == null || CustomTicks.Length < 1) && TickNumber > 1)
@@ -348,11 +363,12 @@ namespace OMPlot
                                 break;
                             }
                         }
-                    }    
+                    }
                     TickNumber = decreaseTickNumber ? (int)Math.Floor((double)(TickNumber) / 2.0) : TickNumber;
                 }
             }
-            while (decreaseTickNumber);
+            while (decreaseTickNumber) ;
+           
 
             SizeNear = TicksLabelsPosition == LabelsPosition.Near ? 6 : 0;
             SizeFar = TicksLabelsPosition == LabelsPosition.Far ? 6 : 0;
@@ -422,11 +438,13 @@ namespace OMPlot
                     throw new Exception("Central alignment is only possible for parallel rotation of the tick`s labels.");
 
             bool decreaseTickNumber;
-            SizeF tickLabelFormatSize;
+            SizeF tickLabelFormatSize = new SizeF();
             TickNumber = 20;
             do
             {
                 CalculateTicks(g);
+                if (!tickLabelSize.Any())
+                    break;
                 tickLabelFormatSize = new SizeF(tickLabelSize.Max(e => e.Width), tickLabelSize.First().Height);
                 decreaseTickNumber = false;
                 if (TicksLabelsPosition != LabelsPosition.None && (CustomTicks == null || CustomTicks.Length < 1) && TickNumber > 1)
@@ -603,9 +621,9 @@ namespace OMPlot
                         g.DrawString(tickLabel[i], Font, brush, tickLabelPositionX, ticky, stringFormat);
                 }
             }
-            for (int i = 0; i < subTick.Length; i++)
+            for (int i = 0; i < subTicks.Length; i++)
             {
-                float ticky = (float)Transform(subTick[i]);
+                float ticky = (float)Transform(subTicks[i]);
                 if (GridStyle == GridStyle.Both || GridStyle == GridStyle.Minor)
                     g.DrawLine(Pens.Silver, rect.Left, ticky, rect.Right, ticky);
 
@@ -733,8 +751,8 @@ namespace OMPlot
 
                 switch (MajorTickStyle)
                 {
-                    case TickStyle.Near: g.DrawLine(pen, tickx, y, tickx, y + 5); break;
-                    case TickStyle.Far: g.DrawLine(pen, tickx, y, tickx, y - 5); break;
+                    case TickStyle.Near: g.DrawLine(pen, tickx, y, tickx, y - 5); break;
+                    case TickStyle.Far: g.DrawLine(pen, tickx, y, tickx, y + 5); break;
                     case TickStyle.Cross: g.DrawLine(pen, tickx, y + 5, tickx, y - 5); break;
                     case TickStyle.None: break;
                 }
@@ -761,16 +779,16 @@ namespace OMPlot
                         g.DrawString(tickLabel[i], Font, brush, tickx, tickLabelPositionY, stringFormat);
                 }
             }
-            for (int i = 0; i < subTick.Length; i++)
+            for (int i = 0; i < subTicks.Length; i++)
             {
-                float tickx = (float)Transform(subTick[i]);
+                float tickx = (float)Transform(subTicks[i]);
                 if (GridStyle == GridStyle.Both || GridStyle == GridStyle.Minor)
                     g.DrawLine(Pens.Silver, tickx, rect.Top, tickx, rect.Bottom);
 
                 switch (MinorTickStyle)
                 {
-                    case TickStyle.Near: g.DrawLine(pen, tickx, y, tickx, y + 2); break;
-                    case TickStyle.Far: g.DrawLine(pen, tickx, y, tickx, y - 2); break;
+                    case TickStyle.Near: g.DrawLine(pen, tickx, y, tickx, y - 2); break;
+                    case TickStyle.Far: g.DrawLine(pen, tickx, y, tickx, y + 2); break;
                     case TickStyle.Cross: g.DrawLine(pen, tickx, y + 2, tickx, y - 2); break;
                     case TickStyle.None: break;
                 }

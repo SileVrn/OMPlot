@@ -81,6 +81,7 @@ namespace OMPlot
             xAxis.TicksLabelsPosition = LabelsPosition.Far;
             xAxis.TicksLabelsRotation = TicksLabelsRotation.Parallel;
             xAxis.TicksLabelsAlignment = Alignment.Center;
+            xAxis.MajorTickStyle = TickStyle.Far;
 
             Axis yAxis = new Axis();
             yAxis.Minimum = -10;
@@ -167,7 +168,7 @@ namespace OMPlot
             {
                 int colorIndex = plotIndex % defaultPlotColors.Length;
                 data.LineStyle = LineStyle.None;
-                data.BarDuty = 1.0f;
+                data.BarDuty = 0.7f;
                 data.BarFillColor = defaultPlotColors[colorIndex];
                 data.BarStacking = true;
                 data.BarStyle = PlotStyle == PlotStyle.HorisontalBars ? BarStyle.Horisontal : BarStyle.Vertical;
@@ -235,6 +236,69 @@ namespace OMPlot
             {
                 int colorIndex = plotIndex % defaultPlotColors.Length;
                 data.LineStyle = LineStyle.None;
+                data.BarDuty = 0.7f;
+                data.BarFillColor = defaultPlotColors[colorIndex];
+                data.BarStacking = true;
+                data.BarStyle = PlotStyle == PlotStyle.HorisontalBars ? BarStyle.Horisontal : BarStyle.Vertical;
+            }
+
+            this.Add(data);
+            return data;
+        }
+        public XYSeries Add(Dictionary<string, double> dictionary, string name)
+        {
+            var axis = PlotStyle == PlotStyle.HorisontalBars ? GetVerticalAxis() : GetHorizontalAxis();
+            if(axis.CustomTicksLabels == null)
+                axis.CustomTicksLabels = dictionary.Keys.ToArray();
+            else
+                axis.CustomTicksLabels = axis.CustomTicksLabels.Concat(dictionary.Keys).Distinct().ToArray();
+            axis.CustomTicks = axis.CustomTicksLabels.Select((key, i) => (double)i).ToArray();
+
+            axis.SubTickNumber = 1;
+            axis.MinorTickStyle = TickStyle.Far;
+            axis.MajorTickStyle = TickStyle.None;
+
+            XYSeries data = PlotStyle == PlotStyle.HorisontalBars ?
+                new XYSeries(dictionary.Values, dictionary.Keys.Select(key => (double)Array.FindIndex(axis.CustomTicksLabels, e => e == key))) :
+                new XYSeries(dictionary.Keys.Select(key => (double)Array.FindIndex(axis.CustomTicksLabels, e => e == key)), dictionary.Values);
+            data.Name = name;
+            
+
+            int plotIndex = Data.Count();
+
+            if (PlotStyle == PlotStyle.Lines || PlotStyle == PlotStyle.Splines)
+            {
+                int colorIndex = plotIndex % defaultPlotColors.Length;
+                int lineStyleIndex = (plotIndex - colorIndex) / defaultPlotColors.Length % defaultLineStyle.Length;
+                data.LineColor = defaultPlotColors[colorIndex];
+                data.LineStyle = defaultLineStyle[lineStyleIndex];
+                if (PlotStyle == PlotStyle.Splines)
+                    data.Interpolation = PlotInterpolation.Spline;
+            }
+            else if (PlotStyle == PlotStyle.LinesMarkers || PlotStyle == PlotStyle.SplinesMarkers)
+            {
+                int colorIndex = plotIndex % defaultPlotColors.Length;
+                int markerStyleIndex = (plotIndex - colorIndex) / defaultPlotColors.Length % defaultMarkerStyle.Length;
+                data.LineColor = defaultPlotColors[colorIndex];
+                data.MarkColor = defaultPlotColors[colorIndex];
+                data.MarkStyle = defaultMarkerStyle[markerStyleIndex];
+                if (PlotStyle == PlotStyle.SplinesMarkers)
+                    data.Interpolation = PlotInterpolation.Spline;
+            }
+            else if (PlotStyle == PlotStyle.Markers)
+            {
+                int colorIndex = plotIndex % defaultPlotColors.Length;
+                int markerStyleIndex = plotIndex % defaultMarkerStyle.Length;
+                data.LineStyle = LineStyle.None;
+                data.MarkColor = defaultPlotColors[colorIndex];
+                data.MarkStyle = defaultMarkerStyle[markerStyleIndex];
+                if (PlotStyle == PlotStyle.SplinesMarkers)
+                    data.Interpolation = PlotInterpolation.Spline;
+            }
+            else if (PlotStyle == PlotStyle.VerticalBars || PlotStyle == PlotStyle.HorisontalBars)
+            {
+                int colorIndex = plotIndex % defaultPlotColors.Length;
+                data.LineStyle = LineStyle.None;
                 data.BarDuty = 1.0f;
                 data.BarFillColor = defaultPlotColors[colorIndex];
                 data.BarStacking = true;
@@ -244,6 +308,7 @@ namespace OMPlot
             this.Add(data);
             return data;
         }
+
 
         public void Clear() { Data.Clear(); }
 
@@ -469,7 +534,7 @@ namespace OMPlot
 
             var legendRectangles = new RectangleF[Data.Count];
             var legendRectangle = new RectangleF();
-            if (LegendStyle == LegendStyle.Outside)
+            if (LegendStyle == LegendStyle.Outside && Data.Any())
             {
                 var legendsMeas = Data.Select(data => g.MeasureString(data.Name, this.Font)).ToArray();
 
@@ -557,7 +622,7 @@ namespace OMPlot
                 plotRectangle.Right = (this.Width - plotRectangle.Right) > axis.Value.OverflowFar ? plotRectangle.Right : (this.Width - axis.Value.OverflowFar);
             }
 
-            if (LegendStyle == LegendStyle.Inside)
+            if (LegendStyle == LegendStyle.Inside && Data.Any())
             {
                 var legendsMeas = Data.Select(data => g.MeasureString(data.Name, this.Font)).ToArray();
 
@@ -639,7 +704,7 @@ namespace OMPlot
                 }
             }
 
-            if (LegendStyle != LegendStyle.None)
+            if (LegendStyle != LegendStyle.None && Data.Any())
             {
                 for (int i = 0; i < legendRectangles.Length; i++)
                 {

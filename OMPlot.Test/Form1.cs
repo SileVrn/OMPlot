@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -42,15 +43,18 @@ namespace OMPlot.Test
             //pppp.Interpolation = Data.PlotInterpolation.NewSpline;
 
 
-            double[] sinX = new double[100000];
+            double[] sinX0 = new double[20];
+            double[] sinY0 = new double[sinX0.Length];
+
+            double[] sinX = new double[40];
             double[] sinY1 = new double[sinX.Length];
             double[] sinY2 = new double[sinX.Length];
-            //double[] sinY3 = new double[sinX.Length];
-            //double[] sinY4 = new double[sinX.Length];
-            //double[] sinY5 = new double[sinX.Length];
-            //double[] sinY6 = new double[sinX.Length];
-            //double[] sinY7 = new double[sinX.Length];
-            //double[] sinY8 = new double[sinX.Length];
+            double[] sinY3 = new double[sinX.Length];
+            double[] sinY4 = new double[sinX.Length];
+            double[] sinY5 = new double[sinX.Length];
+            double[] sinY6 = new double[sinX.Length];
+            double[] sinY7 = new double[sinX.Length];
+            double[] sinY8 = new double[sinX.Length];
             //double[] sinY9 = new double[sinX.Length];
             //double[] sinY11 = new double[sinX.Length];
             //double[] sinY12 = new double[sinX.Length];
@@ -65,6 +69,12 @@ namespace OMPlot.Test
             double f = 3;
             double dt = 2.0 / sinX.Length;
 
+            for (int i = 0; i < sinX0.Length; i++)
+            {
+                sinX0[i] = 2* i * dt;
+                sinY0[i] = Math.Sin(2 * Math.PI * sinX0[i] * f) + 1;
+            }
+
             for (int i = 0; i < sinX.Length; i++)
             {
                 //double x = Math.PI * 10 * i / (dataX.Length - 1);
@@ -73,12 +83,12 @@ namespace OMPlot.Test
                 sinX[i] = i * dt;
                 sinY1[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.1;
                 sinY2[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.2;
-                //sinY3[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.3;
-                //sinY4[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.4;
-                //sinY5[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.5;
-                //sinY6[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.6;
-                //sinY7[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.7;
-                //sinY8[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.8;
+                sinY3[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.3;
+                sinY4[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.4;
+                sinY5[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.5;
+                sinY6[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.6;
+                sinY7[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.7;
+                sinY8[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.8;
                 //sinY9[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 0.9;
                 //sinY11[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.1;
                 //sinY12[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.2;
@@ -90,16 +100,42 @@ namespace OMPlot.Test
                 //sinY18[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.8;
                 //sinY19[i] = Math.Sin(2 * Math.PI * sinX[i] * f) + 1.9;
             }
+
+            //Array.Reverse(sinX);
                        
-            plot1.PlotStyle = PlotStyle.Lines;
-            var pl1 = plot1.Add(sinX, sinY1);
-            var pl2 = plot1.Add(sinY2);
-            //var pl3 = plot1.Add(sinX, sinY3, "Plot3");
-            //var pl4 = plot1.Add(sinX, sinY4, "Plot4");
-            //var pl5 = plot1.Add(sinX, sinY5, "Plot5");
-            //var pl6 = plot1.Add(sinX, sinY6, "Plot6");
-            //var pl7 = plot1.Add(sinX, sinY7, "Plot7");
-            //var pl8 = plot1.Add(sinX, sinY8, "Plot8");
+            plot1.PlotStyle = PlotStyle.HorisontalBars ;
+            //var pl0 = plot1.Add(sinX0, sinY0);
+            //var pl1 = plot1.Add(sinX, sinY1, "Plot1");
+            //var pl2 = plot1.Add(sinY2, sinX, "Plot2");
+            //var pl3 = plot1.Add(sinY3, sinX, "Plot3");
+            //var pl4 = plot1.Add(sinY4, sinX, "Plot4");
+            //var pl5 = plot1.Add(sinY5, sinX, "Plot5");
+            //var pl6 = plot1.Add(sinY6, sinX, "Plot6");
+            //var pl7 = plot1.Add(sinY7, sinX, "Plot7");
+            //var pl8 = plot1.Add(sinY8, sinX, "Plot8");
+            //pl1.MarkStyle = Data.MarkerStyle.Asterisk;
+            //pl1.MarkColor = Color.Red;
+
+
+            Dictionary<string, double> dict1 = new Dictionary<string, double>();
+            dict1.Add("None", 0.1);
+            dict1.Add("First", 1.0);
+            dict1.Add("Second", 2.0);
+            dict1.Add("Third", 3.0);
+
+
+            Dictionary<string, double> dict2 = new Dictionary<string, double>();
+            dict2.Add("None", 1.0);
+            dict2.Add("First", 2.0);
+            dict2.Add("Second", 3.0);
+            dict2.Add("Third", 0.0);
+            dict2.Add("Fourth", 4.0);
+
+            var dp1 = plot1.Add(dict1, "Dict0");
+            plot1.Add(dict2, "Dict1");
+
+            dp1.MarkStyle = Data.MarkerStyle.Asterisk;
+            dp1.MarkColor = Color.Red;
 
             plot1.LegendStyle = LegendStyle.Inside;
 
