@@ -41,10 +41,13 @@ namespace OMPlot.Data
         public Axis HorizontalAxis { get; set; }
         public Axis VerticalAxis { get; set; }
 
-        public double MinimumX { get; protected set; }
-        public double MinimumY { get; protected set; }
-        public double MaximumX { get; protected set; }
-        public double MaximumY { get; protected set; }
+        protected double minX, maxX, minY, maxY;
+        protected double minXPre, maxXPre, minYPre, maxYPre;
+        protected int minXIndex, maxXIndex, minYIndex, maxYIndex;
+        public double MinimumX { get  {  return minX - (minXPre - minX) / 2; } }
+        public double MinimumY { get { return minY - (minYPre - minY) / 2; } }
+        public double MaximumX { get { return maxX + (maxX - maxXPre) / 2; } }
+        public double MaximumY { get { return maxY + (maxY - maxYPre) / 2; } }
 
         public GraphicsPath GraphicsPath { get; protected set; }
 
@@ -59,10 +62,14 @@ namespace OMPlot.Data
             BarStyle = BarStyle.None;
             FillStyle = FillStyle.None;
             LineColor = Color.Black;
-            MinimumX = double.MaxValue;
-            MinimumY = double.MaxValue;
-            MaximumX = double.MinValue;
-            MaximumY = double.MinValue;
+            minX = double.MaxValue;
+            minY = double.MaxValue;
+            maxX = double.MinValue;
+            maxY = double.MinValue;
+            minXPre = double.MaxValue;
+            minYPre = double.MaxValue;
+            maxXPre = double.MinValue;
+            maxYPre = double.MinValue;
         }
         public XYSeries(IEnumerable<double> x, IEnumerable<double> y) : this()
         {
@@ -70,10 +77,37 @@ namespace OMPlot.Data
             Y = y.ToArray();
             for (int i = 0; i < X.Length; i++)
             {
-                MinimumX = MinimumX > X[i] ? X[i] : MinimumX;
-                MinimumY = MinimumY > Y[i] ? Y[i] : MinimumY;
-                MaximumX = MaximumX < X[i] ? X[i] : MaximumX;
-                MaximumY = MaximumY < Y[i] ? Y[i] : MaximumY;
+                if (minX > X[i])
+                {
+                    minX = X[i];
+                    minXIndex = i;
+                }
+                if (minY > Y[i])
+                {
+                    minY = Y[i];
+                    minYIndex = i;
+                }
+                if (maxX < X[i])
+                {
+                    maxX = X[i];
+                    maxXIndex = i;
+                }
+                if (maxY < Y[i])
+                {
+                    maxY = Y[i];
+                    maxYIndex = i;
+                }
+            }
+            for (int i = 0; i < X.Length; i++)
+            {
+                if (minXPre > X[i] && i != minXIndex)
+                    minXPre = X[i];
+                if (minYPre > Y[i] && i != minYIndex)
+                    minYPre = Y[i];
+                if (maxXPre < X[i] && i != maxXIndex)
+                    maxXPre = X[i];
+                if (maxYPre < Y[i] && i != maxYIndex)
+                    maxYPre = Y[i];
             }
         }
         public XYSeries(IEnumerable<double> x, IEnumerable<double> y, string name) : this(x, y)

@@ -89,6 +89,7 @@ namespace OMPlot
             yAxis.TicksLabelsRotation = TicksLabelsRotation.Perpendicular;
             yAxis.TicksLabelsAlignment = Alignment.Far;
             yAxis.TicksLabelsLineAlignment = Alignment.Center;
+            yAxis.MinorTickStyle = TickStyle.Near;
 
             AddHorizontalAxis(xAxis);
             AddVerticalAxis(yAxis);
@@ -101,28 +102,19 @@ namespace OMPlot
             if (data.HorizontalAxis == null)
                 data.HorizontalAxis = GetHorizontalAxis();
 
-            double clearanceX = Math.Abs(0.01 * (data.MaximumX - data.MinimumX));
-            double clearanceY = Math.Abs(0.01 * (data.MaximumX - data.MinimumX));
-            clearanceX = 0;
-            clearanceY = 0;
-            double dataXMin = data.MinimumX - clearanceX;
-            double dataYMin = data.MinimumY - clearanceY;
-            double dataXMax = data.MaximumX + clearanceX;
-            double dataYMax = data.MaximumY + clearanceY;
-
             if (Data.Count == 0)
             {
-                data.HorizontalAxis.Minimum = dataXMin;
-                data.VerticalAxis.Minimum = dataYMin;
-                data.HorizontalAxis.Maximum = dataXMax;
-                data.VerticalAxis.Maximum = dataYMax;
+                data.HorizontalAxis.Minimum = data.MinimumX;
+                data.VerticalAxis.Minimum = data.MinimumY;
+                data.HorizontalAxis.Maximum = data.MaximumX;
+                data.VerticalAxis.Maximum = data.MaximumY;
             }
             else
             {
-                data.HorizontalAxis.Minimum = data.HorizontalAxis.Minimum > dataXMin ? dataXMin : data.HorizontalAxis.Minimum;
-                data.VerticalAxis.Minimum = data.VerticalAxis.Minimum > dataYMin ? dataYMin : data.VerticalAxis.Minimum;
-                data.HorizontalAxis.Maximum = data.HorizontalAxis.Maximum < dataXMax ? dataXMax : data.HorizontalAxis.Maximum;
-                data.VerticalAxis.Maximum = data.VerticalAxis.Maximum < dataYMax ? dataYMax : data.VerticalAxis.Maximum;
+                data.HorizontalAxis.Minimum = data.HorizontalAxis.Minimum > data.MinimumX ? data.MinimumX : data.HorizontalAxis.Minimum;
+                data.VerticalAxis.Minimum = data.VerticalAxis.Minimum > data.MinimumY ? data.MinimumY : data.VerticalAxis.Minimum;
+                data.HorizontalAxis.Maximum = data.HorizontalAxis.Maximum < data.MaximumX ? data.MaximumX : data.HorizontalAxis.Maximum;
+                data.VerticalAxis.Maximum = data.VerticalAxis.Maximum < data.MaximumY ? data.MaximumY : data.VerticalAxis.Maximum;
             }
             Data.Add(data);
         }
@@ -255,7 +247,7 @@ namespace OMPlot
             axis.CustomTicks = axis.CustomTicksLabels.Select((key, i) => (double)i).ToArray();
 
             axis.SubTickNumber = 1;
-            axis.MinorTickStyle = TickStyle.Far;
+            axis.MinorTickStyle = PlotStyle == PlotStyle.HorisontalBars ? TickStyle.Near : TickStyle.Far;
             axis.MajorTickStyle = TickStyle.None;
 
             XYSeries data = PlotStyle == PlotStyle.HorisontalBars ?
@@ -299,7 +291,7 @@ namespace OMPlot
             {
                 int colorIndex = plotIndex % defaultPlotColors.Length;
                 data.LineStyle = LineStyle.None;
-                data.BarDuty = 1.0f;
+                data.BarDuty = 0.7f;
                 data.BarFillColor = defaultPlotColors[colorIndex];
                 data.BarStacking = true;
                 data.BarStyle = PlotStyle == PlotStyle.HorisontalBars ? BarStyle.Horisontal : BarStyle.Vertical;

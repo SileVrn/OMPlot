@@ -103,10 +103,10 @@ namespace OMPlot.Test
 
             //Array.Reverse(sinX);
                        
-            plot1.PlotStyle = PlotStyle.HorisontalBars ;
-            //var pl0 = plot1.Add(sinX0, sinY0);
+            plot1.PlotStyle = PlotStyle.VerticalBars ;
+            var pl0 = plot1.Add(sinY1, dt, "Plot1");
             //var pl1 = plot1.Add(sinX, sinY1, "Plot1");
-            //var pl2 = plot1.Add(sinY2, sinX, "Plot2");
+            var pl2 = plot1.Add(sinX, sinY2, "Plot2");
             //var pl3 = plot1.Add(sinY3, sinX, "Plot3");
             //var pl4 = plot1.Add(sinY4, sinX, "Plot4");
             //var pl5 = plot1.Add(sinY5, sinX, "Plot5");
@@ -131,11 +131,10 @@ namespace OMPlot.Test
             dict2.Add("Third", 0.0);
             dict2.Add("Fourth", 4.0);
 
-            var dp1 = plot1.Add(dict1, "Dict0");
-            plot1.Add(dict2, "Dict1");
+            //var dp1 = plot1.Add(dict1, "Dict0");
+            //plot1.Add(dict2, "Dict1");
 
-            dp1.MarkStyle = Data.MarkerStyle.Asterisk;
-            dp1.MarkColor = Color.Red;
+            plot1.GetVerticalAxis().Reverse = true;
 
             plot1.LegendStyle = LegendStyle.Inside;
 

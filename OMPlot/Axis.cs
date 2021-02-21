@@ -55,12 +55,27 @@ namespace OMPlot
             }
         }
 
+        /// <summary>
+        /// The minimum value of the axis
+        /// </summary>
         public double Minimum { get; set; }
+        /// <summary>
+        /// The maximum value of the axis
+        /// </summary>
         public double Maximum { get; set; }
 
+        /// <summary>
+        /// A title of the axis
+        /// </summary>
         public string Title { get; set; }
+        /// <summary>
+        /// True if the axis is logarithmic
+        /// </summary>
         public bool Logarithmic { get; set; }
-        public bool Vertical { get; set; }
+        internal bool Vertical { get; set; }
+        /// <summary>
+        /// True if the axis reversed
+        /// </summary>
         public bool Reverse { get; set; }
         public bool MoveLocked { get; set; }
         public bool ZoomLocked { get; set; }
@@ -148,7 +163,17 @@ namespace OMPlot
                 }
             }
         }
+        /// <summary>
+        /// Convert a screen value to an axis value.
+        /// </summary>
+        /// <param name="value">A screen value</param>
+        /// <returns>An axis value</returns>
         public double TransformBack(double value) { return Logarithmic ? Math.Pow(10, (value - offset) / res) : (value - offset) / res; }
+        /// <summary>
+        /// Convert an axis value to a screen value
+        /// </summary>
+        /// <param name="value">An axis value</param>
+        /// <returns>A screen value</returns>
         public double Transform(double value)
         {
             double ret = offset + (Logarithmic ? Math.Log10(value) : value) * res;

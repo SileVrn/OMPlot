@@ -16,12 +16,31 @@ namespace OMPlot.Data
             Y = y.ToArray();
             dX = dx;
             X0 = x0;
-            MinimumX = dX > 0 ? X0 : X0 + dX * Y.Length;
-            MaximumX = dX < 0 ? X0 : X0 + dX * Y.Length;
+            minX = dX > 0 ? X0 : X0 + dX * Y.Length;
+            maxX = dX < 0 ? X0 : X0 + dX * Y.Length;
+            minXIndex = 0;
+            maxXIndex = Y.Length - 1;
+            minXPre = minX + dX;
+            maxXPre = maxX - dX;
             for (int i = 0; i < Y.Length; i++)
             {
-                MinimumY = MinimumY > Y[i] ? Y[i] : MinimumY;
-                MaximumY = MaximumY < Y[i] ? Y[i] : MaximumY;
+                if (minY > Y[i])
+                {
+                    minY = Y[i];
+                    minYIndex = i;
+                }
+                if (maxY < Y[i])
+                {
+                    maxY = Y[i];
+                    maxYIndex = i;
+                }
+            }
+            for (int i = 0; i < Y.Length; i++)
+            {
+                if (minYPre > Y[i] && i != minYIndex)
+                    minYPre = Y[i];
+                if (maxYPre < Y[i] && i != maxYIndex)
+                    maxYPre = Y[i];
             }
         }
         protected override PointF[] CalculatePoints()
@@ -37,7 +56,7 @@ namespace OMPlot.Data
             pointList.Add(new PointF((float)prevX, (float)prevY));
             double curX = prevX;
             double curY;
-            for (int i = start + 1; i < Y.Length && curX <= maxX; i++)
+            for (int i = start + 1; i < Y.Length && ((DX > 0 && curX <= maxX) || (DX < 0 && curX >= maxX)); i++)
             {
                 curX += DX;
                 curY = VerticalAxis.Transform(Y[i]);
