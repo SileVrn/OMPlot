@@ -20,18 +20,20 @@ namespace OMPlot.Test
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            
+            double[] dataY = new double[100];
+            for (int i = 0; i < dataY.Length; i++)
+                dataY[i] = Math.Sin(2 * Math.PI * i * 0.01);
 
-            /*double[] dataX = new double[10];
-            double[] dataY1 = new double[dataX.Length];
-            double[] dataY2 = new double[dataX.Length];
-            for (int i = 0; i < dataX.Length; i++)
-            {
-                dataX[i] = i;
-                dataY1[i] = Math.Sin(2 * Math.PI * dataX[i] * 0.1);
-                dataY2[i] = Math.Sin(2 * Math.PI * dataX[i] * 0.1) - 0.2;
-            }
+            Plot plot = new Plot { Height = 300, Width = 500 };
+            plot.Title = "OMPlot example";
+            plot.PlotStyle = PlotStyle.Splines;
+            plot.Add(dataY);
+            plot.LegendStyle = LegendStyle.Inside;
+            plot.ToImage().Save("plot.png");
 
-            OMPlot.Plot p = new Plot();
+
+            /*OMPlot.Plot p = new Plot();
             p.Height = 500;
             p.Width = 500;
             var plot0 = p.Add(dataX, dataY1);

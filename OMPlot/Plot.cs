@@ -968,7 +968,7 @@ namespace OMPlot
                 ElapsedMilliseconds.Dequeue();
             ElapsedMilliseconds.Enqueue(sw.ElapsedMilliseconds);
             double ElapsedMillisecondsAvg = ElapsedMilliseconds.Average();
-            g.DrawString((1000.0 / (ElapsedMillisecondsAvg > 0 ? ElapsedMillisecondsAvg : 1)).ToString("#.###"), this.Font, mainBrush, 0, 0);
+            //g.DrawString((1000.0 / (ElapsedMillisecondsAvg > 0 ? ElapsedMillisecondsAvg : 1)).ToString("#.###"), this.Font, mainBrush, 0, 0);
 
             /*if(!float.IsNaN(test1.X) && !float.IsNaN(test1.Y))
                 g.DrawLine(Pens.Black, test1, test0);
