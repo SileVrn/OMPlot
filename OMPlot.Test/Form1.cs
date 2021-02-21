@@ -134,7 +134,10 @@ namespace OMPlot.Test
             //var dp1 = plot1.Add(dict1, "Dict0");
             //plot1.Add(dict2, "Dict1");
 
-            plot1.GetVerticalAxis().Reverse = true;
+
+            plot1.GetVerticalAxis();
+            
+            
 
             plot1.LegendStyle = LegendStyle.Inside;
 
@@ -145,6 +148,7 @@ namespace OMPlot.Test
         {
             if (e.ClickOnPlot)
             {
+                
                 //MessageBox.Show(e.Plot.Name);
                 var pl = e.Plot;
                 if(pl.FillColor == Color.Red)

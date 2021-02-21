@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace OMPlot.Data
 {
-    static class Marker
+    internal static class Marker
     {
         static PointF[] markerTriangle = { new PointF(0, -0.6f), new PointF(0.6f * (float)Math.Cos(7.0 / 6.0 * Math.PI), -0.6f * (float)Math.Sin(7.0 / 6.0 * Math.PI)), new PointF(0.6f * (float)Math.Cos(11.0 / 6.0 * Math.PI), -0.6f * (float)Math.Sin(11.0 / 6.0 * Math.PI)) };
         static PointF[] markerPentagon = { new PointF(0, -0.6f), new PointF(0.6f * (float)Math.Cos(9.0 / 10.0 * Math.PI), -0.6f * (float)Math.Sin(9.0 / 10.0 * Math.PI)), new PointF(0.6f * (float)Math.Cos(13.0 / 10.0 * Math.PI), -0.6f * (float)Math.Sin(13.0 / 10.0 * Math.PI)), new PointF(0.6f * (float)Math.Cos(17.0 / 10.0 * Math.PI), -0.6f * (float)Math.Sin(17.0 / 10.0 * Math.PI)), new PointF(0.6f * (float)Math.Cos(21.0 / 10.0 * Math.PI), -0.6f * (float)Math.Sin(21.0 / 10.0 * Math.PI)) };
         static PointF[] markerDiamond = { new PointF(0, -0.6f), new PointF(-0.6f, 0), new PointF(0, 0.6f), new PointF(0.6f, 0) };
 
-        public static void Draw(Graphics g, Color markerColor, MarkerStyle markerStryle, float markerSize, PointF[] pointList)
+        internal static void Draw(Graphics g, Color markerColor, MarkerStyle markerStryle, float markerSize, PointF[] pointList)
         {
             float halfMarkerSize = markerSize / 2.0f;
             Brush MarkerBrush = new SolidBrush(markerColor);
@@ -128,31 +128,7 @@ namespace OMPlot.Data
 
         }
     }
-    public enum MarkerStyle
-    {
-        None,
-        SolidCircle,
-        SolidSquare,
-        SolidTriangle,
-        SolidDiamond,
-        SolidPentagon,
-        EmptyCircle,
-        EmptySquare,
-        EmptyTriangle,
-        EmptyDiamond,
-        EmptyPentagon,
-        Cross,
-        Plus,
-        Asterisk,
-        Star
-    }
-    public enum BarStyle
-    {
-        None,
-        Vertical,
-        Horisontal
-    }
-    class Line
+    internal class Line
     {
         static float[] dot = new float[] { 1.0F, 2.0F };
         static float[] longdot = new float[] { 1.0F, 4.0F };
@@ -163,7 +139,7 @@ namespace OMPlot.Data
         static float[] longdashdot = new float[] { 20.0F, 3.0F, 1.0F, 3.0F };
         static float[] dashdotdot = new float[] { 10.0F, 3.0F, 1.0F, 3.0F, 1.0F, 3.0F };
 
-        public static Pen GetPen(Color c, LineStyle s, float w)
+        internal static Pen GetPen(Color c, LineStyle s, float w)
         {
             Pen linePen = new Pen(c, w);
             if (s == LineStyle.Dot)
@@ -185,7 +161,7 @@ namespace OMPlot.Data
             return linePen;
         }
 
-        public static void DrawLine(Graphics g, Color c, LineStyle s, float w, float x1, float y1, float x2, float y2)
+        internal static void DrawLine(Graphics g, Color c, LineStyle s, float w, float x1, float y1, float x2, float y2)
         {
             if (s != LineStyle.None)
             {
@@ -194,7 +170,7 @@ namespace OMPlot.Data
                 linePen.Dispose();
             }
         }
-        public static void DrawLines(Graphics g, Color c, LineStyle s, float w, PointF[] points)
+        internal static void DrawLines(Graphics g, Color c, LineStyle s, float w, PointF[] points)
         {
             if (s != LineStyle.None)
             {
@@ -203,7 +179,7 @@ namespace OMPlot.Data
                 linePen.Dispose();
             }
         }
-        public static void DrawPath(Graphics g, Color c, LineStyle s, float w, GraphicsPath path)
+        internal static void DrawPath(Graphics g, Color c, LineStyle s, float w, GraphicsPath path)
         {
             if (s != LineStyle.None)
             {
@@ -214,13 +190,110 @@ namespace OMPlot.Data
         }
 
     }
-    public enum LineStyle { Solid, Dash, LongDash, DoubleDash, Dot, LongDot, DashDot, LongDashDot, DashDotDot, None }
-    public enum PlotInterpolation { Line, Spline, StepNear, StepFar, StepCenter, StepVertical }
-    public enum FillStyle { None, ToValue, ToNInfitity, ToPInfinity, ToPlot }
 
+    /// <summary>
+    /// Enumerates the available line styles.
+    /// </summary>
+    public enum LineStyle
+    {
+        Solid, Dash, LongDash, DoubleDash, Dot, LongDot, DashDot, LongDashDot, DashDotDot,
+        /// <summary>
+        /// Do not draw lines.
+        /// </summary>
+        None
+    }
+    /// <summary>
+    /// Enumerates the available interpolation mode.
+    /// </summary>
+    public enum Interpolation
+    {
+        /// <summary>
+        /// A straight line between two points.
+        /// </summary>
+        Line,
+        /// <summary>
+        /// Spline interpolation.
+        /// </summary>
+        Spline,
+        /// <summary>
+        /// A step between two points, located closer to the first point.
+        /// </summary>
+        StepNear,
+        /// <summary>
+        /// A step between two points, located closer to the last point.
+        /// </summary>
+        StepFar,
+        /// <summary>
+        /// A step between two points, located at the center.
+        /// </summary>
+        StepCenter,
+        /// <summary>
+        /// A vertical step between two points, located at the center.
+        /// </summary>
+        StepVertical
+    }
+    /// <summary>
+    /// Enumerates the available filling styles.
+    /// </summary>
+    public enum FillStyle
+    {
+        /// <summary>
+        /// Do not fill graph.
+        /// </summary>
+        None,
+        ToValue,
+        ToNInfitity,
+        ToPInfinity,
+        ToPlot
+    }
+    /// <summary>
+    /// Enumerates the available marker styles.
+    /// </summary>
+    public enum MarkerStyle
+    {
+        /// <summary>
+        /// Do not draw markers.
+        /// </summary>
+        None,
+        SolidCircle,
+        SolidSquare,
+        SolidTriangle,
+        SolidDiamond,
+        SolidPentagon,
+        EmptyCircle,
+        EmptySquare,
+        EmptyTriangle,
+        EmptyDiamond,
+        EmptyPentagon,
+        Cross,
+        Plus,
+        Asterisk,
+        Star
+    }
+    /// <summary>
+    /// Enumerates the available bar styles.
+    /// </summary>
+    public enum BarStyle
+    {
+        /// <summary>
+        /// Do not draw bars.
+        /// </summary>
+        None,
+        Vertical,
+        Horisontal
+    }
+    /// <summary>
+    /// Represents a structure containing a distance and a point.
+    /// </summary>
     public struct PointDistance
     {
+        /// <summary>
+        /// Point.
+        /// </summary>
         public PointF Point;
+        /// <summary>
+        /// Distance to <see cref="PointDistance.Point"./>.
+        /// </summary>
         public double Distance;
     }
 }

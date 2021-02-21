@@ -65,7 +65,7 @@
     <Compile Include="Axis.cs" />
     <Compile Include="Data\LineSeries.cs" />
     <Compile Include="Data\Accessories.cs" />
-    <Compile Include="Data\XYSeries.cs" />
+    <Compile Include="Data\ScatterSeries.cs" />
     <Compile Include="Plot.cs">
       <SubType>UserControl</SubType>
     </Compile>

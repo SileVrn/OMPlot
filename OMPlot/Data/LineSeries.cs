@@ -7,10 +7,20 @@ using System.Threading.Tasks;
 
 namespace OMPlot.Data
 {
-    public class LineSeries : XYSeries
+    /// <summary>
+    /// Represents a series for line plots.
+    /// </summary>
+    public class LineSeries : ScatterSeries
     {
         double[] Y;
         double dX, X0;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref = "LineSeries" /> class.
+        /// </summary>
+        /// <param name="y">Collection of ghraph values.</param>
+        /// <param name="dx">Custom dX value.</param>
+        /// <param name="x0">Custom start x value.</param>
         public LineSeries (IEnumerable<double> y, double dx = 1, double x0 = 0)
         {
             Y = y.ToArray();

@@ -8,7 +8,10 @@ using System.Threading.Tasks;
 
 namespace OMPlot.Data
 {
-    public class XYSeries
+    /// <summary>
+    /// Represents a series for scatter plots.
+    /// </summary>
+    public class ScatterSeries
     {        
         double[] X, Y;
 
@@ -17,42 +20,120 @@ namespace OMPlot.Data
         protected PointF[] flattenFill;
         protected RectangleF[] bars;
 
-        public PlotInterpolation Interpolation { get; set; }
+        /// <summary>
+        /// Interpolation method for a graph line.
+        /// </summary>
+        public Interpolation Interpolation { get; set; }
+        /// <summary>
+        /// Visual style of a line.
+        /// </summary>
         public LineStyle LineStyle { get; set; }
+        /// <summary>
+        /// Width of a line.
+        /// </summary>
         public float LineWidth { get; set; }
+        /// <summary>
+        /// Color of a line
+        /// </summary>
         public Color LineColor { get; set; }
+        /// <summary>
+        /// Visual style of markers.
+        /// </summary>
         public MarkerStyle MarkStyle { get; set; }
+        /// <summary>
+        /// Size of markers.
+        /// </summary>
         public float MarkSize { get; set; }
+        /// <summary>
+        /// Color of markers.
+        /// </summary>
         public Color MarkColor { get; set; }
+        /// <summary>
+        /// Visual style of a graph filling.
+        /// </summary>
         public FillStyle FillStyle { get; set; }
+        /// <summary>
+        /// Color of a graph filling.
+        /// </summary>
         public Color FillColor { get; set; }
+        /// <summary>
+        /// Reference value for graph filling, used with <see cref = "FillStyle" /> == ToValue.
+        /// </summary>
         public double FillValue { get; set; }
-        public XYSeries FillPlot { get; set; }
+        /// <summary>
+        /// Reference plot for graph filling, used with <see cref = "FillStyle" /> == ToPlot.
+        /// </summary>
+        public ScatterSeries FillPlot { get; set; }
+        /// <summary>
+        /// Visual style of bars.
+        /// </summary>
         public BarStyle BarStyle { get; set; }
+        /// <summary>
+        /// Color of bar`s rectangle lines.
+        /// </summary>
         public Color BarLineColor { get; set; }
+        /// <summary>
+        /// Color of bar`s rectangle filling.
+        /// </summary>
         public Color BarFillColor { get; set; }
+        /// <summary>
+        /// Relating bars width.
+        /// </summary>
         public float BarDuty { get; set; }
+        /// <summary>
+        /// Reference value for bars.
+        /// </summary>
         public double BarValue { get; set; }
+        /// <summary>
+        /// Use stocking of a bars.
+        /// </summary>
         public bool BarStacking { get; set; }
-        public int BarIndex { get; set; }
-        public int BarCount { get; set; }
+        /// <summary>
+        /// Index of current graph`s bars in stock.
+        /// </summary>
+        internal int BarIndex { get; set; }
+        /// <summary>
+        /// Number of graph in bar`s stock.
+        /// </summary>
+        internal int BarCount { get; set; }
 
+        /// <summary>
+        /// Name of a graph
+        /// </summary>
         public string Name { get; set; }
+        /// <summary>
+        /// Relevant horizontal axis
+        /// </summary>
         public Axis HorizontalAxis { get; set; }
+        /// <summary>
+        /// Relevant vertical axis
+        /// </summary>
         public Axis VerticalAxis { get; set; }
 
         protected double minX, maxX, minY, maxY;
         protected double minXPre, maxXPre, minYPre, maxYPre;
         protected int minXIndex, maxXIndex, minYIndex, maxYIndex;
+        /// <summary>
+        /// The minimum x value
+        /// </summary>
         public double MinimumX { get  {  return minX - (minXPre - minX) / 2; } }
+        /// <summary>
+        /// The minimum y value
+        /// </summary>
         public double MinimumY { get { return minY - (minYPre - minY) / 2; } }
+        /// <summary>
+        /// The maximum x value
+        /// </summary>
         public double MaximumX { get { return maxX + (maxX - maxXPre) / 2; } }
+        /// <summary>
+        /// The maximum y value
+        /// </summary>
         public double MaximumY { get { return maxY + (maxY - maxYPre) / 2; } }
 
-        public GraphicsPath GraphicsPath { get; protected set; }
+        protected GraphicsPath GraphicsPath { get; set; }
 
 
-        protected XYSeries()
+        protected ScatterSeries()
         {
             BarDuty = 1;
             MarkSize = 10;
@@ -71,7 +152,12 @@ namespace OMPlot.Data
             maxXPre = double.MinValue;
             maxYPre = double.MinValue;
         }
-        public XYSeries(IEnumerable<double> x, IEnumerable<double> y) : this()
+        /// <summary>
+        /// Initializes a new instance of the <see cref = "ScatterSeries" /> class.
+        /// </summary>
+        /// <param name="x">Collection of X values.</param>
+        /// <param name="y">Collection of Y values.</param>
+        public ScatterSeries(IEnumerable<double> x, IEnumerable<double> y) : this()
         {
             X = x.ToArray();
             Y = y.ToArray();
@@ -110,21 +196,49 @@ namespace OMPlot.Data
                     maxYPre = Y[i];
             }
         }
-        public XYSeries(IEnumerable<double> x, IEnumerable<double> y, string name) : this(x, y)
+        /// <summary>
+        /// Initializes a new instance of the <see cref = "ScatterSeries" /> class.
+        /// </summary>
+        /// <param name="x">Collection of X values.</param>
+        /// <param name="y">Collection of Y values.</param>
+        /// <param name="name">Name of graph.</param>
+        public ScatterSeries(IEnumerable<double> x, IEnumerable<double> y, string name) : this(x, y)
         {
             Name = name;
         }
-        public XYSeries(IEnumerable<double> x, IEnumerable<double> y, Axis horizontalAxis, Axis verticalAxis) : this(x, y)
+        /// <summary>
+        /// Initializes a new instance of the <see cref = "ScatterSeries" /> class.
+        /// </summary>
+        /// <param name="x">Collection of X values.</param>
+        /// <param name="y">Collection of Y values.</param>
+        /// <param name="horizontalAxis">Instance of relevant horizontale axis.</param>
+        /// <param name="verticalAxis">Instance of relevant vertical axis.</param>
+        public ScatterSeries(IEnumerable<double> x, IEnumerable<double> y, Axis horizontalAxis, Axis verticalAxis) : this(x, y)
         {
             HorizontalAxis = horizontalAxis;
             VerticalAxis = verticalAxis;
         }
-        public XYSeries(IEnumerable<double> x, IEnumerable<double> y, string name, Axis horizontalAxis, Axis verticalAxis) : this(x, y)
+        /// <summary>
+        /// Initializes a new instance of the <see cref = "ScatterSeries" /> class.
+        /// </summary>
+        /// <param name="x">Collection of X values.</param>
+        /// <param name="y">Collection of Y values.</param>
+        /// <param name="name">Name of graph.</param>
+        /// <param name="horizontalAxis">Instance of relevant horizontale axis.</param>
+        /// <param name="verticalAxis">Instance of relevant vertical axis.</param>
+        public ScatterSeries(IEnumerable<double> x, IEnumerable<double> y, string name, Axis horizontalAxis, Axis verticalAxis) : this(x, y)
         {
             Name = name;
             HorizontalAxis = horizontalAxis;
             VerticalAxis = verticalAxis;
         }
+
+        /// <summary>
+        /// Calculate distance from screen point to graph.
+        /// </summary>
+        /// <param name="x">Screen point x.</param>
+        /// <param name="y">Screen point y.</param>
+        /// <returns>Instance of <see cref = "PointDistance" /> struct.</returns>
         public virtual PointDistance DistanceToPoint(double x, double y)
         {
             if (LineStyle != LineStyle.None)
@@ -272,18 +386,18 @@ namespace OMPlot.Data
             }
             return pointList.ToArray();
         }
-        public virtual void CalculateGraphics(RectangleExtended plotRectangle)
+        internal virtual void CalculateGraphics(RectangleExtended plotRectangle)
         {
             points = CalculatePoints();
             GraphicsPath = new GraphicsPath();
 
             if (points.Length > 1)
             {
-                if (Interpolation == PlotInterpolation.Line)
+                if (Interpolation == Interpolation.Line)
                     GraphicsPath.AddLines(points);
-                else if (Interpolation == PlotInterpolation.Spline)
+                else if (Interpolation == Interpolation.Spline)
                     GraphicsPath.AddCurve(points);
-                else if (Interpolation == PlotInterpolation.StepNear)
+                else if (Interpolation == Interpolation.StepNear)
                 {
                     for (int i = 0; i < points.Length - 1; i++)
                     {
@@ -291,7 +405,7 @@ namespace OMPlot.Data
                         GraphicsPath.AddLine(points[i].X, points[i + 1].Y, points[i + 1].X, points[i + 1].Y);
                     }
                 }
-                else if (Interpolation == PlotInterpolation.StepFar)
+                else if (Interpolation == Interpolation.StepFar)
                 {
                     for (int i = 0; i < points.Length - 1; i++)
                     {
@@ -299,7 +413,7 @@ namespace OMPlot.Data
                         GraphicsPath.AddLine(points[i + 1].X, points[i].Y, points[i + 1].X, points[i + 1].Y);
                     }
                 }
-                else if (Interpolation == PlotInterpolation.StepCenter)
+                else if (Interpolation == Interpolation.StepCenter)
                 {
                     float center1 = (points[1].X + points[0].X) / 2;
                     GraphicsPath.AddLine(points[0].X, points[0].Y, center1, points[0].Y);
@@ -315,7 +429,7 @@ namespace OMPlot.Data
                     GraphicsPath.AddLine(center1, points[points.Length - 2].Y, center1, points[points.Length - 1].Y);
                     GraphicsPath.AddLine(center1, points[points.Length - 1].Y, points[points.Length - 1].X, points[points.Length - 1].Y);
                 }
-                else if (Interpolation == PlotInterpolation.StepVertical)
+                else if (Interpolation == Interpolation.StepVertical)
                 {
                     float center1 = (points[1].Y + points[0].Y) / 2;
                     GraphicsPath.AddLine(points[0].X, points[0].Y, points[0].X, center1);
@@ -406,7 +520,7 @@ namespace OMPlot.Data
                 }
             }
         }
-        public virtual void Draw(Graphics g, RectangleExtended plotRectangle, int plotIndex)
+        internal virtual void Draw(Graphics g, RectangleExtended plotRectangle, int plotIndex)
         {
             if (points.Length > 1)
             {
@@ -456,7 +570,7 @@ namespace OMPlot.Data
                 Marker.Draw(g, MarkColor, MarkStyle, MarkSize, points);
             }
         }
-        public virtual void DrawLegend(Graphics g, RectangleF rect)
+        internal virtual void DrawLegend(Graphics g, RectangleF rect)
         {
             Marker.Draw(g, MarkColor, MarkStyle, MarkSize, new PointF[] { new PointF(rect.X + rect.Width / 2f, rect.Y + rect.Height / 2f) });
 

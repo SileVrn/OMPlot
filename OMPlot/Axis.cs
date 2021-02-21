@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace OMPlot
 {
+    /// <summary>
+    /// Represents an axis
+    /// </summary>
     public class Axis
     {
         Brush brush;
@@ -14,9 +17,6 @@ namespace OMPlot
         Color color;
 
         RectangleExtended drawnRectangle;
-
-        public int TickNumber;
-        public int SubTickNumber;
 
         private SizeF titleSize;
         private double res;
@@ -28,12 +28,18 @@ namespace OMPlot
         private double[] subTicks;
         private string tickLabelFormat;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref = "Axis" /> class.
+        /// </summary>
         public Axis()
         {
             Color = Color.Black;
             TickNumber = 10;
         }
 
+        /// <summary>
+        /// Full scale of the axis. 
+        /// </summary>
         public double FullScale
         {
             get { return Maximum - Minimum; }
@@ -44,6 +50,9 @@ namespace OMPlot
                 Minimum = center - value / 2.0f;
             }
         }
+        /// <summary>
+        /// Value of the center of the axis.
+        /// </summary>
         public double Center
         {
             get { return (Maximum + Minimum) / 2.0f; }
@@ -54,58 +63,114 @@ namespace OMPlot
                 Minimum += delta;
             }
         }
-
         /// <summary>
-        /// The minimum value of the axis
+        /// The minimum value of the axis.
         /// </summary>
         public double Minimum { get; set; }
         /// <summary>
-        /// The maximum value of the axis
+        /// The maximum value of the axis.
         /// </summary>
         public double Maximum { get; set; }
 
         /// <summary>
-        /// A title of the axis
+        /// A title of the axis.
         /// </summary>
         public string Title { get; set; }
         /// <summary>
-        /// True if the axis is logarithmic
+        /// True if the axis is logarithmic.
         /// </summary>
         public bool Logarithmic { get; set; }
         internal bool Vertical { get; set; }
         /// <summary>
-        /// True if the axis reversed
+        /// True if the axis reversed.
         /// </summary>
         public bool Reverse { get; set; }
+        /// <summary>
+        /// Locking the axis movement.
+        /// </summary>
         public bool MoveLocked { get; set; }
+        /// <summary>
+        /// Locking the axis zoom.
+        /// </summary>
         public bool ZoomLocked { get; set; }
-
+        /// <summary>
+        /// Position of the axis on a plot.
+        /// </summary>
         public AxisPosition Position { get; set; }
+        /// <summary>
+        /// Position of the axes crossing, valid only for Axis.Position == AxisPosition.CrossValue.
+        /// </summary>
         public double CrossValue { get; set; }
 
+        /// <summary>
+        /// Style of the major ticks.
+        /// </summary>
         public TickStyle MajorTickStyle { get; set; }
+        /// <summary>
+        /// Style of the minor ticks.
+        /// </summary>
         public TickStyle MinorTickStyle { get; set; }
+        /// <summary>
+        /// Position of the tick labels relative to the axis.
+        /// </summary>
         public LabelsPosition TicksLabelsPosition { get; set; }
+        /// <summary>
+        /// Alignment of the tick labels along the axis.
+        /// </summary>
         public Alignment TicksLabelsAlignment { get; set; }
+        /// <summary>
+        /// Alignment of the tick labels perpendicular to the axis.
+        /// </summary>
         public Alignment TicksLabelsLineAlignment { get; set; }
+        /// <summary>
+        /// Rotation of the tick labels.
+        /// </summary>
         public TicksLabelsRotation TicksLabelsRotation { get; set; }
-
+        /// <summary>
+        /// Number of major ticks
+        /// </summary>
+        public int TickNumber { get; set; }
+        /// <summary>
+        /// Number of minor ticks
+        /// </summary>
+        public int MinorTickNumber { get; set; }
+        /// <summary>
+        /// Values of custom ticks.
+        /// </summary>
         public double[] CustomTicks { get; set; }
+        /// <summary>
+        /// The custom labels for the CustomTicks.
+        /// </summary>
         public string[] CustomTicksLabels { get; set; }
 
+        /// <summary>
+        /// Alignment of the title along the axis.
+        /// </summary>
         public Alignment TitleAlignment { get; set; }
+        /// <summary>
+        /// Position of the title along the axis.
+        /// </summary>
         public LabelsPosition TitlePosition { get; set; }
+        /// <summary>
+        /// Style of the grid.
+        /// </summary>
         public GridStyle GridStyle { get; set; }
 
+        /// <summary>
+        /// Font of the title and the tick labels
+        /// </summary>
         public Font Font { get; set; }
+        /// <summary>
+        /// Color of axis, ticks, labels.
+        /// </summary>
         public Color Color { get { return color; } set { color = value; brush = new SolidBrush(color); pen = new Pen(brush); } }
         
-        public float SizeNear { get; private set; }
-        public float SizeFar { get; private set; }
-        public float OverflowNear { get; private set; }
-        public float OverflowFar { get; private set; }
+        internal float SizeNear { get; private set; }
+        internal float SizeFar { get; private set; }
+        internal float OverflowNear { get; private set; }
+        internal float OverflowFar { get; private set; }
 
-        public void CalculateTranformVertical(float minimum, float maximum)
+        internal void CalculateTranformVertical(float minimum, float maximum)
         {
             if (!Logarithmic)
             {
@@ -134,7 +199,7 @@ namespace OMPlot
                 }
             }
         }
-        public void CalculateTranformHorizontal(float minimum, float maximum)
+        internal void CalculateTranformHorizontal(float minimum, float maximum)
         {
             if (!Logarithmic)
             {
@@ -248,9 +313,9 @@ namespace OMPlot
                     double subTick;
                     for (int i = 0; i < CustomTicks.Length - 1; i++)
                     {
-                        for (int j = 0; j < SubTickNumber; j++)
+                        for (int j = 0; j < MinorTickNumber; j++)
                         {
-                            subTick = CustomTicks[i] + (j + 1) * (CustomTicks[i + 1] - CustomTicks[i]) / (SubTickNumber + 1);
+                            subTick = CustomTicks[i] + (j + 1) * (CustomTicks[i + 1] - CustomTicks[i]) / (MinorTickNumber + 1);
                             if (subTick >= Minimum && subTick <= Maximum)
                                 subTicksList.Add(subTick);
                         }
@@ -281,7 +346,7 @@ namespace OMPlot
                     List<double> tickList = new List<double>();
                     List<double> subTickList = new List<double>();
 
-                    double subStep = step / SubTickNumber;
+                    double subStep = step / MinorTickNumber;
                     double subMark = mark - subStep;
 
                     while (subMark > Minimum) //MinorTick before first MajorTick
@@ -298,7 +363,7 @@ namespace OMPlot
                                 maxDegree = Accessories.Degree(mark);
 
                         subMark = mark + subStep;
-                        for (int i = 0; i < SubTickNumber - 1 && subMark < Maximum; i++)
+                        for (int i = 0; i < MinorTickNumber - 1 && subMark < Maximum; i++)
                         {
                             subTickList.Add(subMark);
                             subMark += subStep;
@@ -322,7 +387,7 @@ namespace OMPlot
                 double subMark = 0.9 * mark;
 
 
-                for (int i = 0; i < SubTickNumber - 1 && subMark >= Minimum; i++)
+                for (int i = 0; i < MinorTickNumber - 1 && subMark >= Minimum; i++)
                 {
                     subTickList.Add(subMark);
                     subMark -= 0.1 * mark;
@@ -332,7 +397,7 @@ namespace OMPlot
                     mark = Accessories.Pow10(Accessories.FirstSignRound(mark));
                     tickList.Add(mark);
                     subMark = mark + mark;
-                    for (int i = 0; i < SubTickNumber - 1 && subMark < Maximum; i++)
+                    for (int i = 0; i < MinorTickNumber - 1 && subMark < Maximum; i++)
                     {
                         subTickList.Add(subMark);
                         subMark += mark;
@@ -350,7 +415,7 @@ namespace OMPlot
             tickLabelSize = tickLabel.Select(tl => g.MeasureString(tl, this.Font)).ToArray();
             tickLabelLocation = tick.Select(t => (float)this.Transform(t)).ToArray();
         }
-        public void MeasureVertical(Graphics g, Size plotSize)
+        internal void MeasureVertical(Graphics g, Size plotSize)
         {
             if (TicksLabelsLineAlignment == Alignment.Center && (TicksLabelsRotation == TicksLabelsRotation.Parallel || TicksLabelsRotation == TicksLabelsRotation.Tilted))
                 throw new Exception("Central line alignment is not possible for parallel rotation of the tick`s labels.");
@@ -457,7 +522,7 @@ namespace OMPlot
                     OverflowFar = (titleSize.Width / 2) > OverflowFar ? (titleSize.Width / 2) : OverflowFar;
             }
         }
-        public void MeasureHorizontal(Graphics g, Size plotSize)
+        internal void MeasureHorizontal(Graphics g, Size plotSize)
         {
             if (TicksLabelsAlignment == Alignment.Center && TicksLabelsRotation != TicksLabelsRotation.Parallel)
                     throw new Exception("Central alignment is only possible for parallel rotation of the tick`s labels.");
@@ -562,7 +627,7 @@ namespace OMPlot
                     OverflowFar = (titleSize.Width / 2) > OverflowFar ? (titleSize.Width / 2) : OverflowFar;
             }
         }
-        public void DrawVertical(Graphics g, float x, float y, RectangleExtended rect)
+        internal void DrawVertical(Graphics g, float x, float y, RectangleExtended rect)
         {
             drawnRectangle = new RectangleExtended(x, y, 0, rect.Height);
 
@@ -735,7 +800,7 @@ namespace OMPlot
             }
             //end of Horizontal drawing
         }
-        public void DrawHorizontal(Graphics g, float x, float y, RectangleExtended rect)
+        internal void DrawHorizontal(Graphics g, float x, float y, RectangleExtended rect)
         {
             drawnRectangle = new RectangleExtended(x, y, rect.Width, 0);
 
@@ -867,7 +932,7 @@ namespace OMPlot
             //end of Horizontal drawing
         }
 
-        StringAlignment Alignment2StringAlignment(Alignment a)
+        private StringAlignment Alignment2StringAlignment(Alignment a)
         {
             if (a == Alignment.Near)
                 return StringAlignment.Near;

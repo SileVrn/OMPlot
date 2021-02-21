@@ -239,13 +239,13 @@ namespace OMPlot.Test
             Application.Run(new Form1());            
         }
 
-        static void PlotStyleTestBitmap(Plot p, Data.XYSeries plot, Data.PlotInterpolation inter, Data.FillStyle fill)
+        static void PlotStyleTestBitmap(Plot p, Data.ScatterSeries plot, Data.Interpolation inter, Data.FillStyle fill)
         {
             plot.Interpolation = inter;
             plot.FillStyle = fill;
 
             p.ToImage().Save(
-                Enum.GetName(typeof(Data.PlotInterpolation), inter) + "_" +
+                Enum.GetName(typeof(Data.Interpolation), inter) + "_" +
                 Enum.GetName(typeof(Data.FillStyle), fill) + ".png");
         }
 

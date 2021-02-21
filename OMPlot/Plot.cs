@@ -14,6 +14,9 @@ using OMPlot.Data;
 
 namespace OMPlot
 {
+    /// <summary>
+    /// Represents the main class of the OMPlot.
+    /// </summary>
     public partial class Plot : UserControl
     {
         int mouseX, mouseY;
@@ -39,12 +42,26 @@ namespace OMPlot
 
         public const float MouseEventDistance = 3;
 
+        /// <summary>
+        /// Plot title.
+        /// </summary>
         public string Title { get; set; }
+        /// <summary>
+        /// Default style for graph.
+        /// </summary>
         public PlotStyle PlotStyle { get; set; }
-
+        /// <summary>
+        /// Style of legend box.
+        /// </summary>
         public LegendStyle LegendStyle { get; set; }
+        /// <summary>
+        /// Position of legend box.
+        /// </summary>
         public LegendPosition LegendPosition { get; set; }
-        public LegendAlign LegendAlign { get; set; }
+        /// <summary>
+        /// Alignment of legend box.
+        /// </summary>
+        public LegendAlignment LegendAlignment { get; set; }
 
         public event PlotMouseEvent PlotClick;
         public event PlotMouseEvent PlotDoubleClick;
@@ -52,10 +69,13 @@ namespace OMPlot
         public event PlotMouseEvent PlotMouseDown;
         public event PlotMouseEvent PlotMouseMove;
 
-        List<XYSeries> Data;
+        List<ScatterSeries> Data;
         Dictionary<string, Axis> Vertical;
         Dictionary<string, Axis> Horizontal;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref = "OMPlot.Plot" /> class.
+        /// </summary>
         public Plot()
         {
             InitializeComponent();
@@ -68,7 +88,7 @@ namespace OMPlot
             backgroungBrush = new SolidBrush(this.BackColor);
             legendBoxBrush = new SolidBrush(Color.FromArgb(200, this.BackColor));
 
-            Data = new List<XYSeries>();
+            Data = new List<ScatterSeries>();
             Vertical = new Dictionary<string, Axis>();
             Horizontal = new Dictionary<string, Axis>();
             this.MouseWheel += Plot_MouseWheel;
@@ -94,8 +114,11 @@ namespace OMPlot
             AddHorizontalAxis(xAxis);
             AddVerticalAxis(yAxis);
         }
-
-        public void Add(XYSeries data)
+        /// <summary>
+        /// Add graph to plot
+        /// </summary>
+        /// <param name="data">Instance of <see cref="OMPlot.Data.ScatterSeries"/> or its child classes.</param>
+        public void Add(ScatterSeries data)
         {
             if (data.VerticalAxis == null)
                 data.VerticalAxis = GetVerticalAxis();
@@ -118,13 +141,26 @@ namespace OMPlot
             }
             Data.Add(data);
         }
-        public XYSeries Add(IEnumerable<double> x, IEnumerable<double> y)
+        /// <summary>
+        /// Create instance of <see cref="OMPlot.Data.ScatterSeries"/> with default name and add it to plot.
+        /// </summary>
+        /// <param name="x">Collection of X values.</param>
+        /// <param name="y">Collection of Y values.</param>
+        /// <returns>Instance of <see cref="OMPlot.Data.ScatterSeries"/></returns>
+        public ScatterSeries Add(IEnumerable<double> x, IEnumerable<double> y)
         {
             return this.Add(x, y, "Plot" + Data.Count().ToString());
         }
-        public XYSeries Add(IEnumerable<double> x, IEnumerable<double> y, string name)
+        /// <summary>
+        /// Create instance of <see cref="OMPlot.Data.ScatterSeries"/> and add it to plot.
+        /// </summary>
+        /// <param name="x">Collection of X values.</param>
+        /// <param name="y">Collection of Y values.</param>
+        /// <param name="name">Name of created graph.</param>
+        /// <returns>Instance of <see cref="OMPlot.Data.ScatterSeries"/></returns>
+        public ScatterSeries Add(IEnumerable<double> x, IEnumerable<double> y, string name)
         {
-            XYSeries data = new XYSeries(x, y, name);
+            ScatterSeries data = new ScatterSeries(x, y, name);
             int plotIndex = Data.Count();
 
             if(PlotStyle == PlotStyle.Lines || PlotStyle == PlotStyle.Splines)
@@ -134,7 +170,7 @@ namespace OMPlot
                 data.LineColor = defaultPlotColors[colorIndex];
                 data.LineStyle = defaultLineStyle[lineStyleIndex];
                 if (PlotStyle == PlotStyle.Splines)
-                    data.Interpolation = PlotInterpolation.Spline;
+                    data.Interpolation = Interpolation.Spline;
             }
             else if(PlotStyle == PlotStyle.LinesMarkers || PlotStyle == PlotStyle.SplinesMarkers)
             {
@@ -144,7 +180,7 @@ namespace OMPlot
                 data.MarkColor = defaultPlotColors[colorIndex];
                 data.MarkStyle = defaultMarkerStyle[markerStyleIndex];
                 if (PlotStyle == PlotStyle.SplinesMarkers)
-                    data.Interpolation = PlotInterpolation.Spline;
+                    data.Interpolation = Interpolation.Spline;
             }
             else if(PlotStyle == PlotStyle.Markers)
             {
@@ -154,7 +190,7 @@ namespace OMPlot
                 data.MarkColor = defaultPlotColors[colorIndex];
                 data.MarkStyle = defaultMarkerStyle[markerStyleIndex];
                 if (PlotStyle == PlotStyle.SplinesMarkers)
-                    data.Interpolation = PlotInterpolation.Spline;
+                    data.Interpolation = Interpolation.Spline;
             }
             else if(PlotStyle == PlotStyle.VerticalBars || PlotStyle == PlotStyle.HorisontalBars)
             {
@@ -169,26 +205,65 @@ namespace OMPlot
             this.Add(data);
             return data;
         }
+        /// <summary>
+        /// Create instance of <see cref="OMPlot.Data.LineSeries"/> with default name dX and X0 and add it to plot.
+        /// </summary>
+        /// <param name="y">Collection of the values.</param>
+        /// <returns>Instance of <see cref="OMPlot.Data.LineSeries"/></returns>
         public LineSeries Add(IEnumerable<double> y)
         {
             return this.Add(y, 1, 0, "Plot" + Data.Count().ToString());
         }
+        /// <summary>
+        /// Create instance of <see cref="OMPlot.Data.LineSeries"/> with default name and X0 and add it to plot.
+        /// </summary>
+        /// <param name="y">Collection of the values.</param>
+        /// <param name="dx">Custom dX for the series.</param>
+        /// <returns>Instance of <see cref="OMPlot.Data.LineSeries"/></returns>
         public LineSeries Add(IEnumerable<double> y, double dx)
         {
             return this.Add(y, dx, 0, "Plot" + Data.Count().ToString());
         }
+        /// <summary>
+        /// Create instance of <see cref="OMPlot.Data.LineSeries"/> with default name and add it to plot.
+        /// </summary>
+        /// <param name="y">Collection of the values.</param>
+        /// <param name="dx">Custom dX for the series.</param>
+        /// <param name="x0">Custom start X value.</param>
+        /// <returns></returns>
         public LineSeries Add(IEnumerable<double> y, double dx, double x0)
         {
             return this.Add(y, dx, x0, "Plot" + Data.Count().ToString());
         }
+        /// <summary>
+        /// Create instance of <see cref="OMPlot.Data.LineSeries"/> with default dX and X0 and add it to plot.
+        /// </summary>
+        /// <param name="y">Collection of the values.</param>
+        /// <param name="name">Name of created graph.</param>
+        /// <returns>Instance of <see cref="OMPlot.Data.LineSeries"/></returns>
         public LineSeries Add(IEnumerable<double> y, string name)
         {
             return this.Add(y, 1, 0, name);
         }
+        /// <summary>
+        /// Create instance of <see cref="OMPlot.Data.LineSeries"/> with default X0 and add it to plot.
+        /// </summary>
+        /// <param name="y">Collection of the values.</param>
+        /// <param name="name">Name of created graph.</param>
+        /// <param name="dx">Custom dX for the series.</param>
+        /// <returns>Instance of <see cref="OMPlot.Data.LineSeries"/></returns>
         public LineSeries Add(IEnumerable<double> y, double dx, string name)
         {
             return this.Add(y, dx, 0, name);
         }
+        /// <summary>
+        /// Create instance of <see cref="OMPlot.Data.LineSeries"/> and add it to plot.
+        /// </summary>
+        /// <param name="y">Collection of the values.</param>
+        /// <param name="name">Name of created graph.</param>
+        /// <param name="dx">Custom dX for the series.</param>
+        /// <param name="x0">Custom start X value.</param>
+        /// <returns>Instance of <see cref="OMPlot.Data.LineSeries"/></returns>
         public LineSeries Add(IEnumerable<double> y, double dx, double x0, string name)
         {
             LineSeries data = new LineSeries(y, dx, x0);
@@ -202,7 +277,7 @@ namespace OMPlot
                 data.LineColor = defaultPlotColors[colorIndex];
                 data.LineStyle = defaultLineStyle[lineStyleIndex];
                 if (PlotStyle == PlotStyle.Splines)
-                    data.Interpolation = PlotInterpolation.Spline;
+                    data.Interpolation = Interpolation.Spline;
             }
             else if (PlotStyle == PlotStyle.LinesMarkers || PlotStyle == PlotStyle.SplinesMarkers)
             {
@@ -212,7 +287,7 @@ namespace OMPlot
                 data.MarkColor = defaultPlotColors[colorIndex];
                 data.MarkStyle = defaultMarkerStyle[markerStyleIndex];
                 if (PlotStyle == PlotStyle.SplinesMarkers)
-                    data.Interpolation = PlotInterpolation.Spline;
+                    data.Interpolation = Interpolation.Spline;
             }
             else if (PlotStyle == PlotStyle.Markers)
             {
@@ -222,7 +297,7 @@ namespace OMPlot
                 data.MarkColor = defaultPlotColors[colorIndex];
                 data.MarkStyle = defaultMarkerStyle[markerStyleIndex];
                 if (PlotStyle == PlotStyle.SplinesMarkers)
-                    data.Interpolation = PlotInterpolation.Spline;
+                    data.Interpolation = Interpolation.Spline;
             }
             else if (PlotStyle == PlotStyle.VerticalBars || PlotStyle == PlotStyle.HorisontalBars)
             {
@@ -237,7 +312,13 @@ namespace OMPlot
             this.Add(data);
             return data;
         }
-        public XYSeries Add(Dictionary<string, double> dictionary, string name)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dictionary"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public ScatterSeries Add(Dictionary<string, double> dictionary, string name)
         {
             var axis = PlotStyle == PlotStyle.HorisontalBars ? GetVerticalAxis() : GetHorizontalAxis();
             if(axis.CustomTicksLabels == null)
@@ -246,13 +327,13 @@ namespace OMPlot
                 axis.CustomTicksLabels = axis.CustomTicksLabels.Concat(dictionary.Keys).Distinct().ToArray();
             axis.CustomTicks = axis.CustomTicksLabels.Select((key, i) => (double)i).ToArray();
 
-            axis.SubTickNumber = 1;
+            axis.MinorTickNumber = 1;
             axis.MinorTickStyle = PlotStyle == PlotStyle.HorisontalBars ? TickStyle.Near : TickStyle.Far;
             axis.MajorTickStyle = TickStyle.None;
 
-            XYSeries data = PlotStyle == PlotStyle.HorisontalBars ?
-                new XYSeries(dictionary.Values, dictionary.Keys.Select(key => (double)Array.FindIndex(axis.CustomTicksLabels, e => e == key))) :
-                new XYSeries(dictionary.Keys.Select(key => (double)Array.FindIndex(axis.CustomTicksLabels, e => e == key)), dictionary.Values);
+            ScatterSeries data = PlotStyle == PlotStyle.HorisontalBars ?
+                new ScatterSeries(dictionary.Values, dictionary.Keys.Select(key => (double)Array.FindIndex(axis.CustomTicksLabels, e => e == key))) :
+                new ScatterSeries(dictionary.Keys.Select(key => (double)Array.FindIndex(axis.CustomTicksLabels, e => e == key)), dictionary.Values);
             data.Name = name;
             
 
@@ -265,7 +346,7 @@ namespace OMPlot
                 data.LineColor = defaultPlotColors[colorIndex];
                 data.LineStyle = defaultLineStyle[lineStyleIndex];
                 if (PlotStyle == PlotStyle.Splines)
-                    data.Interpolation = PlotInterpolation.Spline;
+                    data.Interpolation = Interpolation.Spline;
             }
             else if (PlotStyle == PlotStyle.LinesMarkers || PlotStyle == PlotStyle.SplinesMarkers)
             {
@@ -275,7 +356,7 @@ namespace OMPlot
                 data.MarkColor = defaultPlotColors[colorIndex];
                 data.MarkStyle = defaultMarkerStyle[markerStyleIndex];
                 if (PlotStyle == PlotStyle.SplinesMarkers)
-                    data.Interpolation = PlotInterpolation.Spline;
+                    data.Interpolation = Interpolation.Spline;
             }
             else if (PlotStyle == PlotStyle.Markers)
             {
@@ -285,7 +366,7 @@ namespace OMPlot
                 data.MarkColor = defaultPlotColors[colorIndex];
                 data.MarkStyle = defaultMarkerStyle[markerStyleIndex];
                 if (PlotStyle == PlotStyle.SplinesMarkers)
-                    data.Interpolation = PlotInterpolation.Spline;
+                    data.Interpolation = Interpolation.Spline;
             }
             else if (PlotStyle == PlotStyle.VerticalBars || PlotStyle == PlotStyle.HorisontalBars)
             {
@@ -301,9 +382,15 @@ namespace OMPlot
             return data;
         }
 
-
+        /// <summary>
+        /// Remove all graphs.
+        /// </summary>
         public void Clear() { Data.Clear(); }
 
+        /// <summary>
+        /// Add aditional vertical axis.
+        /// </summary>
+        /// <param name="axis">Instance of <see cref="Axis"/>.</param>
         public void AddVerticalAxis(Axis axis)
         {
             if (axis != null)
@@ -312,6 +399,10 @@ namespace OMPlot
                 Vertical.Add(axis.GetHashCode().ToString(), axis);
             }
         }
+        /// <summary>
+        /// Add aditional horizontal axis.
+        /// </summary>
+        /// <param name="axis">Instance of <see cref="Axis"/></param>
         public void AddHorizontalAxis(Axis axis)
         {
             if (axis != null)
@@ -319,12 +410,22 @@ namespace OMPlot
                 Horizontal.Add(axis.GetHashCode().ToString(), axis);
             }
         }
+        /// <summary>
+        /// Get vertical axis.
+        /// </summary>
+        /// <param name="name">Name of requared axis.</param>
+        /// <returns>Instance of <see cref="Axis"/></returns>
         public Axis GetVerticalAxis(string name = "")
         {
             if (string.IsNullOrEmpty(name))
                 return Vertical.First().Value;
             return Vertical[name];
         }
+        /// <summary>
+        /// Get horizontal axis.
+        /// </summary>
+        /// <param name="name">Name of requared axis.</param>
+        /// <returns>Instance of <see cref="Axis"/></returns>
         public Axis GetHorizontalAxis(string name = "")
         {
             if (string.IsNullOrEmpty(name))
@@ -661,12 +762,12 @@ namespace OMPlot
                 }
 
                 
-                if (LegendAlign == LegendAlign.Near)
+                if (LegendAlignment == LegendAlignment.Near)
                 {
                     legendRectangle.X = LegendPosition == LegendPosition.Right ? plotRectangle.Right - legendRectangle.Width - 5 : plotRectangle.Left + 5;
                     legendRectangle.Y = LegendPosition == LegendPosition.Bottom ? plotRectangle.Bottom - legendRectangle.Height - 5 : plotRectangle.Top + 5;
                 }
-                else if (LegendAlign == LegendAlign.Far)
+                else if (LegendAlignment == LegendAlignment.Far)
                 {
                     legendRectangle.X = LegendPosition == LegendPosition.Left ? plotRectangle.Left + 5 : plotRectangle.Right - legendRectangle.Width - 5;
                     legendRectangle.Y = LegendPosition == LegendPosition.Top ? plotRectangle.Top + 5 : plotRectangle.Bottom - legendRectangle.Height - 5;                    
@@ -889,6 +990,15 @@ namespace OMPlot
             legendBoxBrush = new SolidBrush(Color.FromArgb(200, this.BackColor));
         }
 
+        /// <summary>
+        /// Create <see cref="Image"/> from current plot.
+        /// </summary>
+        /// <returns>Instance of <see cref="Image"/>.</returns>
+        /// <example>
+        /// OMPlot.Plot plot = new Plot { Height = 500, Width = 500 };
+        /// plot.Add(new double[]{ 1.0, 1.2, 1.7, 2.5, 3.5 });
+        /// plot.ToImage().Save("plot.png");
+        /// </example>
         public Image ToImage()
         {
             Image img = new Bitmap(this.Width, this.Height);
@@ -932,8 +1042,27 @@ namespace OMPlot
 
     public delegate void PlotMouseEvent(object sender, PlotMouseEventArgs e);
 
-    public enum LegendStyle { None, Inside, Outside }
+    /// <summary>
+    /// Enumerates the available legend style.
+    /// </summary>
+    public enum LegendStyle
+    {
+        /// <summary>
+        /// Do not display legend.
+        /// </summary>
+        None,
+        Inside, Outside
+    }
+    /// <summary>
+    /// Enumerates the available legend position.
+    /// </summary>
     public enum LegendPosition { Top, Bottom, Left, Right }
-    public enum LegendAlign { Far, Center, Near }
+    /// <summary>
+    /// Enumerates the available legend alignment.
+    /// </summary>
+    public enum LegendAlignment { Far, Center, Near }
+    /// <summary>
+    /// Enumerates the available plot styles.
+    /// </summary>
     public enum PlotStyle { Lines, Splines, LinesMarkers, SplinesMarkers, Markers, VerticalBars, HorisontalBars, Custom }
 }
