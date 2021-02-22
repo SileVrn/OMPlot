@@ -687,7 +687,7 @@ namespace OMPlot
             {
                 axis.Value.Font = this.Font;
                 axis.Value.CalculateTranformVertical(plotRectangle.Top, plotRectangle.Bottom); //preliminary calculation
-                axis.Value.MeasureVertical(g, this.Size);
+                axis.Value.MeasureVertical(g);
                 if (axis.Value.Position == AxisPosition.Near || axis.Value.Position == AxisPosition.CrossValue)
                     plotRectangle.Left += axis.Value.SizeNear;
                 if (axis.Value.Position == AxisPosition.Far || axis.Value.Position == AxisPosition.CrossValue)
@@ -697,7 +697,7 @@ namespace OMPlot
             {
                 axis.Value.Font = this.Font;
                 axis.Value.CalculateTranformHorizontal(plotRectangle.Left, plotRectangle.Right); //preliminary calculation
-                axis.Value.MeasureHorizontal(g, this.Size);
+                axis.Value.MeasureHorizontal(g);
                 if (axis.Value.Position == AxisPosition.Near || axis.Value.Position == AxisPosition.CrossValue)
                     plotRectangle.Top += axis.Value.SizeNear;
                 if (axis.Value.Position == AxisPosition.Far || axis.Value.Position == AxisPosition.CrossValue)

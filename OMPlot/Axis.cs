@@ -415,11 +415,8 @@ namespace OMPlot
             tickLabelSize = tickLabel.Select(tl => g.MeasureString(tl, this.Font)).ToArray();
             tickLabelLocation = tick.Select(t => (float)this.Transform(t)).ToArray();
         }
-        internal void MeasureVertical(Graphics g, Size plotSize)
+        private SizeF AutomaticTicksCalculation(Graphics g)
         {
-            if (TicksLabelsLineAlignment == Alignment.Center && (TicksLabelsRotation == TicksLabelsRotation.Parallel || TicksLabelsRotation == TicksLabelsRotation.Tilted))
-                throw new Exception("Central line alignment is not possible for parallel rotation of the tick`s labels.");
-
             bool decreaseTickNumber;
             SizeF tickLabelFormatSize = new SizeF();
             TickNumber = 20;
@@ -457,8 +454,32 @@ namespace OMPlot
                     TickNumber = decreaseTickNumber ? (int)Math.Floor((double)(TickNumber) / 2.0) : TickNumber;
                 }
             }
-            while (decreaseTickNumber) ;
-           
+            while (decreaseTickNumber);
+
+            return tickLabelFormatSize;
+        }
+        private void TitleSizeCalculation(Graphics g)
+        {
+            if (!string.IsNullOrWhiteSpace(Title) && TitlePosition != LabelsPosition.None)
+            {
+                titleSize = g.MeasureString(Title, Font);
+                if (TitlePosition == LabelsPosition.Near)
+                    SizeNear += titleSize.Height;
+                else if (TitlePosition == LabelsPosition.Far)
+                    SizeFar += titleSize.Height;
+
+                if (TitleAlignment == Alignment.Near)
+                    OverflowNear = (titleSize.Width / 2) > OverflowNear ? (titleSize.Width / 2) : OverflowNear;
+                else if (TitleAlignment == Alignment.Far)
+                    OverflowFar = (titleSize.Width / 2) > OverflowFar ? (titleSize.Width / 2) : OverflowFar;
+            }
+        }
+        internal void MeasureVertical(Graphics g)
+        {
+            if (TicksLabelsLineAlignment == Alignment.Center && (TicksLabelsRotation == TicksLabelsRotation.Parallel || TicksLabelsRotation == TicksLabelsRotation.Tilted))
+                throw new Exception("Central line alignment is not possible for parallel rotation of the tick`s labels.");
+
+            var tickLabelFormatSize = AutomaticTicksCalculation(g);
 
             SizeNear = TicksLabelsPosition == LabelsPosition.Near ? 6 : 0;
             SizeFar = TicksLabelsPosition == LabelsPosition.Far ? 6 : 0;
@@ -508,63 +529,14 @@ namespace OMPlot
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(Title) && TitlePosition != LabelsPosition.None)
-            {
-                titleSize = g.MeasureString(Title, Font);
-                if (TitlePosition == LabelsPosition.Near)
-                    SizeNear += titleSize.Height;
-                else if (TitlePosition == LabelsPosition.Far)
-                    SizeFar += titleSize.Height;
-
-                if (TitleAlignment == Alignment.Near)
-                    OverflowNear = (titleSize.Width / 2) > OverflowNear ? (titleSize.Width / 2) : OverflowNear;
-                else if (TitleAlignment == Alignment.Far)
-                    OverflowFar = (titleSize.Width / 2) > OverflowFar ? (titleSize.Width / 2) : OverflowFar;
-            }
+            TitleSizeCalculation(g);
         }
-        internal void MeasureHorizontal(Graphics g, Size plotSize)
+        internal void MeasureHorizontal(Graphics g)
         {
             if (TicksLabelsAlignment == Alignment.Center && TicksLabelsRotation != TicksLabelsRotation.Parallel)
                     throw new Exception("Central alignment is only possible for parallel rotation of the tick`s labels.");
 
-            bool decreaseTickNumber;
-            SizeF tickLabelFormatSize = new SizeF();
-            TickNumber = 20;
-            do
-            {
-                CalculateTicks(g);
-                if (!tickLabelSize.Any())
-                    break;
-                tickLabelFormatSize = new SizeF(tickLabelSize.Max(e => e.Width), tickLabelSize.First().Height);
-                decreaseTickNumber = false;
-                if (TicksLabelsPosition != LabelsPosition.None && (CustomTicks == null || CustomTicks.Length < 1) && TickNumber > 1)
-                {
-                    if (TicksLabelsRotation == TicksLabelsRotation.Parallel)
-                    {
-                        for (int i = 0; i < tick.Length - 1; i++)
-                        {
-                            if (Math.Abs(tickLabelLocation[i + 1] - tickLabelLocation[i]) < Math.Max(tickLabelSize[i + 1].Width + tickLabelSize[i + 1].Height, tickLabelSize[i].Width + tickLabelSize[i].Height))
-                            {
-                                decreaseTickNumber = true;
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < tick.Length - 1; i++)
-                        {
-                            if (Math.Abs(tickLabelLocation[i + 1] - tickLabelLocation[i]) < Math.Max(tickLabelSize[i + 1].Height + tickLabelSize[i + 1].Height, tickLabelSize[i].Height + tickLabelSize[i].Height))
-                            {
-                                decreaseTickNumber = true;
-                                break;
-                            }
-                        }
-                    }
-                    TickNumber = decreaseTickNumber ? (int)Math.Floor((double)(TickNumber) / 2.0) : TickNumber;
-                }
-            }
-            while (decreaseTickNumber);
+            var tickLabelFormatSize = AutomaticTicksCalculation(g);
 
             SizeNear = TicksLabelsPosition == LabelsPosition.Near ? 6 : 0;
             SizeFar = TicksLabelsPosition == LabelsPosition.Far ? 6 : 0;
@@ -613,19 +585,7 @@ namespace OMPlot
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(Title) && TitlePosition != LabelsPosition.None)
-            {
-                titleSize = g.MeasureString(Title, Font);
-                if (TitlePosition == LabelsPosition.Near)
-                    SizeNear += titleSize.Height;
-                else if (TitlePosition == LabelsPosition.Far)
-                    SizeFar += titleSize.Height;
-
-                if (TitleAlignment == Alignment.Near)
-                    OverflowNear = (titleSize.Width / 2) > OverflowNear ? (titleSize.Width / 2) : OverflowNear;
-                else if (TitleAlignment == Alignment.Far)
-                    OverflowFar = (titleSize.Width / 2) > OverflowFar ? (titleSize.Width / 2) : OverflowFar;
-            }
+            TitleSizeCalculation(g);
         }
         internal void DrawVertical(Graphics g, float x, float y, RectangleExtended rect)
         {
@@ -798,7 +758,7 @@ namespace OMPlot
                 g.DrawString(Title, Font, brush, titleX, titleY, titleFormat);
                 g.ResetTransform();
             }
-            //end of Horizontal drawing
+            //end of Vertical drawing
         }
         internal void DrawHorizontal(Graphics g, float x, float y, RectangleExtended rect)
         {
@@ -943,44 +903,124 @@ namespace OMPlot
         }
     }
 
-
+    /// <summary>
+    /// Enumerates the available axis positions on a plot.
+    /// </summary>
     public enum AxisPosition
     {
+        /// <summary>
+        /// Closer to the lower-right corner.
+        /// </summary>
         Near,
+        /// <summary>
+        /// Located in the center of the plot.
+        /// </summary>
         Center,
+        /// <summary>
+        /// Closer to the upper-left corner.
+        /// </summary>
         Far,
+        /// <summary>
+        /// Cross the perpendicular axis at the <see cref="Axis.CrossValue"/> point.
+        /// </summary>
         CrossValue
     }
+    /// <summary>
+    /// Enumerates the available ticks style.
+    /// </summary>
     public enum TickStyle
     {
+        /// <summary>
+        /// Ticks are directed to the top or to the left.
+        /// </summary>
         Near,
+        /// <summary>
+        /// Ticks are directed to the bottom or to the right.
+        /// </summary>
         Far,
+        /// <summary>
+        /// Ticks cross the axis.
+        /// </summary>
         Cross,
+        /// <summary>
+        /// Do not display ticks.
+        /// </summary>
         None
     }
+    /// <summary>
+    /// Enumerates the available labels positions.
+    /// </summary>
     public enum LabelsPosition
     {
+        /// <summary>
+        /// Closer to the lower-right corner.
+        /// </summary>
         Near,
+        /// <summary>
+        /// Closer to the upper-left corner.
+        /// </summary>
         Far,
+        /// <summary>
+        /// Do not display label.
+        /// </summary>
         None
     }
+    /// <summary>
+    /// Enumerates the available alignments.
+    /// </summary>
     public enum Alignment
     {
+        /// <summary>
+        /// Aligned to the center
+        /// </summary>
         Center,
+        /// <summary>
+        /// Closer to the lower-right corner.
+        /// </summary>
         Near,
+        /// <summary>
+        /// Closer to the upper-left corner.
+        /// </summary>
         Far
     }
+    /// <summary>
+    /// Enumerates the available tick labels rotation.
+    /// </summary>
     public enum TicksLabelsRotation
     {
+        /// <summary>
+        /// Tick labels is paralel to the axis.
+        /// </summary>
         Parallel,
+        /// <summary>
+        /// Tick labels is rotated 45 degrees relative to the axis.
+        /// </summary>
         Tilted,
+        /// <summary>
+        /// Tick labels is perpendicular to the axis.
+        /// </summary>
         Perpendicular
     }
+    /// <summary>
+    /// Enumerates the available grid styles.
+    /// </summary>
     public enum GridStyle
     {
+        /// <summary>
+        /// Do not display any grid.
+        /// </summary>
         None,
+        /// <summary>
+        /// Display only major grid.
+        /// </summary>
         Major,
+        /// <summary>
+        /// Display only minor grid.
+        /// </summary>
         Minor,
+        /// <summary>
+        /// Display all grid.
+        /// </summary>
         Both
     }
 
