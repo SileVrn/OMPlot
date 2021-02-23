@@ -58,8 +58,8 @@ namespace OMPlot.Data
             double maxX = HorizontalAxis.Transform(HorizontalAxis.Maximum);
             double DX = HorizontalAxis.Transform(HorizontalAxis.Minimum + dX) - HorizontalAxis.Transform(HorizontalAxis.Minimum);
             int start = 0;
-            if (MinimumX < HorizontalAxis.Minimum)
-                start = (int)Math.Floor((HorizontalAxis.Minimum - MinimumX) / dX);
+            if (minX < HorizontalAxis.Minimum)
+                start = (int)Math.Floor((HorizontalAxis.Minimum - minX) / dX);
             List<PointF> pointList = new List<PointF>();
             double prevX = HorizontalAxis.Transform(X0 + start * dX);
             double prevY = VerticalAxis.Transform(Y[start]);

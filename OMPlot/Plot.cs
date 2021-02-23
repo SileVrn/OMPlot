@@ -26,10 +26,6 @@ namespace OMPlot
         bool selectHorizontal, selectVertical;
         string selectedAxisName;
 
-        /*PointF test0, test1;
-        double distance;
-        long time;*/
-
         Pen selectionPen, mainPen;
         Brush selectionBrush, legendBoxBrush, backgroungBrush, mainBrush;
         Font titleFont;
@@ -39,6 +35,10 @@ namespace OMPlot
         MarkerStyle[] defaultMarkerStyle = ((MarkerStyle[])Enum.GetValues(typeof(MarkerStyle))).Where(e => e != MarkerStyle.None).ToArray();
 
         RectangleExtended plotRectangle;
+
+        List<ScatterSeries> Data;
+        Dictionary<string, Axis> Vertical;
+        Dictionary<string, Axis> Horizontal;
 
         public const float MouseEventDistance = 3;
 
@@ -68,10 +68,6 @@ namespace OMPlot
         public event PlotMouseEvent PlotMouseUp;
         public event PlotMouseEvent PlotMouseDown;
         public event PlotMouseEvent PlotMouseMove;
-
-        List<ScatterSeries> Data;
-        Dictionary<string, Axis> Vertical;
-        Dictionary<string, Axis> Horizontal;
 
         /// <summary>
         /// Initializes a new instance of the <see cref = "OMPlot.Plot" /> class.
@@ -198,7 +194,7 @@ namespace OMPlot
                 data.LineStyle = LineStyle.None;
                 data.BarDuty = 0.7f;
                 data.BarFillColor = defaultPlotColors[colorIndex];
-                data.BarStacking = true;
+                data.BarGrouping = true;
                 data.BarStyle = PlotStyle == PlotStyle.HorisontalBars ? BarStyle.Horisontal : BarStyle.Vertical;
             }
 
@@ -305,7 +301,7 @@ namespace OMPlot
                 data.LineStyle = LineStyle.None;
                 data.BarDuty = 0.7f;
                 data.BarFillColor = defaultPlotColors[colorIndex];
-                data.BarStacking = true;
+                data.BarGrouping = true;
                 data.BarStyle = PlotStyle == PlotStyle.HorisontalBars ? BarStyle.Horisontal : BarStyle.Vertical;
             }
 
@@ -374,7 +370,7 @@ namespace OMPlot
                 data.LineStyle = LineStyle.None;
                 data.BarDuty = 0.7f;
                 data.BarFillColor = defaultPlotColors[colorIndex];
-                data.BarStacking = true;
+                data.BarGrouping = true;
                 data.BarStyle = PlotStyle == PlotStyle.HorisontalBars ? BarStyle.Horisontal : BarStyle.Vertical;
             }
 
@@ -815,7 +811,7 @@ namespace OMPlot
             if (Vertical.Any() && Horizontal.Any())
             {
                 //BarStyle.Vertical
-                var barData = Data.Where(data => data.BarStyle == BarStyle.Vertical && data.BarStacking);
+                var barData = Data.Where(data => data.BarStyle == BarStyle.Vertical && data.BarGrouping);
                 int barCount = barData.Count();
                 int barIndex = 0;
                 foreach (var bar in barData)
@@ -825,7 +821,7 @@ namespace OMPlot
                     barIndex++;
                 }
                 //BarStyle.Horisontal
-                barData = Data.Where(data => data.BarStyle == BarStyle.Horisontal && data.BarStacking);
+                barData = Data.Where(data => data.BarStyle == BarStyle.Horisontal && data.BarGrouping);
                 barCount = barData.Count();
                 barIndex = 0;
                 foreach (var bar in barData)
@@ -848,13 +844,113 @@ namespace OMPlot
             g.FillRectangle(backgroungBrush, plotRectangle.Right + 1, plotRectangle.Top - 2, this.Width - plotRectangle.Right, plotRectangle.Height + 4);
             g.FillRectangle(backgroungBrush, -1, plotRectangle.Bottom + 1, this.Width + 2, this.Height - plotRectangle.Bottom);
             //if()
-            g.DrawRectangle(mainPen, plotRectangle.X, plotRectangle.Y, plotRectangle.Width, plotRectangle.Height);
+            //g.DrawRectangle(mainPen, plotRectangle.X, plotRectangle.Y, plotRectangle.Width, plotRectangle.Height);
 
             if (!string.IsNullOrEmpty(Title))
             {
                 StringFormat stringFormat = new StringFormat { Alignment = StringAlignment.Center };
                 g.DrawString(Title, titleFont, mainBrush, this.Width / 2.0f, paddingRectangle.Top, stringFormat);
             }
+
+            bool drawBorderFar = true;
+            bool drawBorderNear = true;
+            float rightAxisPosition = plotRectangle.Right;
+            float leftAxisPosition = plotRectangle.Left;
+            foreach (var axis in Vertical)
+            {
+                switch (axis.Value.Position)
+                {
+                    case AxisPosition.Near:
+                        {
+                            axis.Value.DrawVertical(g, leftAxisPosition, plotRectangle.Top, plotRectangle);
+                            leftAxisPosition -= axis.Value.SizeNear;
+                            drawBorderNear = false;
+                            break;
+                        }
+                    case AxisPosition.Far:
+                        {
+                            axis.Value.DrawVertical(g, rightAxisPosition, plotRectangle.Top, plotRectangle);
+                            rightAxisPosition += axis.Value.SizeFar;
+                            drawBorderFar = false;
+                            break;
+                        }
+                    case AxisPosition.Center:
+                        axis.Value.DrawVertical(g, plotRectangle.CenterX, plotRectangle.Top, plotRectangle);
+                        break;
+                    case AxisPosition.CrossValue:
+                        {
+                            if (axis.Value.CrossValue < Horizontal.First().Value.Minimum)
+                            {
+                                axis.Value.DrawVertical(g, leftAxisPosition, plotRectangle.Top, plotRectangle);
+                                leftAxisPosition -= axis.Value.SizeNear;
+                                drawBorderNear = false;
+                            }
+                            else if (axis.Value.CrossValue > Horizontal.First().Value.Maximum)
+                            {
+                                axis.Value.DrawVertical(g, rightAxisPosition, plotRectangle.Top, plotRectangle);
+                                rightAxisPosition += axis.Value.SizeFar;
+                                drawBorderFar = false;
+                            }
+                            else
+                                axis.Value.DrawVertical(g, (float)Horizontal.First().Value.Transform(axis.Value.CrossValue), plotRectangle.Top, plotRectangle);
+                            break;
+                        }
+                }
+            }
+            if (drawBorderFar)
+                g.DrawLine(mainPen, plotRectangle.Right, plotRectangle.Top, plotRectangle.Right, plotRectangle.Bottom);
+            if (drawBorderNear)
+                g.DrawLine(mainPen, plotRectangle.Left, plotRectangle.Top, plotRectangle.Left, plotRectangle.Bottom);
+
+            drawBorderFar = true;
+            drawBorderNear = true;
+            float topAxisPosition = plotRectangle.Top;
+            float bottomAxisPosition = plotRectangle.Bottom;
+            foreach (var axis in Horizontal)
+            {
+                switch (axis.Value.Position)
+                {
+                    case AxisPosition.Far:
+                        {
+                            axis.Value.DrawHorizontal(g, plotRectangle.Left, bottomAxisPosition, plotRectangle);
+                            bottomAxisPosition += axis.Value.SizeFar;
+                            drawBorderFar = false;
+                            break;
+                        }
+                    case AxisPosition.Near:
+                        {
+                            axis.Value.DrawHorizontal(g, plotRectangle.Left, topAxisPosition, plotRectangle);
+                            topAxisPosition -= axis.Value.SizeNear;
+                            drawBorderNear = false;
+                            break;
+                        }
+                    case AxisPosition.Center:
+                        axis.Value.DrawHorizontal(g, plotRectangle.Left, plotRectangle.CenterY, plotRectangle);
+                        break;
+                    case AxisPosition.CrossValue:
+                        {
+                            if (axis.Value.CrossValue < Vertical.First().Value.Minimum)
+                            {
+                                axis.Value.DrawHorizontal(g, plotRectangle.Left, bottomAxisPosition, plotRectangle);
+                                bottomAxisPosition += axis.Value.SizeNear;
+                                drawBorderFar = false;
+                            }
+                            else if (axis.Value.CrossValue > Vertical.First().Value.Maximum)
+                            {
+                                axis.Value.DrawHorizontal(g, plotRectangle.Left, topAxisPosition, plotRectangle);
+                                topAxisPosition -= axis.Value.SizeFar;
+                                drawBorderNear = false;
+                            }
+                            else
+                                axis.Value.DrawHorizontal(g, plotRectangle.Left, (float)Vertical.First().Value.Transform(axis.Value.CrossValue), plotRectangle);
+                            break;
+                        }
+                }
+            }
+            if (drawBorderFar)
+                g.DrawLine(mainPen, plotRectangle.Left, plotRectangle.Bottom, plotRectangle.Right, plotRectangle.Bottom);
+            if (drawBorderNear)
+                g.DrawLine(mainPen, plotRectangle.Left, plotRectangle.Top, plotRectangle.Right, plotRectangle.Top);
 
             if (LegendStyle != LegendStyle.None)
             {
@@ -867,85 +963,6 @@ namespace OMPlot
                 {
                     g.DrawString(Data[i].Name, this.Font, mainBrush, legendRectangles[i].Right, legendRectangles[i].Top);
                     Data[i].DrawLegend(g, legendRectangles[i]);
-                }
-            }
-
-            float rightAxisPosition = plotRectangle.Right;
-            float leftAxisPosition = plotRectangle.Left;
-            foreach (var axis in Vertical)
-            {
-                switch (axis.Value.Position)
-                {
-                    case AxisPosition.Near:
-                        {
-                            axis.Value.DrawVertical(g, leftAxisPosition, plotRectangle.Top, plotRectangle);
-                            leftAxisPosition -= axis.Value.SizeNear;
-                            break;
-                        }
-                    case AxisPosition.Far:
-                        {
-                            axis.Value.DrawVertical(g, rightAxisPosition, plotRectangle.Top, plotRectangle);
-                            rightAxisPosition += axis.Value.SizeFar;
-                            break;
-                        }
-                    case AxisPosition.Center:
-                        axis.Value.DrawVertical(g, plotRectangle.CenterX, plotRectangle.Top, plotRectangle);
-                        break;
-                    case AxisPosition.CrossValue:
-                        {
-                            if (axis.Value.CrossValue < Horizontal.First().Value.Minimum)
-                            {
-                                axis.Value.DrawVertical(g, leftAxisPosition, plotRectangle.Top, plotRectangle);
-                                leftAxisPosition -= axis.Value.SizeNear;
-                            }
-                            else if (axis.Value.CrossValue > Horizontal.First().Value.Maximum)
-                            {
-                                axis.Value.DrawVertical(g, rightAxisPosition, plotRectangle.Top, plotRectangle);
-                                rightAxisPosition += axis.Value.SizeFar;
-                            }
-                            else
-                                axis.Value.DrawVertical(g, (float)Horizontal.First().Value.Transform(axis.Value.CrossValue), plotRectangle.Top, plotRectangle);
-                            break;
-                        }
-                }
-            }
-            float topAxisPosition = plotRectangle.Top;
-            float bottomAxisPosition = plotRectangle.Bottom;
-            foreach (var axis in Horizontal)
-            {
-                switch (axis.Value.Position)
-                {
-                    case AxisPosition.Far:
-                        {
-                            axis.Value.DrawHorizontal(g, plotRectangle.Left, bottomAxisPosition, plotRectangle);
-                            bottomAxisPosition += axis.Value.SizeFar;
-                            break;
-                        }
-                    case AxisPosition.Near:
-                        {
-                            axis.Value.DrawHorizontal(g, plotRectangle.Left, topAxisPosition, plotRectangle);
-                            topAxisPosition -= axis.Value.SizeNear;
-                            break;
-                        }
-                    case AxisPosition.Center:
-                        axis.Value.DrawHorizontal(g, plotRectangle.Left, plotRectangle.CenterY, plotRectangle);
-                        break;
-                    case AxisPosition.CrossValue:
-                        {
-                            if (axis.Value.CrossValue < Vertical.First().Value.Minimum)
-                            {
-                                axis.Value.DrawHorizontal(g, plotRectangle.Left, bottomAxisPosition, plotRectangle);
-                                bottomAxisPosition += axis.Value.SizeNear;
-                            }
-                            else if (axis.Value.CrossValue > Vertical.First().Value.Maximum)
-                            {
-                                axis.Value.DrawHorizontal(g, plotRectangle.Left, topAxisPosition, plotRectangle);
-                                topAxisPosition -= axis.Value.SizeFar;
-                            }
-                            else
-                                axis.Value.DrawHorizontal(g, plotRectangle.Left, (float)Vertical.First().Value.Transform(axis.Value.CrossValue), plotRectangle);
-                            break;
-                        }
                 }
             }
 
@@ -968,11 +985,8 @@ namespace OMPlot
                 ElapsedMilliseconds.Dequeue();
             ElapsedMilliseconds.Enqueue(sw.ElapsedMilliseconds);
             double ElapsedMillisecondsAvg = ElapsedMilliseconds.Average();
-            //g.DrawString((1000.0 / (ElapsedMillisecondsAvg > 0 ? ElapsedMillisecondsAvg : 1)).ToString("#.###"), this.Font, mainBrush, 0, 0);
+            g.DrawString((1000.0 / (ElapsedMillisecondsAvg > 0 ? ElapsedMillisecondsAvg : 1)).ToString("#.###"), this.Font, mainBrush, 0, 0);
 
-            /*if(!float.IsNaN(test1.X) && !float.IsNaN(test1.Y))
-                g.DrawLine(Pens.Black, test1, test0);
-            g.DrawString(time + "(" + distance + ")", this.Font, mainBrush, test0);*/
         }
 
         private void Plot_FontChanged(object sender, EventArgs e)
@@ -1033,6 +1047,26 @@ namespace OMPlot
             return new Tuple<int, PointDistance>(index, pd);
         }
 
+        public void Autoscale()
+        {
+            foreach (var axis in Horizontal)
+            {
+                axis.Value.Minimum = double.MaxValue;
+                axis.Value.Maximum = double.MinValue;
+            }
+            foreach (var axis in Vertical)
+            {
+                axis.Value.Minimum = double.MaxValue;
+                axis.Value.Maximum = double.MinValue;
+            }
+            foreach (var data in Data)
+            {
+                data.HorizontalAxis.Minimum = data.HorizontalAxis.Minimum > data.MinimumX ? data.MinimumX : data.HorizontalAxis.Minimum;
+                data.VerticalAxis.Minimum = data.VerticalAxis.Minimum > data.MinimumY ? data.MinimumY : data.VerticalAxis.Minimum;
+                data.HorizontalAxis.Maximum = data.HorizontalAxis.Maximum < data.MaximumX ? data.MaximumX : data.HorizontalAxis.Maximum;
+                data.VerticalAxis.Maximum = data.VerticalAxis.Maximum < data.MaximumY ? data.MaximumY : data.VerticalAxis.Maximum;
+            }
+        }
 
         Queue<long> ElapsedMilliseconds = new Queue<long>(100);
 

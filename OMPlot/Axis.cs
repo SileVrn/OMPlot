@@ -604,8 +604,8 @@ namespace OMPlot
 
             if (TicksLabelsRotation == TicksLabelsRotation.Parallel)
             {
-                stringFormat.LineAlignment = Alignment2StringAlignment(TicksLabelsLineAlignment);
-                stringFormat.Alignment = Alignment2StringAlignment(TicksLabelsAlignment);
+                stringFormat.LineAlignment = (StringAlignment)TicksLabelsLineAlignment;
+                stringFormat.Alignment = (StringAlignment)TicksLabelsAlignment;
                 if ((TicksLabelsPosition == LabelsPosition.Near && TicksLabelsLineAlignment == Alignment.Near) ||
                     (TicksLabelsPosition == LabelsPosition.Far && TicksLabelsLineAlignment == Alignment.Far))
                     rotationSign = 1;
@@ -614,7 +614,7 @@ namespace OMPlot
             }
             else if(TicksLabelsRotation == TicksLabelsRotation.Perpendicular)
             {
-                stringFormat.LineAlignment = Alignment2StringAlignment(TicksLabelsLineAlignment);
+                stringFormat.LineAlignment = (StringAlignment)TicksLabelsLineAlignment;
                 if (TicksLabelsPosition == LabelsPosition.Near)
                     stringFormat.Alignment = StringAlignment.Far;
                 else
@@ -772,7 +772,7 @@ namespace OMPlot
                 drawnRectangle.FullScaleY = 10;
 
             StringFormat stringFormat = new StringFormat();
-            stringFormat.Alignment = Alignment2StringAlignment(TicksLabelsAlignment);
+            stringFormat.Alignment = (StringAlignment)TicksLabelsAlignment;
 
             if (TicksLabelsRotation == TicksLabelsRotation.Parallel)
             {
@@ -782,7 +782,7 @@ namespace OMPlot
                     stringFormat.LineAlignment = StringAlignment.Far;
             }
             else if(TicksLabelsRotation == TicksLabelsRotation.Perpendicular)
-                stringFormat.LineAlignment = Alignment2StringAlignment(TicksLabelsLineAlignment);
+                stringFormat.LineAlignment = (StringAlignment)TicksLabelsLineAlignment;
             else 
                 stringFormat.LineAlignment = StringAlignment.Center;
 
@@ -892,15 +892,6 @@ namespace OMPlot
             //end of Horizontal drawing
         }
 
-        private StringAlignment Alignment2StringAlignment(Alignment a)
-        {
-            if (a == Alignment.Near)
-                return StringAlignment.Near;
-            else if (a == Alignment.Center)
-                return StringAlignment.Center;
-            else
-                return StringAlignment.Far;
-        }
     }
 
     /// <summary>
@@ -971,17 +962,17 @@ namespace OMPlot
     public enum Alignment
     {
         /// <summary>
-        /// Aligned to the center
-        /// </summary>
-        Center,
-        /// <summary>
         /// Closer to the lower-right corner.
         /// </summary>
-        Near,
+        Near = 0,
+        /// <summary>
+        /// Aligned to the center
+        /// </summary>
+        Center = 1,
         /// <summary>
         /// Closer to the upper-left corner.
         /// </summary>
-        Far
+        Far = 2
     }
     /// <summary>
     /// Enumerates the available tick labels rotation.

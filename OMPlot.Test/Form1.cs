@@ -46,7 +46,7 @@ namespace OMPlot.Test
             double[] sinX0 = new double[20];
             double[] sinY0 = new double[sinX0.Length];
 
-            double[] sinX = new double[40];
+            double[] sinX = new double[2500000];
             double[] sinY1 = new double[sinX.Length];
             double[] sinY2 = new double[sinX.Length];
             double[] sinY3 = new double[sinX.Length];
@@ -103,7 +103,7 @@ namespace OMPlot.Test
 
             //Array.Reverse(sinX);
                        
-            plot1.PlotStyle = PlotStyle.VerticalBars ;
+            //plot1.PlotStyle = PlotStyle.VerticalBars ;
             var pl0 = plot1.Add(sinY1, dt, "Plot1");
             //var pl1 = plot1.Add(sinX, sinY1, "Plot1");
             var pl2 = plot1.Add(sinX, sinY2, "Plot2");
@@ -134,12 +134,16 @@ namespace OMPlot.Test
             //var dp1 = plot1.Add(dict1, "Dict0");
             //plot1.Add(dict2, "Dict1");
 
+            pl0.LineWidth = 2;
+            pl2.LineWidth = 2;
 
-            plot1.GetVerticalAxis();
-            
-            
+            plot1.GetVerticalAxis().GridStyle = GridStyle.Both;
+            plot1.GetHorizontalAxis().GridStyle = GridStyle.Both;
+
+
 
             plot1.LegendStyle = LegendStyle.Inside;
+            plot1.Autoscale();
 
             plot1.PlotDoubleClick += Plot1_PlotDoubleClick;
         }

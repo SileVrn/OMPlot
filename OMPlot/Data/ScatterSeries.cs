@@ -85,15 +85,15 @@ namespace OMPlot.Data
         /// </summary>
         public double BarValue { get; set; }
         /// <summary>
-        /// Use stocking of a bars.
+        /// Enable bars grouping.
         /// </summary>
-        public bool BarStacking { get; set; }
+        public bool BarGrouping { get; set; }
         /// <summary>
-        /// Index of current graph`s bars in stock.
+        /// Index of current graph`s bars in group.
         /// </summary>
         internal int BarIndex { get; set; }
         /// <summary>
-        /// Number of graph in bar`s stock.
+        /// Number of graph in group.
         /// </summary>
         internal int BarCount { get; set; }
 
@@ -116,19 +116,39 @@ namespace OMPlot.Data
         /// <summary>
         /// The minimum x value
         /// </summary>
-        public double MinimumX { get  {  return minX - (minXPre - minX) / 2; } }
+        public double MinimumX { get { return minX - PaddingX; } }
         /// <summary>
         /// The minimum y value
         /// </summary>
-        public double MinimumY { get { return minY - (minYPre - minY) / 2; } }
+        public double MinimumY { get { return minY - PaddingY; } }
         /// <summary>
         /// The maximum x value
         /// </summary>
-        public double MaximumX { get { return maxX + (maxX - maxXPre) / 2; } }
+        public double MaximumX { get { return maxX + PaddingX; } }
         /// <summary>
         /// The maximum y value
         /// </summary>
-        public double MaximumY { get { return maxY + (maxY - maxYPre) / 2; } }
+        public double MaximumY { get { return maxY + PaddingY; } }
+        private double PaddingX
+        {
+            get
+            {
+                double padding1 = (minXPre - minX) / 2;
+                double padding2 = (maxX - maxXPre) / 2;
+                double padding3 = (maxX - minX) * 0.05;
+                return Math.Max(padding1, Math.Max(padding2, padding3));
+            }
+        }
+        private double PaddingY
+        {
+            get
+            {
+                double padding1 = (minYPre - minY) / 2;
+                double padding2 = (maxY - maxYPre) / 2;
+                double padding3 = (maxY - minY) * 0.05;
+                return Math.Max(padding1, Math.Max(padding2, padding3));
+            }
+        }
 
         protected GraphicsPath GraphicsPath { get; set; }
 
@@ -454,7 +474,7 @@ namespace OMPlot.Data
                 if (BarStyle != BarStyle.None)
                 {
                     bars = new RectangleF[points.Length];
-                    float barCount = BarStacking ? BarCount : 1.0f;
+                    float barCount = BarGrouping ? BarCount : 1.0f;
                     float W;
 
                     if (BarStyle == BarStyle.Vertical)
