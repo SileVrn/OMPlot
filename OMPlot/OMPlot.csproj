@@ -66,6 +66,9 @@
     <Compile Include="Data\LineSeries.cs" />
     <Compile Include="Data\Accessories.cs" />
     <Compile Include="Data\ScatterSeries.cs" />
+    <Compile Include="Plot.Add.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Plot.cs">
       <SubType>UserControl</SubType>
     </Compile>

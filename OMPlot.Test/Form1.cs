@@ -46,7 +46,7 @@ namespace OMPlot.Test
             double[] sinX0 = new double[20];
             double[] sinY0 = new double[sinX0.Length];
 
-            double[] sinX = new double[2500000];
+            double[] sinX = new double[2000];
             double[] sinY1 = new double[sinX.Length];
             double[] sinY2 = new double[sinX.Length];
             double[] sinY3 = new double[sinX.Length];
