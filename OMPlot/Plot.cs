@@ -47,10 +47,6 @@ namespace OMPlot
         /// </summary>
         public string Title { get; set; }
         /// <summary>
-        /// Default style for graph.
-        /// </summary>
-        public PlotStyle PlotStyle { get; set; }
-        /// <summary>
         /// Style of legend box.
         /// </summary>
         public LegendStyle LegendStyle { get; set; }
@@ -109,14 +105,12 @@ namespace OMPlot
 
             AddHorizontalAxis(xAxis);
             AddVerticalAxis(yAxis);
-        }
-        
+        }        
 
         /// <summary>
         /// Remove all graphs.
         /// </summary>
         public void Clear() { Data.Clear(); }
-
         /// <summary>
         /// Add aditional vertical axis.
         /// </summary>

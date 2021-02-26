@@ -103,10 +103,10 @@ namespace OMPlot.Test
 
             //Array.Reverse(sinX);
                        
-            //plot1.PlotStyle = PlotStyle.VerticalBars ;
-            var pl0 = plot1.Add(sinY1, dt, "Plot1");
+            plot1.PlotStyle = PlotStyle.Splines ;
+            var pl0 = plot1.Add(sinY1, dt);
             //var pl1 = plot1.Add(sinX, sinY1, "Plot1");
-            var pl2 = plot1.Add(sinX, sinY2, "Plot2");
+            var pl2 = plot1.Add(sinX, sinY2);
             //var pl3 = plot1.Add(sinY3, sinX, "Plot3");
             //var pl4 = plot1.Add(sinY4, sinX, "Plot4");
             //var pl5 = plot1.Add(sinY5, sinX, "Plot5");
