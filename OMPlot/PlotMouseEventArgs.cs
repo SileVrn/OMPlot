@@ -20,13 +20,13 @@ namespace OMPlot
         /// <summary>
         /// Instance of the plot on which the event occurred.
         /// </summary>
-        public Data.ScatterSeries Plot { get; }
+        public Data.IData Plot { get; }
         /// <summary>
         /// True if event occurred on a plot.
         /// </summary>
         public bool ClickOnPlot { get; }
         
-        internal PlotMouseEventArgs(MouseEventArgs e, Data.ScatterSeries plot, PointF plotPoint) : base(e.Button, e.Clicks, e.X, e.Y, e.Delta)
+        internal PlotMouseEventArgs(MouseEventArgs e, Data.IData plot, PointF plotPoint) : base(e.Button, e.Clicks, e.X, e.Y, e.Delta)
         {
             ClickOnPlot = true;
             Plot = plot;

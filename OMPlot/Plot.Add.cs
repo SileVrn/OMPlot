@@ -100,7 +100,7 @@ namespace OMPlot
         /// <returns></returns>
         public ScatterSeries Add(Dictionary<string, double> dictionary, PlotStyle ps = PlotStyle.VerticalBars, string name = "")
         {
-            var axis = PlotStyle == PlotStyle.HorisontalBars ? GetVerticalAxis() : GetHorizontalAxis();
+            var axis = ps == PlotStyle.HorisontalBars ? GetVerticalAxis() : GetHorizontalAxis();
             if (axis.CustomTicksLabels == null)
                 axis.CustomTicksLabels = dictionary.Keys.ToArray();
             else
@@ -108,10 +108,10 @@ namespace OMPlot
             axis.CustomTicks = axis.CustomTicksLabels.Select((key, i) => (double)i).ToArray();
 
             axis.MinorTickNumber = 1;
-            axis.MinorTickStyle = PlotStyle == PlotStyle.HorisontalBars ? TickStyle.Near : TickStyle.Far;
+            axis.MinorTickStyle = ps == PlotStyle.HorisontalBars ? TickStyle.Near : TickStyle.Far;
             axis.MajorTickStyle = TickStyle.None;
 
-            ScatterSeries data = PlotStyle == PlotStyle.HorisontalBars ?
+            ScatterSeries data = ps == PlotStyle.HorisontalBars ?
                 new ScatterSeries(dictionary.Values, dictionary.Keys.Select(key => (double)Array.FindIndex(axis.CustomTicksLabels, e => e == key))) :
                 new ScatterSeries(dictionary.Keys.Select(key => (double)Array.FindIndex(axis.CustomTicksLabels, e => e == key)), dictionary.Values);
             data.Name = name;

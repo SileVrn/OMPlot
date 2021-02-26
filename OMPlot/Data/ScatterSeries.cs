@@ -11,7 +11,7 @@ namespace OMPlot.Data
     /// <summary>
     /// Represents a series for scatter plots.
     /// </summary>
-    public class ScatterSeries
+    public class ScatterSeries : IData, IGroupedBar, IAxisUsing
     {        
         double[] X, Y;
 
@@ -91,11 +91,11 @@ namespace OMPlot.Data
         /// <summary>
         /// Index of current graph`s bars in group.
         /// </summary>
-        internal int BarIndex { get; set; }
+        public int BarIndex { get; set; }
         /// <summary>
         /// Number of graph in group.
         /// </summary>
-        internal int BarCount { get; set; }
+        public int BarCount { get; set; }
 
         /// <summary>
         /// Name of a graph
@@ -151,7 +151,6 @@ namespace OMPlot.Data
         }
 
         protected GraphicsPath GraphicsPath { get; set; }
-
 
         protected ScatterSeries()
         {
@@ -259,7 +258,7 @@ namespace OMPlot.Data
         /// <param name="x">Screen point x.</param>
         /// <param name="y">Screen point y.</param>
         /// <returns>Instance of <see cref = "PointDistance" /> struct.</returns>
-        public virtual PointDistance DistanceToPoint(double x, double y)
+        public PointDistance DistanceToPoint(double x, double y)
         {
             if (LineStyle != LineStyle.None)
             {
@@ -406,7 +405,7 @@ namespace OMPlot.Data
             }
             return pointList.ToArray();
         }
-        internal virtual void CalculateGraphics(RectangleExtended plotRectangle)
+        void IData.CalculateGraphics(RectangleExtended plotRectangle)
         {
             points = CalculatePoints();
             GraphicsPath = new GraphicsPath();
@@ -540,7 +539,7 @@ namespace OMPlot.Data
                 }
             }
         }
-        internal virtual void Draw(Graphics g, RectangleExtended plotRectangle, int plotIndex)
+        void IData.Draw(Graphics g, RectangleExtended plotRectangle)
         {
             if (points.Length > 1)
             {
@@ -590,7 +589,7 @@ namespace OMPlot.Data
                 Marker.Draw(g, MarkColor, MarkStyle, MarkSize, points);
             }
         }
-        internal virtual void DrawLegend(Graphics g, RectangleF rect)
+        void IData.DrawLegend(Graphics g, RectangleF rect)
         {
             Marker.Draw(g, MarkColor, MarkStyle, MarkSize, new PointF[] { new PointF(rect.X + rect.Width / 2f, rect.Y + rect.Height / 2f) });
 

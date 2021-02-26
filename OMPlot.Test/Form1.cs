@@ -103,7 +103,6 @@ namespace OMPlot.Test
 
             //Array.Reverse(sinX);
                        
-            plot1.PlotStyle = PlotStyle.Splines ;
             var pl0 = plot1.Add(sinY1, dt);
             //var pl1 = plot1.Add(sinX, sinY1, "Plot1");
             var pl2 = plot1.Add(sinX, sinY2);
@@ -151,16 +150,8 @@ namespace OMPlot.Test
         private void Plot1_PlotDoubleClick(object sender, PlotMouseEventArgs e)
         {
             if (e.ClickOnPlot)
-            {
-                
-                //MessageBox.Show(e.Plot.Name);
-                var pl = e.Plot;
-                if(pl.FillColor == Color.Red)
-                    pl.FillColor = Color.Blue;
-                else
-                    pl.FillColor = Color.Red;
-                plot1.Refresh();
-
+            {                
+                MessageBox.Show(e.Plot.Name);
             }
         }
     }

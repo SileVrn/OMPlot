@@ -27,7 +27,6 @@ namespace OMPlot.Test
 
             Plot plot = new Plot { Height = 300, Width = 500 };
             plot.Title = "OMPlot example";
-            plot.PlotStyle = PlotStyle.Splines;
             plot.Add(dataY);
             plot.LegendStyle = LegendStyle.Inside;
             plot.ToImage().Save("plot.png");

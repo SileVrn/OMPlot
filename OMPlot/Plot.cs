@@ -36,7 +36,7 @@ namespace OMPlot
 
         RectangleExtended plotRectangle;
 
-        List<ScatterSeries> Data;
+        List<IData> Data;
         Dictionary<string, Axis> Vertical;
         Dictionary<string, Axis> Horizontal;
 
@@ -80,7 +80,7 @@ namespace OMPlot
             backgroungBrush = new SolidBrush(this.BackColor);
             legendBoxBrush = new SolidBrush(Color.FromArgb(200, this.BackColor));
 
-            Data = new List<ScatterSeries>();
+            Data = new List<IData>();
             Vertical = new Dictionary<string, Axis>();
             Horizontal = new Dictionary<string, Axis>();
             this.MouseWheel += Plot_MouseWheel;
@@ -539,7 +539,7 @@ namespace OMPlot
             if (Vertical.Any() && Horizontal.Any())
             {
                 //BarStyle.Vertical
-                var barData = Data.Where(data => data.BarStyle == BarStyle.Vertical && data.BarGrouping);
+                var barData = Data.Where(data => data is IGroupedBar).Select(data => (IGroupedBar)data).Where(data => data.BarStyle == BarStyle.Vertical && data.BarGrouping);
                 int barCount = barData.Count();
                 int barIndex = 0;
                 foreach (var bar in barData)
@@ -549,7 +549,7 @@ namespace OMPlot
                     barIndex++;
                 }
                 //BarStyle.Horisontal
-                barData = Data.Where(data => data.BarStyle == BarStyle.Horisontal && data.BarGrouping);
+                barData = Data.Where(data => data is IGroupedBar).Select(data => (IGroupedBar)data).Where(data => data.BarStyle == BarStyle.Horisontal && data.BarGrouping);
                 barCount = barData.Count();
                 barIndex = 0;
                 foreach (var bar in barData)
@@ -561,9 +561,8 @@ namespace OMPlot
 
                 //foreach (var data in Data)
                 Parallel.ForEach(Data, data => data.CalculateGraphics(plotRectangle));
-                int plotIndex = 0;
                 foreach (var data in Data)
-                    data.Draw(g, plotRectangle, plotIndex++);
+                    data.Draw(g, plotRectangle);
             }
             g.ResetTransform();
 
@@ -787,7 +786,7 @@ namespace OMPlot
                 axis.Value.Minimum = double.MaxValue;
                 axis.Value.Maximum = double.MinValue;
             }
-            foreach (var data in Data)
+            foreach (var data in Data.Where(data => data is IAxisUsing).Select(data => (IAxisUsing)data))
             {
                 data.HorizontalAxis.Minimum = data.HorizontalAxis.Minimum > data.MinimumX ? data.MinimumX : data.HorizontalAxis.Minimum;
                 data.VerticalAxis.Minimum = data.VerticalAxis.Minimum > data.MinimumY ? data.MinimumY : data.VerticalAxis.Minimum;
