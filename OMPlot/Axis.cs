@@ -16,7 +16,7 @@ namespace OMPlot
         Pen pen;
         Color color;
 
-        RectangleExtended drawnRectangle;
+        RectangleF drawnRectangle;
 
         private SizeF titleSize;
         private double res;
@@ -249,7 +249,7 @@ namespace OMPlot
             return ret;
         }
 
-        public bool ActionOnAxis(float x, float y) { return drawnRectangle.InRectangle(x, y); }
+        public bool ActionOnAxis(float x, float y) { return drawnRectangle.Contains(x, y); }
         public void Move(float length)
         {
             if (!MoveLocked)
@@ -587,16 +587,16 @@ namespace OMPlot
 
             TitleSizeCalculation(g);
         }
-        internal void DrawVertical(Graphics g, float x, float y, RectangleExtended rect)
+        internal void DrawVertical(Graphics g, float x, float y, RectangleF rect)
         {
-            drawnRectangle = new RectangleExtended(x, y, 0, rect.Height);
+            drawnRectangle = new RectangleF(x, y, 0, rect.Height);
 
             if (TicksLabelsPosition == LabelsPosition.Near)
-                drawnRectangle.Left -= SizeNear;
+                drawnRectangle.SetLeft(drawnRectangle.Left - SizeNear);
             else if (TicksLabelsPosition == LabelsPosition.Far)
-                drawnRectangle.Right += SizeFar;
+                drawnRectangle.SetRight(drawnRectangle.Right + SizeFar);
             else
-                drawnRectangle.FullScaleX = 10;
+                drawnRectangle.Width = 10;
 
             StringFormat stringFormat = new StringFormat();
             int rotationSign = 1;
@@ -760,16 +760,16 @@ namespace OMPlot
             }
             //end of Vertical drawing
         }
-        internal void DrawHorizontal(Graphics g, float x, float y, RectangleExtended rect)
+        internal void DrawHorizontal(Graphics g, float x, float y, RectangleF rect)
         {
-            drawnRectangle = new RectangleExtended(x, y, rect.Width, 0);
+            drawnRectangle = new RectangleF(x, y, rect.Width, 0);
 
             if (TicksLabelsPosition == LabelsPosition.Far)
-                drawnRectangle.Bottom += SizeFar;
+                drawnRectangle.SetBottom(drawnRectangle.Bottom + SizeFar);
             else if (TicksLabelsPosition == LabelsPosition.Near)
-                drawnRectangle.Top -= SizeNear;
+                drawnRectangle.SetTop(drawnRectangle.Top - SizeNear);
             else
-                drawnRectangle.FullScaleY = 10;
+                drawnRectangle.Height = 10;
 
             StringFormat stringFormat = new StringFormat();
             stringFormat.Alignment = (StringAlignment)TicksLabelsAlignment;

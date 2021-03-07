@@ -33,7 +33,7 @@ namespace OMPlot
         LineStyle[] defaultLineStyle = ((LineStyle[])Enum.GetValues(typeof(LineStyle))).Where(e => e != LineStyle.None).ToArray();
         MarkerStyle[] defaultMarkerStyle = ((MarkerStyle[])Enum.GetValues(typeof(MarkerStyle))).Where(e => e != MarkerStyle.None).ToArray();
 
-        RectangleExtended plotRectangle;
+        RectangleF plotRectangle;
 
         List<IData> Data;
         Dictionary<string, Axis> Vertical;
@@ -157,19 +157,19 @@ namespace OMPlot
             if (e.Delta != 0)
             {
                 float zoom = e.Delta > 0 ? (100 / (float)e.Delta) : ((float)e.Delta / -100);
-                if (plotRectangle.InRectangle(e.X, e.Y))
+                if (plotRectangle.Contains(e.X, e.Y))
                 {
                     foreach (var axis in Horizontal)
-                        axis.Value.Zoom(zoom, e.X - plotRectangle.CenterX);
+                        axis.Value.Zoom(zoom, e.X - plotRectangle.GetCenterX());
                     foreach (var axis in Vertical)
-                        axis.Value.Zoom(zoom, e.Y - plotRectangle.CenterY);
+                        axis.Value.Zoom(zoom, e.Y - plotRectangle.GetCenterY());
                 }
                 else
                 {
                     foreach (var axis in Horizontal.Where(axis => axis.Value.ActionOnAxis(e.X, e.Y)))
-                        axis.Value.Zoom(zoom, e.X - plotRectangle.CenterX);
+                        axis.Value.Zoom(zoom, e.X - plotRectangle.GetCenterX());
                     foreach (var axis in Vertical.Where(axis => axis.Value.ActionOnAxis(e.X, e.Y)))
-                        axis.Value.Zoom(zoom, e.Y - plotRectangle.CenterY);
+                        axis.Value.Zoom(zoom, e.Y - plotRectangle.GetCenterY());
                 }
                 this.Refresh();
             }
@@ -178,7 +178,7 @@ namespace OMPlot
         {
             if (e.Button == MouseButtons.Right || e.Button == MouseButtons.Middle)
             {
-                if (plotRectangle.InRectangle(e.X, e.Y))
+                if (plotRectangle.Contains(e.X, e.Y))
                 {
                     selectedHorizontalAxis = Horizontal.Select(axis => axis.Value).ToList();
                     selectedVerticalAxis = Vertical.Select(axis => axis.Value).ToList();
@@ -191,7 +191,7 @@ namespace OMPlot
                 mouseX = e.X;
                 mouseY = e.Y;
             }
-            if (plotRectangle.InRectangle(e.X, e.Y))
+            if (plotRectangle.Contains(e.X, e.Y))
             {
                 foreach (var data in Data)
                     if (data.OnMouseDown(e))
@@ -216,7 +216,7 @@ namespace OMPlot
                 currentmouseY = e.Y;
                 this.Refresh();
             }
-            if (plotRectangle.InRectangle(e.X, e.Y))
+            if (plotRectangle.Contains(e.X, e.Y))
             {
                 foreach (var data in Data)
                     if (data.OnMouseMove(e))
@@ -237,7 +237,7 @@ namespace OMPlot
                 currentmouseY = -1;
                 this.Refresh();
             }
-            if (plotRectangle.InRectangle(e.X, e.Y))
+            if (plotRectangle.Contains(e.X, e.Y))
             {
                 foreach (var data in Data)
                     if (data.OnMouseUp(e))
@@ -246,7 +246,7 @@ namespace OMPlot
         }
         private void Plot_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            if (plotRectangle.InRectangle(e.X, e.Y))
+            if (plotRectangle.Contains(e.X, e.Y))
             {
                 foreach (var data in Data)
                     if (data.OnMouseDoubleClick(e))
@@ -261,7 +261,7 @@ namespace OMPlot
         }
         private void Plot_MouseClick(object sender, MouseEventArgs e)
         {
-            if (plotRectangle.InRectangle(e.X, e.Y))
+            if (plotRectangle.Contains(e.X, e.Y))
             {
                 foreach(var data in Data)
                     if (data.OnMouseClick(e))
@@ -285,13 +285,13 @@ namespace OMPlot
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
             g.Clear(this.BackColor);
 
-            var paddingRectangle = new RectangleExtended(6, 6, this.Width - 13, this.Height - 13);
+            var paddingRectangle = new RectangleF(6, 6, this.Width - 13, this.Height - 13);
             plotRectangle = paddingRectangle;
 
             var titleSize = new SizeF(0, 0);
             if (!string.IsNullOrEmpty(Title))
                 titleSize = g.MeasureString(Title, titleFont);
-            plotRectangle.Top += titleSize.Height;
+            plotRectangle.SetTop(plotRectangle.Top + titleSize.Height);
 
             var legendRectangles = new RectangleF[Data.Count];
             var legendRectangle = new RectangleF();
@@ -342,13 +342,13 @@ namespace OMPlot
                 legendRectangle.Y = LegendPosition == LegendPosition.Bottom ? paddingRectangle.Bottom - legendRectangle.Height : paddingRectangle.Top + titleSize.Height;
 
                 if (LegendPosition == LegendPosition.Top)
-                    plotRectangle.Top += legendRectangle.Height;
+                    plotRectangle.SetTop(plotRectangle.Top + legendRectangle.Height);
                 else if (LegendPosition == LegendPosition.Bottom)
-                    plotRectangle.Bottom -= legendRectangle.Height;
+                    plotRectangle.SetBottom(plotRectangle.Bottom - legendRectangle.Height);
                 else if (LegendPosition == LegendPosition.Left)
-                    plotRectangle.Left += legendRectangle.Width;
+                    plotRectangle.SetLeft(plotRectangle.Left + legendRectangle.Width);
                 else
-                    plotRectangle.Right -= legendRectangle.Width;
+                    plotRectangle.SetRight(plotRectangle.Right - legendRectangle.Width);
             }
 
             foreach (var axis in Vertical)
@@ -357,9 +357,9 @@ namespace OMPlot
                 axis.Value.CalculateTranformVertical(plotRectangle.Top, plotRectangle.Bottom); //preliminary calculation
                 axis.Value.MeasureVertical(g);
                 if (axis.Value.Position == AxisPosition.Near || axis.Value.Position == AxisPosition.CrossValue)
-                    plotRectangle.Left += axis.Value.SizeNear;
+                    plotRectangle.SetLeft(plotRectangle.Left + axis.Value.SizeNear);
                 if (axis.Value.Position == AxisPosition.Far || axis.Value.Position == AxisPosition.CrossValue)
-                    plotRectangle.Right -= axis.Value.SizeFar;
+                    plotRectangle.SetRight(plotRectangle.Right - axis.Value.SizeFar);
             }
             foreach (var axis in Horizontal)
             {
@@ -367,20 +367,20 @@ namespace OMPlot
                 axis.Value.CalculateTranformHorizontal(plotRectangle.Left, plotRectangle.Right); //preliminary calculation
                 axis.Value.MeasureHorizontal(g);
                 if (axis.Value.Position == AxisPosition.Near || axis.Value.Position == AxisPosition.CrossValue)
-                    plotRectangle.Top += axis.Value.SizeNear;
+                    plotRectangle.SetTop(plotRectangle.Top + axis.Value.SizeNear);
                 if (axis.Value.Position == AxisPosition.Far || axis.Value.Position == AxisPosition.CrossValue)
-                    plotRectangle.Bottom -= axis.Value.SizeFar;
+                    plotRectangle.SetBottom(plotRectangle.Bottom - axis.Value.SizeFar);
             }
 
             foreach (var axis in Vertical)
             {
-                plotRectangle.Top = plotRectangle.Top > axis.Value.OverflowNear ? plotRectangle.Top : axis.Value.OverflowNear;
-                plotRectangle.Bottom = (this.Height - plotRectangle.Bottom) > axis.Value.OverflowFar ? plotRectangle.Bottom : (this.Height - axis.Value.OverflowFar);
+                plotRectangle.SetTop(plotRectangle.Top > axis.Value.OverflowNear ? plotRectangle.Top : axis.Value.OverflowNear);
+                plotRectangle.SetBottom((this.Height - plotRectangle.Bottom) > axis.Value.OverflowFar ? plotRectangle.Bottom : (this.Height - axis.Value.OverflowFar));
             }
             foreach (var axis in Horizontal)
             {
-                plotRectangle.Left = plotRectangle.Left > axis.Value.OverflowNear ? plotRectangle.Left : axis.Value.OverflowNear;
-                plotRectangle.Right = (this.Width - plotRectangle.Right) > axis.Value.OverflowFar ? plotRectangle.Right : (this.Width - axis.Value.OverflowFar);
+                plotRectangle.SetLeft(plotRectangle.Left > axis.Value.OverflowNear ? plotRectangle.Left : axis.Value.OverflowNear);
+                plotRectangle.SetRight((this.Width - plotRectangle.Right) > axis.Value.OverflowFar ? plotRectangle.Right : (this.Width - axis.Value.OverflowFar));
             }
 
             if (LegendStyle == LegendStyle.Inside && Data.Any())
@@ -444,23 +444,23 @@ namespace OMPlot
                 {
                     if (LegendPosition == LegendPosition.Top)
                     {
-                        legendRectangle.X = plotRectangle.CenterX - legendRectangle.Width / 2f;
+                        legendRectangle.X = plotRectangle.GetCenterX() - legendRectangle.Width / 2f;
                         legendRectangle.Y = plotRectangle.Top + 5;
                     }
                     else if (LegendPosition == LegendPosition.Bottom)
                     {
-                        legendRectangle.X = plotRectangle.CenterX - legendRectangle.Width / 2f;
+                        legendRectangle.X = plotRectangle.GetCenterX() - legendRectangle.Width / 2f;
                         legendRectangle.Y = plotRectangle.Bottom - legendRectangle.Height - 5;
                     }
                     else if (LegendPosition == LegendPosition.Left)
                     {
                         legendRectangle.X = plotRectangle.Left + 5;
-                        legendRectangle.Y = plotRectangle.CenterY - legendRectangle.Height / 2f;
+                        legendRectangle.Y = plotRectangle.GetCenterY() - legendRectangle.Height / 2f;
                     }
                     else
                     {
                         legendRectangle.X = plotRectangle.Right - legendRectangle.Width - 5;
-                        legendRectangle.Y = plotRectangle.CenterY - legendRectangle.Height / 2f;
+                        legendRectangle.Y = plotRectangle.GetCenterY() - legendRectangle.Height / 2f;
                     }
                 }
             }
@@ -546,7 +546,7 @@ namespace OMPlot
                             break;
                         }
                     case AxisPosition.Center:
-                        axis.Value.DrawVertical(g, plotRectangle.CenterX, plotRectangle.Top, plotRectangle);
+                        axis.Value.DrawVertical(g, plotRectangle.GetCenterX(), plotRectangle.Top, plotRectangle);
                         break;
                     case AxisPosition.CrossValue:
                         {
@@ -596,7 +596,7 @@ namespace OMPlot
                             break;
                         }
                     case AxisPosition.Center:
-                        axis.Value.DrawHorizontal(g, plotRectangle.Left, plotRectangle.CenterY, plotRectangle);
+                        axis.Value.DrawHorizontal(g, plotRectangle.Left, plotRectangle.GetCenterY(), plotRectangle);
                         break;
                     case AxisPosition.CrossValue:
                         {

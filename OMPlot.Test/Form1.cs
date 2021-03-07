@@ -46,7 +46,7 @@ namespace OMPlot.Test
             double[] sinX0 = new double[20];
             double[] sinY0 = new double[sinX0.Length];
 
-            double[] sinX = new double[200000];
+            double[] sinX = new double[100000];
             double[] sinY1 = new double[sinX.Length];
             double[] sinY2 = new double[sinX.Length];
             double[] sinY3 = new double[sinX.Length];
@@ -132,10 +132,7 @@ namespace OMPlot.Test
 
             //var dp1 = plot1.Add(dict1, "Dict0");
             //plot1.Add(dict2, "Dict1");
-
-            pl1.LineWidth = 2;
-            pl2.LineWidth = 2;
-            
+                        
 
             plot1.LegendStyle = LegendStyle.Inside;
             plot1.Autoscale();

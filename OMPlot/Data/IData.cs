@@ -18,8 +18,8 @@ namespace OMPlot.Data
 
         string Name { get; set; }
         PlotMouseEventStruct DistanceToPoint(double ScreenX, double ScreenY);
-        void CalculateGraphics(RectangleExtended plotRectangle);
-        void Draw(Graphics g, RectangleExtended plotRectangle);
+        void CalculateGraphics(RectangleF plotRectangle);
+        void Draw(Graphics g, RectangleF plotRectangle);
         void DrawLegend(Graphics g, RectangleF rect);
     }
 }

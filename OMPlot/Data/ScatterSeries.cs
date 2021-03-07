@@ -573,7 +573,7 @@ namespace OMPlot.Data
             }
             return pointList.ToArray();
         }
-        void IData.CalculateGraphics(RectangleExtended plotRectangle)
+        void IData.CalculateGraphics(RectangleF plotRectangle)
         {
             points = CalculatePoints();
             GraphicsPath = new GraphicsPath();
@@ -707,7 +707,7 @@ namespace OMPlot.Data
                 }
             }
         }
-        void IData.Draw(Graphics g, RectangleExtended plotRectangle)
+        void IData.Draw(Graphics g, RectangleF plotRectangle)
         {
             if (points.Length > 1)
             {
