@@ -153,24 +153,27 @@ namespace OMPlot
 
         private void Plot_MouseWheel(object sender, MouseEventArgs e)
         {
-            float zoom = 100 / (float)e.Delta;
-            if (zoom < 0)
-                zoom = -1 / zoom;
-            if (plotRectangle.InRectangle(e.X, e.Y))
+            if (e.Delta != 0)
             {
-                foreach (var axis in Horizontal)
-                    axis.Value.Zoom(zoom, e.X - plotRectangle.CenterX);
-                foreach (var axis in Vertical)
-                    axis.Value.Zoom(zoom, e.Y - plotRectangle.CenterY);
+                float zoom = 100 / (float)e.Delta;
+                if (zoom < 0)
+                    zoom = -1 / zoom;
+                if (plotRectangle.InRectangle(e.X, e.Y))
+                {
+                    foreach (var axis in Horizontal)
+                        axis.Value.Zoom(zoom, e.X - plotRectangle.CenterX);
+                    foreach (var axis in Vertical)
+                        axis.Value.Zoom(zoom, e.Y - plotRectangle.CenterY);
+                }
+                else
+                {
+                    foreach (var axis in Horizontal.Where(axis => axis.Value.ActionOnAxis(e.X, e.Y)))
+                        axis.Value.Zoom(zoom, e.X - plotRectangle.CenterX);
+                    foreach (var axis in Vertical.Where(axis => axis.Value.ActionOnAxis(e.X, e.Y)))
+                        axis.Value.Zoom(zoom, e.Y - plotRectangle.CenterY);
+                }
+                this.Refresh();
             }
-            else
-            {
-                foreach (var axis in Horizontal.Where(axis => axis.Value.ActionOnAxis(e.X, e.Y)))
-                    axis.Value.Zoom(zoom, e.X - plotRectangle.CenterX);
-                foreach (var axis in Vertical.Where(axis => axis.Value.ActionOnAxis(e.X, e.Y)))
-                    axis.Value.Zoom(zoom, e.Y - plotRectangle.CenterY);
-            }
-            this.Refresh();
         }
         private void Plot_MouseDown(object sender, MouseEventArgs e)
         {

@@ -82,6 +82,8 @@ namespace OMPlot.Data
             int start = 0;
             if (minX < HorizontalAxis.Minimum)
                 start = (int)Math.Floor((HorizontalAxis.Minimum - minX) / dX);
+            if (start >= Y.Length)
+                start = Y.Length - 1;
             List<PointF> pointList = new List<PointF>();
             double prevX = HorizontalAxis.Transform(X0 + start * dX);
             double prevY = VerticalAxis.Transform(Y[start]);
