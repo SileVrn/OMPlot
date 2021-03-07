@@ -23,8 +23,7 @@ namespace OMPlot
         int currentmouseX = -1;
         int currentmouseY = -1;
 
-        bool selectHorizontal, selectVertical;
-        string selectedAxisName;
+        List<Axis> selectedVerticalAxis, selectedHorizontalAxis;
 
         Pen selectionPen, mainPen;
         Brush selectionBrush, legendBoxBrush, backgroungBrush, mainBrush;
@@ -77,6 +76,8 @@ namespace OMPlot
             Data = new List<IData>();
             Vertical = new Dictionary<string, Axis>();
             Horizontal = new Dictionary<string, Axis>();
+            selectedHorizontalAxis = new List<Axis>();
+            selectedVerticalAxis = new List<Axis>();
             this.MouseWheel += Plot_MouseWheel;
 
             Axis xAxis = new Axis();
@@ -155,9 +156,7 @@ namespace OMPlot
         {
             if (e.Delta != 0)
             {
-                float zoom = 100 / (float)e.Delta;
-                if (zoom < 0)
-                    zoom = -1 / zoom;
+                float zoom = e.Delta > 0 ? (100 / (float)e.Delta) : ((float)e.Delta / -100);
                 if (plotRectangle.InRectangle(e.X, e.Y))
                 {
                     foreach (var axis in Horizontal)
@@ -179,23 +178,15 @@ namespace OMPlot
         {
             if (e.Button == MouseButtons.Right || e.Button == MouseButtons.Middle)
             {
-                selectHorizontal = false;
-                selectVertical = false;
                 if (plotRectangle.InRectangle(e.X, e.Y))
                 {
-                    selectHorizontal = true;
-                    selectVertical = true;
+                    selectedHorizontalAxis = Horizontal.Select(axis => axis.Value).ToList();
+                    selectedVerticalAxis = Vertical.Select(axis => axis.Value).ToList();
                 }
                 else
                 {
-                    var axisSelected = Horizontal.Where(axis => axis.Value.ActionOnAxis(e.X, e.Y));
-                    selectHorizontal = axisSelected.Any();
-                    if (selectHorizontal)
-                        selectedAxisName = axisSelected.First().Key;
-                    axisSelected = Vertical.Where(axis => axis.Value.ActionOnAxis(e.X, e.Y));
-                    selectVertical = axisSelected.Any();
-                    if (selectVertical)
-                        selectedAxisName = axisSelected.First().Key;
+                    selectedHorizontalAxis = Horizontal.Where(axis => axis.Value.ActionOnAxis(e.X, e.Y)).Select(axis => axis.Value).ToList();
+                    selectedVerticalAxis = Vertical.Where(axis => axis.Value.ActionOnAxis(e.X, e.Y)).Select(axis => axis.Value).ToList();
                 }
                 mouseX = e.X;
                 mouseY = e.Y;
@@ -211,28 +202,10 @@ namespace OMPlot
         {
             if (e.Button == MouseButtons.Right)
             {
-                if (selectHorizontal && selectVertical)
-                {
-                    foreach (var axis in Horizontal)
-                        axis.Value.Move(mouseX - e.X);
-                    foreach (var axis in Vertical)
-                        axis.Value.Move(mouseY - e.Y);
-                }
-                else
-                {
-                    if (selectHorizontal)
-                    {
-                        var axis = GetHorizontalAxis(selectedAxisName);
-                        if (axis != null)
-                            axis.Move(mouseX - e.X);
-                    }
-                    if (selectVertical)
-                    {
-                        var axis = GetVerticalAxis(selectedAxisName);
-                        if (axis != null)
-                            axis.Move(mouseY - e.Y);
-                    }
-                }
+                foreach(var axis in selectedHorizontalAxis)
+                    axis.Move(mouseX - e.X);
+                foreach (var axis in selectedVerticalAxis)
+                    axis.Move(mouseY - e.Y);
                 mouseX = e.X;
                 mouseY = e.Y;
                 this.Refresh();
@@ -254,28 +227,12 @@ namespace OMPlot
         {
             if (e.Button == MouseButtons.Middle)
             {
-                if (selectHorizontal && selectVertical)
-                {
-                    foreach (var axis in Horizontal)
-                        axis.Value.Select((int)Math.Min(mouseX, currentmouseX), (int)Math.Max(mouseX, currentmouseX));
-                    foreach (var axis in Vertical)
-                        axis.Value.Select((int)Math.Max(mouseY, currentmouseY), (int)Math.Min(mouseY, currentmouseY));
-                }
-                else
-                {
-                    if (selectHorizontal)
-                    {
-                        var axis = GetHorizontalAxis(selectedAxisName);
-                        if (axis != null)
-                            axis.Select((int)Math.Min(mouseX, currentmouseX), (int)Math.Max(mouseX, currentmouseX));
-                    }
-                    if (selectVertical)
-                    {
-                        var axis = GetVerticalAxis(selectedAxisName);
-                        if (axis != null)
-                            axis.Select((int)Math.Max(mouseY, currentmouseY), (int)Math.Min(mouseY, currentmouseY));
-                    }
-                }
+                foreach (var axis in selectedHorizontalAxis)
+                    axis.Select((int)Math.Min(mouseX, currentmouseX), (int)Math.Max(mouseX, currentmouseX));
+                foreach (var axis in selectedVerticalAxis)
+                    axis.Select((int)Math.Max(mouseY, currentmouseY), (int)Math.Min(mouseY, currentmouseY));
+                selectedHorizontalAxis.Clear();
+                selectedVerticalAxis.Clear();
                 currentmouseX = -1;
                 currentmouseY = -1;
                 this.Refresh();
@@ -680,14 +637,14 @@ namespace OMPlot
                 }
             }
 
-            if (currentmouseX >= 0 && currentmouseY >= 0 && (selectVertical || selectHorizontal))
+            if (currentmouseX >= 0 && currentmouseY >= 0 && (selectedVerticalAxis.Any() || selectedHorizontalAxis.Any()))
             {
                 Rectangle selectionRec = new Rectangle();
-                if (selectVertical && selectHorizontal)
+                if (selectedVerticalAxis.Any() && selectedHorizontalAxis.Any())
                     selectionRec = new Rectangle(Math.Min(mouseX, currentmouseX), Math.Min(mouseY, currentmouseY), Math.Abs(mouseX - currentmouseX), Math.Abs(mouseY - currentmouseY));
-                else if (selectVertical)
+                else if (selectedVerticalAxis.Any())
                     selectionRec = new Rectangle((int)plotRectangle.Left, Math.Min(mouseY, currentmouseY), (int)plotRectangle.Width, Math.Abs(mouseY - currentmouseY));
-                else if (selectHorizontal)
+                else if (selectedHorizontalAxis.Any())
                     selectionRec = new Rectangle(Math.Min(mouseX, currentmouseX), (int)plotRectangle.Top, Math.Abs(mouseX - currentmouseX), (int)plotRectangle.Height);
                 g.DrawRectangle(selectionPen, selectionRec);
                 g.FillRectangle(selectionBrush, selectionRec);
