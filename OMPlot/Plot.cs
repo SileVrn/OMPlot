@@ -58,13 +58,7 @@ namespace OMPlot
         /// Alignment of legend box.
         /// </summary>
         public LegendAlignment LegendAlignment { get; set; }
-
-        public event PlotMouseEvent PlotClick;
-        public event PlotMouseEvent PlotDoubleClick;
-        public event PlotMouseEvent PlotMouseUp;
-        public event PlotMouseEvent PlotMouseDown;
-        public event PlotMouseEvent PlotMouseMove;
-
+                
         /// <summary>
         /// Initializes a new instance of the <see cref = "OMPlot.Plot" /> class.
         /// </summary>
@@ -203,13 +197,11 @@ namespace OMPlot
                 mouseX = e.X;
                 mouseY = e.Y;
             }
-            if (PlotMouseDown != null && plotRectangle.InRectangle(e.X, e.Y))
+            if (plotRectangle.InRectangle(e.X, e.Y))
             {
-                var plotPoint = CalculateMinDistance(e.X, e.Y);
-                if (plotPoint.Item1 >= 0)
-                    PlotMouseDown(this, new PlotMouseEventArgs(e, Data[plotPoint.Item1], plotPoint.Item2.Point));
-                else
-                    PlotMouseDown(this, new PlotMouseEventArgs(e));
+                foreach (var data in Data)
+                    if (data.OnMouseDown(e))
+                        break;
             }
         }
         private void Plot_MouseMove(object sender, MouseEventArgs e)
@@ -248,13 +240,11 @@ namespace OMPlot
                 currentmouseY = e.Y;
                 this.Refresh();
             }
-            if (PlotMouseMove != null && plotRectangle.InRectangle(e.X, e.Y))
+            if (plotRectangle.InRectangle(e.X, e.Y))
             {
-                var plotPoint = CalculateMinDistance(e.X, e.Y);
-                if (plotPoint.Item1 >= 0)
-                    PlotMouseMove(this, new PlotMouseEventArgs(e, Data[plotPoint.Item1], plotPoint.Item2.Point));
-                else
-                    PlotMouseMove(this, new PlotMouseEventArgs(e));
+                foreach (var data in Data)
+                    if (data.OnMouseMove(e))
+                        break;
             }
         }
         private void Plot_MouseUp(object sender, MouseEventArgs e)
@@ -287,24 +277,20 @@ namespace OMPlot
                 currentmouseY = -1;
                 this.Refresh();
             }
-            if (PlotMouseUp != null && plotRectangle.InRectangle(e.X, e.Y))
+            if (plotRectangle.InRectangle(e.X, e.Y))
             {
-                var plotPoint = CalculateMinDistance(e.X, e.Y);
-                if (plotPoint.Item1 >= 0)
-                    PlotMouseUp(this, new PlotMouseEventArgs(e, Data[plotPoint.Item1], plotPoint.Item2.Point));
-                else
-                    PlotMouseUp(this, new PlotMouseEventArgs(e));
+                foreach (var data in Data)
+                    if (data.OnMouseUp(e))
+                        break;
             }
         }
         private void Plot_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            if (PlotDoubleClick != null && plotRectangle.InRectangle(e.X, e.Y))
+            if (plotRectangle.InRectangle(e.X, e.Y))
             {
-                var plotPoint = CalculateMinDistance(e.X, e.Y);
-                if (plotPoint.Item1 >= 0)
-                    PlotDoubleClick(this, new PlotMouseEventArgs(e, Data[plotPoint.Item1], plotPoint.Item2.Point));
-                else
-                    PlotDoubleClick(this, new PlotMouseEventArgs(e));
+                foreach (var data in Data)
+                    if (data.OnMouseDoubleClick(e))
+                        break;
             }
         }
         private void Plot_MouseCaptureChanged(object sender, EventArgs e)
@@ -315,13 +301,11 @@ namespace OMPlot
         }
         private void Plot_MouseClick(object sender, MouseEventArgs e)
         {
-            if (PlotClick != null && plotRectangle.InRectangle(e.X, e.Y))
+            if (plotRectangle.InRectangle(e.X, e.Y))
             {
-                var plotPoint = CalculateMinDistance(e.X, e.Y);
-                if (plotPoint.Item1 >= 0)
-                    PlotClick(this, new PlotMouseEventArgs(e, Data[plotPoint.Item1], plotPoint.Item2.Point));
-                else
-                    PlotClick(this, new PlotMouseEventArgs(e));
+                foreach(var data in Data)
+                    if (data.OnMouseClick(e))
+                        break;
             }
         }
         private void Plot_Paint(object sender, PaintEventArgs e)
@@ -332,7 +316,7 @@ namespace OMPlot
         {
             this.Refresh();
         }
-        public void ControlPaint(Graphics g)
+        private void ControlPaint(Graphics g)
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -746,32 +730,6 @@ namespace OMPlot
             Graphics g = Graphics.FromImage(img);
             ControlPaint(g);
             return img;
-        }
-
-        private Tuple<int, PointDistance> CalculateMinDistance(int X, int Y)
-        {
-            //Stopwatch sw = new Stopwatch();
-            //sw.Start();
-            var dist = Data.AsParallel().Select((data, i) => new { Index = i, PointDistance = data.DistanceToPoint(X, Y) }).ToArray();
-
-            double mindistance = Height * Height + Width * Width;
-            int index = -1;
-            PointDistance pd = new PointDistance();
-            for (int i = 0; i < dist.Length; i++)
-            {
-                if (dist[i].PointDistance.Distance < mindistance)
-                {
-                    mindistance = dist[i].PointDistance.Distance;
-                    pd = dist[i].PointDistance;
-                    index = dist[i].Index;
-                    //test0 = new PointF(e.X, e.Y);
-                    //test1 = dist[i].Distance.Point;
-                }
-            }
-            //sw.Stop();
-            //time = sw.ElapsedMilliseconds;
-            //this.Refresh();
-            return new Tuple<int, PointDistance>(index, pd);
         }
 
         public void Autoscale()

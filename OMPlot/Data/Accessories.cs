@@ -281,19 +281,5 @@ namespace OMPlot.Data
         None,
         Vertical,
         Horisontal
-    }
-    /// <summary>
-    /// Represents a structure containing a distance and a point.
-    /// </summary>
-    public struct PointDistance
-    {
-        /// <summary>
-        /// Point.
-        /// </summary>
-        public PointF Point;
-        /// <summary>
-        /// Distance to <see cref="PointDistance.Point"./>.
-        /// </summary>
-        public double Distance;
-    }
+    }    
 }

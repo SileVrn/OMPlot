@@ -15,6 +15,12 @@ namespace OMPlot.Data
         double[] Y;
         double dX, X0;
 
+        public override double GetX(int index) { return dX * index + X0; }
+        public override double GetY(int index) { return Y[index]; }
+
+        public override void SetX(int index, double value) {  }
+        public override void SetY(int index, double value) { Y[index] = value; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref = "LineSeries" /> class.
         /// </summary>
@@ -53,8 +59,24 @@ namespace OMPlot.Data
                     maxYPre = Y[i];
             }
         }
-        protected override PointF[] CalculatePoints()
+        internal override int NearestPointIndex(double x, double y)
         {
+            double minDistance = double.MaxValue;
+            double distance;
+            int index = -1;
+            for (int i = 0; i < Y.Length; i++)
+            {
+                distance = (dX * i + X0 - x) * (dX * i + X0 - x) + (Y[i] - y) * (Y[i] - y);
+                if (minDistance > distance)
+                {
+                    index = i;
+                    minDistance = distance;
+                }
+            }           
+            return index;
+        }
+        protected override PointF[] CalculatePoints()
+        {            
             double maxX = HorizontalAxis.Transform(HorizontalAxis.Maximum);
             double DX = HorizontalAxis.Transform(HorizontalAxis.Minimum + dX) - HorizontalAxis.Transform(HorizontalAxis.Minimum);
             int start = 0;

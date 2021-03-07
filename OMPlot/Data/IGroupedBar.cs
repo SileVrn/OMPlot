@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OMPlot.Data
 {
-    internal interface IGroupedBar
+    public interface IGroupedBar
     {
         /// <summary>
         /// Visual style of bars.

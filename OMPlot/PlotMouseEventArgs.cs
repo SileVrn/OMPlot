@@ -13,29 +13,43 @@ namespace OMPlot
     /// </summary>
     public class PlotMouseEventArgs : MouseEventArgs
     {
-        /// <summary>
-        /// Nearest point of the <see cref="PlotMouseEventArgs.Plot"/>. Can be interplolated point.
-        /// </summary>
-        public PointF PlotPoint { get; }
-        /// <summary>
-        /// Instance of the plot on which the event occurred.
-        /// </summary>
-        public Data.IData Plot { get; }
-        /// <summary>
-        /// True if event occurred on a plot.
-        /// </summary>
-        public bool ClickOnPlot { get; }
-        
-        internal PlotMouseEventArgs(MouseEventArgs e, Data.IData plot, PointF plotPoint) : base(e.Button, e.Clicks, e.X, e.Y, e.Delta)
-        {
-            ClickOnPlot = true;
-            Plot = plot;
-            PlotPoint = plotPoint;
-        }
+        public double ScaledX;
+        public double ScaledY;
 
-        internal PlotMouseEventArgs(MouseEventArgs e) : base(e.Button, e.Clicks, e.X, e.Y, e.Delta)
+        public double InterpolatedX;
+        public double InterpolatedY;
+
+        public double DistanceToNearest;
+
+        public int NearestIndex;
+        
+        internal PlotMouseEventArgs(MouseEventArgs e, PlotMouseEventStruct data) : base(e.Button, e.Clicks, e.X, e.Y, e.Delta)
         {
-            ClickOnPlot = false;
+            ScaledX = data.ScaledX;
+            ScaledY = data.ScaledY;
+
+            InterpolatedX = data.InterpolatedX;
+            InterpolatedY = data.InterpolatedY;
+
+            DistanceToNearest = data.DistanceToNearest;
+
+            NearestIndex = data.NearestIndex;
+            DistanceToNearest = data.DistanceToNearest;
         }
+    }
+
+    public struct PlotMouseEventStruct
+    {
+        public double ScreenDistance;
+
+        public double ScaledX;
+        public double ScaledY;
+
+        public double InterpolatedX;
+        public double InterpolatedY;
+
+        public double DistanceToNearest;
+
+        public int NearestIndex;
     }
 }

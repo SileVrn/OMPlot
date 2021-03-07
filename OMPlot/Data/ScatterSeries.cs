@@ -15,10 +15,37 @@ namespace OMPlot.Data
     {        
         double[] X, Y;
 
+        public virtual double GetX(int index) { return X[index]; }
+        public virtual double GetY(int index) { return Y[index]; }
+
+        public virtual void SetX(int index, double value) { X[index] = value; }
+        public virtual void SetY(int index, double value) { Y[index] = value; }
+
         protected PointF[] points;
         protected PointF[] flatten;
         protected PointF[] flattenFill;
         protected RectangleF[] bars;
+
+        /// <summary>
+        /// Occurs when the plot is clicked.
+        /// </summary>
+        public event PlotMouseEvent MouseClick;
+        /// <summary>
+        /// Occurs when the plot is double-clicked.
+        /// </summary>
+        public event PlotMouseEvent MouseDoubleClick;
+        /// <summary>
+        /// Occurs when the mouse button is released on the plot.
+        /// </summary>
+        public event PlotMouseEvent MouseUp;
+        /// <summary>
+        /// Occurs when a mouse button is pressed down on the plot.
+        /// </summary>
+        public event PlotMouseEvent MouseDown;
+        /// <summary>
+        /// Occurs when the mouse is moved on the plot.
+        /// </summary>
+        public event PlotMouseEvent MouseMove;
 
         /// <summary>
         /// Interpolation method for a graph line.
@@ -91,11 +118,11 @@ namespace OMPlot.Data
         /// <summary>
         /// Index of current graph`s bars in group.
         /// </summary>
-        public int BarIndex { get; set; }
+        int IGroupedBar.BarIndex { get; set; }
         /// <summary>
         /// Number of graph in group.
         /// </summary>
-        public int BarCount { get; set; }
+        int IGroupedBar.BarCount { get; set; }
 
         /// <summary>
         /// Name of a graph
@@ -255,20 +282,24 @@ namespace OMPlot.Data
         /// <summary>
         /// Calculate distance from screen point to graph.
         /// </summary>
-        /// <param name="x">Screen point x.</param>
-        /// <param name="y">Screen point y.</param>
-        /// <returns>Instance of <see cref = "PointDistance" /> struct.</returns>
-        public PointDistance DistanceToPoint(double x, double y)
+        /// <param name="ScreenX">Screen point x.</param>
+        /// <param name="ScreenY">Screen point y.</param>
+        /// <returns>Instance of <see cref = "PlotMouseEventStruct" /> struct.</returns>
+        public PlotMouseEventStruct DistanceToPoint(double ScreenX, double ScreenY)
         {
+            var plotMouseEventData = new PlotMouseEventStruct();
+            plotMouseEventData.ScreenDistance = double.MaxValue;
+
             if (LineStyle != LineStyle.None)
             {
                 double minDistance = double.MaxValue;
-                PointF interpolatedPoint = new PointF(float.NaN, float.NaN);
+                float InterpolatedScreenX = 0;
+                float InterpolatedScreenY = 0;
 
                 for (int i = 1; i < flatten.Length; i++)
                 {
-                    double prod1 = (x - flatten[i].X) * (flatten[i - 1].X - flatten[i].X) + (y - flatten[i].Y) * (flatten[i - 1].Y - flatten[i].Y);
-                    double prod2 = (x - flatten[i - 1].X) * (flatten[i].X - flatten[i - 1].X) + (y - flatten[i - 1].Y) * (flatten[i].Y - flatten[i - 1].Y);
+                    double prod1 = (ScreenX - flatten[i].X) * (flatten[i - 1].X - flatten[i].X) + (ScreenY - flatten[i].Y) * (flatten[i - 1].Y - flatten[i].Y);
+                    double prod2 = (ScreenX - flatten[i - 1].X) * (flatten[i].X - flatten[i - 1].X) + (ScreenY - flatten[i - 1].Y) * (flatten[i].Y - flatten[i - 1].Y);
 
                     if (prod1 >= 0 && prod2 >= 0)
                     {
@@ -279,49 +310,81 @@ namespace OMPlot.Data
 
                         if (Math.Abs(B) < float.Epsilon)
                         {
-                            double distance = Math.Abs(A * (flatten[i].X - x)) / Math.Sqrt(d);
+                            double distance = Math.Abs(A * (flatten[i].X - ScreenX)) / Math.Sqrt(d);
                             if (minDistance > distance)
                             {
                                 minDistance = distance;
-                                interpolatedPoint = new PointF(flatten[i].X, (float)y);
+                                InterpolatedScreenX = flatten[i].X;
+                                InterpolatedScreenY = (float)ScreenY;
                             }
                         }
                         else
                         {
-                            double distance = Math.Abs(-B * (flatten[i - 1].Y - y) - A * (flatten[i - 1].X - x)) / Math.Sqrt(d);
+                            double distance = Math.Abs(-B * (flatten[i - 1].Y - ScreenY) - A * (flatten[i - 1].X - ScreenX)) / Math.Sqrt(d);
                             if (minDistance > distance)
                             {
                                 minDistance = distance;
-                                var pointX = (B * B * x - A * B * y - A * C) / d;
-                                interpolatedPoint = new PointF((float)pointX, (float)((-A * pointX - C) / B));
+                                var pointX = (B * B * ScreenX - A * B * ScreenY - A * C) / d;
+                                InterpolatedScreenX = (float)pointX;
+                                InterpolatedScreenY = (float)((-A * pointX - C) / B);
                             }
                         }
                     }
                     else
                     {
-                        double distance1 = flatten[i].Distance(x, y);
-                        double distance2 = flatten[i - 1].Distance(x, y);
+                        double distance1 = flatten[i].Distance(ScreenX, ScreenY);
+                        double distance2 = flatten[i - 1].Distance(ScreenX, ScreenY);
                         if (distance1 > distance2 && minDistance > distance2)
                         {
                             minDistance = distance2;
-                            interpolatedPoint = flatten[i - 1];
+                            InterpolatedScreenX = flatten[i - 1].X;
+                            InterpolatedScreenY = flatten[i - 1].Y;
                         }
                         else if (minDistance > distance1)
                         {
                             minDistance = distance1;
-                            interpolatedPoint = flatten[i];
+                            InterpolatedScreenX = flatten[i].X;
+                            InterpolatedScreenY = flatten[i].Y;
                         }
                     }
                 }
                 if(minDistance < Plot.MouseEventDistance)
-                    return new PointDistance() { Point = interpolatedPoint, Distance = minDistance };
+                {
+                    plotMouseEventData.ScreenDistance = minDistance;
+
+                    plotMouseEventData.ScaledX = HorizontalAxis.TransformBack(ScreenX);
+                    plotMouseEventData.ScaledY = VerticalAxis.TransformBack(ScreenY);
+
+                    plotMouseEventData.InterpolatedX = HorizontalAxis.TransformBack(InterpolatedScreenX);
+                    plotMouseEventData.InterpolatedY = VerticalAxis.TransformBack(InterpolatedScreenY);
+
+                    var nearestPointIndex = NearestPointIndex(plotMouseEventData.InterpolatedX, plotMouseEventData.InterpolatedY);
+                    plotMouseEventData.DistanceToNearest = Math.Sqrt((InterpolatedScreenX - HorizontalAxis.Transform(GetX(nearestPointIndex))) * (InterpolatedScreenX - HorizontalAxis.Transform(GetX(nearestPointIndex))) +
+                        (InterpolatedScreenY - VerticalAxis.Transform(GetY(nearestPointIndex))) * (InterpolatedScreenY - VerticalAxis.Transform(GetY(nearestPointIndex))));
+                    plotMouseEventData.NearestIndex = nearestPointIndex;
+                    return plotMouseEventData;
+                }
             }
             if(BarStyle != BarStyle.None)
             {
                 for(int i = 0; i < bars.Length; i++)
                 {
-                    if(bars[i].Contains((float)x, (float)y))
-                        return new PointDistance() { Point = points[i], Distance = 0 };
+                    if(bars[i].Contains((float)ScreenX, (float)ScreenY))
+                    {
+                        plotMouseEventData.ScreenDistance = 0;
+
+                        plotMouseEventData.ScaledX = HorizontalAxis.TransformBack(ScreenX);
+                        plotMouseEventData.ScaledY = VerticalAxis.TransformBack(ScreenY);
+
+                        plotMouseEventData.InterpolatedX = HorizontalAxis.TransformBack(points[i].X);
+                        plotMouseEventData.InterpolatedY = VerticalAxis.TransformBack(points[i].Y);
+
+                        var nearestPointIndex = NearestPointIndex(plotMouseEventData.InterpolatedX, plotMouseEventData.InterpolatedY);
+                        plotMouseEventData.DistanceToNearest = Math.Sqrt((points[i].X - HorizontalAxis.Transform(GetX(nearestPointIndex))) * (points[i].X - HorizontalAxis.Transform(GetX(nearestPointIndex))) +
+                            (points[i].Y - VerticalAxis.Transform(GetY(nearestPointIndex))) * (points[i].Y - VerticalAxis.Transform(GetY(nearestPointIndex))));
+                        plotMouseEventData.NearestIndex = nearestPointIndex;
+                        return plotMouseEventData;
+                    }
                 }
             }
             if (MarkStyle != MarkerStyle.None)
@@ -332,27 +395,39 @@ namespace OMPlot.Data
 
                 for (int i = 0; i < points.Length; i++)
                 {
-                    distance = points[i].Distance(x, y);
+                    distance = points[i].Distance(ScreenX, ScreenY);
                     if((distance < MarkSize / 2 + Plot.MouseEventDistance) && distance < minDistance)
                     {
                         point = points[i];
                         minDistance = distance;
                     }
                 }
-                return new PointDistance() { Point = point, Distance = minDistance };
+                if (minDistance < MarkSize / 2 + Plot.MouseEventDistance)
+                {
+                    plotMouseEventData.ScreenDistance = 0;
+
+                    plotMouseEventData.ScaledX = HorizontalAxis.TransformBack(ScreenX);
+                    plotMouseEventData.ScaledY = VerticalAxis.TransformBack(ScreenY);
+
+                    var nearestPointIndex = NearestPointIndex(plotMouseEventData.ScaledX, plotMouseEventData.ScaledY);
+                    plotMouseEventData.DistanceToNearest = Math.Sqrt((ScreenX - HorizontalAxis.Transform(GetX(nearestPointIndex))) * (ScreenX - HorizontalAxis.Transform(GetX(nearestPointIndex))) +
+                        (ScreenY - VerticalAxis.Transform(GetY(nearestPointIndex))) * (ScreenY - VerticalAxis.Transform(GetY(nearestPointIndex))));
+                    plotMouseEventData.NearestIndex = nearestPointIndex;
+                    return plotMouseEventData;
+                }
             }
             if(FillStyle != FillStyle.None)
             {
                 double angleSum = 0;
-                double aX = flattenFill[0].X - x;
-                double aY = flattenFill[0].Y - y;
+                double aX = flattenFill[0].X - ScreenX;
+                double aY = flattenFill[0].Y - ScreenY;
                 double aLength = Math.Sqrt(aX * aX + aY * aY);
                 double bX, bY, bLength;
                 double dotProd, angle, crosProdZ;
                 for (int i = 0; i < flattenFill.Length - 1; i++)
                 {
-                    bX = flattenFill[i + 1].X - x;
-                    bY = flattenFill[i + 1].Y - y;
+                    bX = flattenFill[i + 1].X - ScreenX;
+                    bY = flattenFill[i + 1].Y - ScreenY;
                     bLength = Math.Sqrt(bX * bX + bY * bY);
                     dotProd = aX * bX + aY * bY;
                     angle = Math.Acos(dotProd / aLength / bLength);
@@ -366,8 +441,8 @@ namespace OMPlot.Data
                     aY = bY;
                     aLength = bLength;
                 }
-                bX = flattenFill[0].X - x;
-                bY = flattenFill[0].Y - y;
+                bX = flattenFill[0].X - ScreenX;
+                bY = flattenFill[0].Y - ScreenY;
                 bLength = Math.Sqrt(bX * bX + bY * bY);
                 dotProd = aX * bX + aY * bY;
                 angle = Math.Acos(dotProd / aLength / bLength);
@@ -379,10 +454,103 @@ namespace OMPlot.Data
                 angleSum /= 2 * Math.PI;
                 angleSum = Math.Round(angleSum);
                 if(angleSum != 0)
-                    return new PointDistance() { Point = new PointF((float)x, (float)y), Distance = 0 };
+                {
+                    plotMouseEventData.ScreenDistance = 0;
 
+                    plotMouseEventData.ScaledX = HorizontalAxis.TransformBack(ScreenX);
+                    plotMouseEventData.ScaledY = VerticalAxis.TransformBack(ScreenY);
+
+                    var nearestPointIndex = NearestPointIndex(plotMouseEventData.ScaledX, plotMouseEventData.ScaledY);
+                    plotMouseEventData.DistanceToNearest = Math.Sqrt((ScreenX - HorizontalAxis.Transform(GetX(nearestPointIndex))) * (ScreenX - HorizontalAxis.Transform(GetX(nearestPointIndex))) +
+                        (ScreenY - VerticalAxis.Transform(GetY(nearestPointIndex))) * (ScreenY - VerticalAxis.Transform(GetY(nearestPointIndex))));
+                    plotMouseEventData.NearestIndex = nearestPointIndex;
+                    return plotMouseEventData;
+                }
             }
-            return new PointDistance() { Point = new PointF(float.NaN, float.NaN), Distance = double.MaxValue };
+            return plotMouseEventData;
+        }
+
+        bool IData.OnMouseClick(System.Windows.Forms.MouseEventArgs e)
+        {
+            if(MouseClick != null)
+            {
+                var distance = DistanceToPoint(e.X, e.Y);
+                if (distance.ScreenDistance < double.MaxValue)
+                {
+                    MouseClick(this, new PlotMouseEventArgs(e, distance));
+                    return true;
+                }
+            }
+            return false;
+        }
+        bool IData.OnMouseDoubleClick(System.Windows.Forms.MouseEventArgs e)
+        {
+            if (MouseDoubleClick != null)
+            {
+                var distance = DistanceToPoint(e.X, e.Y);
+                if (distance.ScreenDistance < double.MaxValue)
+                {
+                    MouseDoubleClick(this, new PlotMouseEventArgs(e, distance));
+                    return true;
+                }
+            }
+            return false;
+        }
+        bool IData.OnMouseUp(System.Windows.Forms.MouseEventArgs e)
+        {
+            if (MouseUp != null)
+            {
+                var distance = DistanceToPoint(e.X, e.Y);
+                if (distance.ScreenDistance < double.MaxValue)
+                {
+                    MouseUp(this, new PlotMouseEventArgs(e, distance));
+                    return true;
+                }
+            }
+            return false;
+        }
+        bool IData.OnMouseDown(System.Windows.Forms.MouseEventArgs e)
+        {
+            if (MouseDown != null)
+            {
+                var distance = DistanceToPoint(e.X, e.Y);
+                if (distance.ScreenDistance < double.MaxValue)
+                {
+                    MouseDown(this, new PlotMouseEventArgs(e, distance));
+                    return true;
+                }
+            }
+            return false;
+        }
+        bool IData.OnMouseMove(System.Windows.Forms.MouseEventArgs e)
+        {
+            if (MouseMove != null)
+            {
+                var distance = DistanceToPoint(e.X, e.Y);
+                if (distance.ScreenDistance < double.MaxValue)
+                {
+                    MouseMove(this, new PlotMouseEventArgs(e, distance));
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        internal virtual int NearestPointIndex(double x, double y)
+        {
+            double minDistance = double.MaxValue;
+            double distance;
+            int index = -1;
+            for(int i = 0; i < X.Length; i++)
+            {
+                distance = (X[i] - x) * (X[i] - x) + (Y[i] - y) * (Y[i] - y);
+                if (minDistance > distance)
+                {
+                    index = i;
+                    minDistance = distance;
+                }
+            }
+            return index;
         }
 
         protected virtual PointF[] CalculatePoints()
@@ -473,7 +641,7 @@ namespace OMPlot.Data
                 if (BarStyle != BarStyle.None)
                 {
                     bars = new RectangleF[points.Length];
-                    float barCount = BarGrouping ? BarCount : 1.0f;
+                    float barCount = BarGrouping ? ((IGroupedBar)this).BarCount : 1.0f;
                     float W;
 
                     if (BarStyle == BarStyle.Vertical)
@@ -492,7 +660,7 @@ namespace OMPlot.Data
                             bars[i].Width = W * BarDuty;
                             bars[i].X = points[i].X;
                             bars[i].X -= i == 0 ? (BarDuty * Math.Abs(points[1].X - points[0].X) / 2.0f) : (BarDuty * Math.Abs(points[i].X - points[i - 1].X) / 2.0f);
-                            bars[i].X += BarIndex * bars[i].Width;
+                            bars[i].X += ((IGroupedBar)this).BarIndex * bars[i].Width;
                             
                             if (refPositionY > points[i].Y)
                             {
@@ -522,7 +690,7 @@ namespace OMPlot.Data
                             bars[i].Height = H * BarDuty;
                             bars[i].Y = points[i].Y;
                             bars[i].Y -= i == 0 ? (BarDuty * Math.Abs(points[1].Y - points[0].Y) / 2.0f) : (BarDuty * Math.Abs(points[i].Y - points[i - 1].Y) / 2.0f);
-                            bars[i].Y += (barCount - BarIndex - 1) * bars[i].Height;
+                            bars[i].Y += (barCount - ((IGroupedBar)this).BarIndex - 1) * bars[i].Height;
 
                             if (refPositionX > points[i].X)
                             {

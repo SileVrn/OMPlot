@@ -46,7 +46,7 @@ namespace OMPlot.Test
             double[] sinX0 = new double[20];
             double[] sinY0 = new double[sinX0.Length];
 
-            double[] sinX = new double[2000];
+            double[] sinX = new double[200000];
             double[] sinY1 = new double[sinX.Length];
             double[] sinY2 = new double[sinX.Length];
             double[] sinY3 = new double[sinX.Length];
@@ -103,9 +103,9 @@ namespace OMPlot.Test
 
             //Array.Reverse(sinX);
                        
-            var pl0 = plot1.Add(sinY1, dt);
-            //var pl1 = plot1.Add(sinX, sinY1, "Plot1");
-            var pl2 = plot1.Add(sinX, sinY2);
+            var pl0 = plot1.Add(sinY3, dt, ps: PlotStyle.Lines);
+            var pl1 = plot1.Add(sinX, sinY1, ps: PlotStyle.Lines);
+            var pl2 = plot1.Add(sinX, sinY2, ps: PlotStyle.Lines);
             //var pl3 = plot1.Add(sinY3, sinX, "Plot3");
             //var pl4 = plot1.Add(sinY4, sinX, "Plot4");
             //var pl5 = plot1.Add(sinY5, sinX, "Plot5");
@@ -133,25 +133,60 @@ namespace OMPlot.Test
             //var dp1 = plot1.Add(dict1, "Dict0");
             //plot1.Add(dict2, "Dict1");
 
-            pl0.LineWidth = 2;
+            pl1.LineWidth = 2;
             pl2.LineWidth = 2;
-
-            plot1.GetVerticalAxis().GridStyle = GridStyle.Both;
-            plot1.GetHorizontalAxis().GridStyle = GridStyle.Both;
-
-
+            
 
             plot1.LegendStyle = LegendStyle.Inside;
             plot1.Autoscale();
+            
+            //pl0.MouseDoubleClick += Pl0_DoubleClick;
+            //pl1.MouseDoubleClick += Pl0_DoubleClick;
+            //pl2.MouseDoubleClick += Pl0_DoubleClick;
 
-            plot1.PlotDoubleClick += Plot1_PlotDoubleClick;
+            //pl0.MouseMove += Pl0_MouseMove;
+            //pl1.MouseMove += Pl0_MouseMove;
+            //pl2.MouseMove += Pl0_MouseMove;
+
+            //pl0.MouseDown += Plot1_PlotMouseDown;
+            //plot1.MouseUp += Plot1_PlotMouseUp;
+            //plot1.MouseMove += Plot1_MouseMove;
         }
 
-        private void Plot1_PlotDoubleClick(object sender, PlotMouseEventArgs e)
+        private void Pl0_MouseMove(object sender, PlotMouseEventArgs e)
         {
-            if (e.ClickOnPlot)
-            {                
-                MessageBox.Show(e.Plot.Name);
+            var pl = (OMPlot.Data.ScatterSeries)sender;
+            this.Text = pl.Name + " (" + pl.GetX(e.NearestIndex) + ";" + pl.GetY(e.NearestIndex) + ")";
+        }
+
+        private void Pl0_DoubleClick(object sender, PlotMouseEventArgs e)
+        {
+            MessageBox.Show(((OMPlot.Data.ScatterSeries)sender).Name);
+        }
+
+        OMPlot.Data.ScatterSeries pl;
+        int pointIndex = -1;
+        private void Plot1_MouseMove(object sender, MouseEventArgs e)
+        {
+            if(pointIndex >= 0)
+            {
+                pl.SetX(pointIndex, pl.HorizontalAxis.TransformBack(e.X));
+                pl.SetY(pointIndex, pl.VerticalAxis.TransformBack(e.Y));
+                plot1.Refresh();
+            }
+        }
+
+        private void Plot1_PlotMouseUp(object sender, MouseEventArgs e)
+        {
+            pointIndex = -1;
+        }
+
+        private void Plot1_PlotMouseDown(object sender, PlotMouseEventArgs e)
+        {
+            if (e.DistanceToNearest < OMPlot.Plot.MouseEventDistance)
+            {
+                pl = (OMPlot.Data.ScatterSeries)sender;
+                pointIndex = e.NearestIndex;
             }
         }
     }
