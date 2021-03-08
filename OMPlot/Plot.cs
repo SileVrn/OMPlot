@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define FPS
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -24,6 +26,10 @@ namespace OMPlot
         int currentmouseY = -1;
 
         List<Axis> selectedVerticalAxis, selectedHorizontalAxis;
+
+#if FPS
+        Queue<long> ElapsedMilliseconds = new Queue<long>(100);
+#endif
 
         Pen selectionPen, mainPen;
         Brush selectionBrush, legendBoxBrush, backgroungBrush, mainBrush;
@@ -278,9 +284,11 @@ namespace OMPlot
         }
         private void ControlPaint(Graphics g)
         {
+#if FPS
             Stopwatch sw = new Stopwatch();
             sw.Start();
-                        
+#endif
+
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
             g.Clear(this.BackColor);
@@ -649,7 +657,7 @@ namespace OMPlot
                 g.DrawRectangle(selectionPen, selectionRec);
                 g.FillRectangle(selectionBrush, selectionRec);
             }
-
+#if FPS
             sw.Stop();
 
             if (ElapsedMilliseconds.Count > 100)
@@ -657,7 +665,7 @@ namespace OMPlot
             ElapsedMilliseconds.Enqueue(sw.ElapsedMilliseconds);
             double ElapsedMillisecondsAvg = ElapsedMilliseconds.Average();
             g.DrawString((1000.0 / (ElapsedMillisecondsAvg > 0 ? ElapsedMillisecondsAvg : 1)).ToString("#.###"), this.Font, mainBrush, 0, 0);
-
+#endif
         }
 
         private void Plot_FontChanged(object sender, EventArgs e)
@@ -691,35 +699,15 @@ namespace OMPlot
             ControlPaint(g);
             return img;
         }
-
         public void Autoscale()
         {
-            foreach (var axis in Horizontal)
-            {
-                axis.Value.Minimum = double.MaxValue;
-                axis.Value.Maximum = double.MinValue;
-            }
-            foreach (var axis in Vertical)
-            {
-                axis.Value.Minimum = double.MaxValue;
-                axis.Value.Maximum = double.MinValue;
-            }
-            foreach (var data in Data.Where(data => data is IAxisUsing).Select(data => (IAxisUsing)data))
-            {
-                data.HorizontalAxis.Minimum = data.HorizontalAxis.Minimum > data.MinimumX ? data.MinimumX : data.HorizontalAxis.Minimum;
-                data.VerticalAxis.Minimum = data.VerticalAxis.Minimum > data.MinimumY ? data.MinimumY : data.VerticalAxis.Minimum;
-                data.HorizontalAxis.Maximum = data.HorizontalAxis.Maximum < data.MaximumX ? data.MaximumX : data.HorizontalAxis.Maximum;
-                data.VerticalAxis.Maximum = data.VerticalAxis.Maximum < data.MaximumY ? data.MaximumY : data.VerticalAxis.Maximum;
-            }
+            foreach (var axis in Horizontal) 
+                axis.Value.Autoscale();
+            foreach (var axis in Vertical)            
+                axis.Value.Autoscale();
         }
-
-        Queue<long> ElapsedMilliseconds = new Queue<long>(100);
-
-
-
     }
 
-    public delegate void PlotMouseEvent(object sender, PlotMouseEventArgs e);
 
     /// <summary>
     /// Enumerates the available legend style.

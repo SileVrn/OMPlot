@@ -11,15 +11,30 @@ namespace OMPlot.Data
     /// <summary>
     /// Represents a series for scatter plots.
     /// </summary>
-    public class ScatterSeries : IData, IGroupedBar, IAxisUsing
+    public class ScatterSeries : IData, IGroupedBar
     {        
         double[] X, Y;
+        Axis horizontalAxis, verticalAxis;
 
         public virtual double GetX(int index) { return X[index]; }
         public virtual double GetY(int index) { return Y[index]; }
 
-        public virtual void SetX(int index, double value) { X[index] = value; }
-        public virtual void SetY(int index, double value) { Y[index] = value; }
+        public virtual void SetX(int index, double value)
+        {
+            X[index] = value;
+            if (value > maxX)
+                maxX = value;
+            if (value < minX)
+                minX = value;
+        }
+        public virtual void SetY(int index, double value)
+        {
+            Y[index] = value;
+            if (value > maxY)
+                maxY = value;
+            if (value < minY)
+                minY = value;
+        }
 
         protected PointF[] points;
         protected PointF[] flatten;
@@ -131,52 +146,59 @@ namespace OMPlot.Data
         /// <summary>
         /// Relevant horizontal axis
         /// </summary>
-        public Axis HorizontalAxis { get; set; }
+        public Axis HorizontalAxis
+        {
+            get { return horizontalAxis; }
+            set { horizontalAxis = value; horizontalAxis.AutoscaleEvent += HorizontalAxis_AutoscaleEvent; }
+        }
         /// <summary>
         /// Relevant vertical axis
         /// </summary>
-        public Axis VerticalAxis { get; set; }
+        public Axis VerticalAxis
+        {
+            get { return verticalAxis; }
+            set { verticalAxis = value; verticalAxis.AutoscaleEvent += VerticalAxis_AutoscaleEvent; }
+        }
 
         protected double minX, maxX, minY, maxY;
-        protected double minXPre, maxXPre, minYPre, maxYPre;
-        protected int minXIndex, maxXIndex, minYIndex, maxYIndex;
-        /// <summary>
-        /// The minimum x value
-        /// </summary>
-        public double MinimumX { get { return minX - PaddingX; } }
-        /// <summary>
-        /// The minimum y value
-        /// </summary>
-        public double MinimumY { get { return minY - PaddingY; } }
-        /// <summary>
-        /// The maximum x value
-        /// </summary>
-        public double MaximumX { get { return maxX + PaddingX; } }
-        /// <summary>
-        /// The maximum y value
-        /// </summary>
-        public double MaximumY { get { return maxY + PaddingY; } }
-        private double PaddingX
+        protected double minLogX, maxLogX, minLogY, maxLogY;
+        protected double minXPre, maxXPre, minYPre, maxYPre;        
+        private void HorizontalAxis_AutoscaleEvent(object sender)
         {
-            get
+            if (HorizontalAxis.Logarithmic)
+            {
+                if (minLogX > 0 && HorizontalAxis.Minimum > minLogX) HorizontalAxis.Minimum = minLogX;
+                if (maxLogX > 0 && HorizontalAxis.Maximum < maxLogX) HorizontalAxis.Maximum = maxLogX;
+            }
+            else
             {
                 double padding1 = (minXPre - minX) / 2;
                 double padding2 = (maxX - maxXPre) / 2;
                 double padding3 = (maxX - minX) * 0.05;
-                return Math.Max(padding1, Math.Max(padding2, padding3));
+                double padding = Math.Max(padding1, Math.Max(padding2, padding3));
+
+                if (HorizontalAxis.Minimum > (minX - padding)) HorizontalAxis.Minimum = minX - padding;
+                if (HorizontalAxis.Maximum < (maxX + padding)) HorizontalAxis.Maximum = maxX + padding;
             }
         }
-        private double PaddingY
+        private void VerticalAxis_AutoscaleEvent(object sender)
         {
-            get
+            if (VerticalAxis.Logarithmic)
+            {
+                if (minLogY > 0 && VerticalAxis.Minimum > minLogY) VerticalAxis.Minimum = minLogY;
+                if (maxLogY > 0 && VerticalAxis.Maximum < maxLogY) VerticalAxis.Maximum = maxLogY;
+            }
+            else
             {
                 double padding1 = (minYPre - minY) / 2;
                 double padding2 = (maxY - maxYPre) / 2;
                 double padding3 = (maxY - minY) * 0.05;
-                return Math.Max(padding1, Math.Max(padding2, padding3));
+                double padding = Math.Max(padding1, Math.Max(padding2, padding3));
+
+                if (VerticalAxis.Minimum > (minY - padding)) VerticalAxis.Minimum = minY - padding;
+                if (VerticalAxis.Maximum < (maxY + padding)) VerticalAxis.Maximum = maxY + padding;
             }
         }
-
         protected GraphicsPath GraphicsPath { get; set; }
 
         protected ScatterSeries()
@@ -193,6 +215,10 @@ namespace OMPlot.Data
             minY = double.MaxValue;
             maxX = double.MinValue;
             maxY = double.MinValue;
+            minLogX = double.MaxValue;
+            minLogY = double.MaxValue;
+            maxLogX = double.MinValue;
+            maxLogY = double.MinValue;
             minXPre = double.MaxValue;
             minYPre = double.MaxValue;
             maxXPre = double.MinValue;
@@ -205,41 +231,30 @@ namespace OMPlot.Data
         /// <param name="y">Collection of Y values.</param>
         public ScatterSeries(IEnumerable<double> x, IEnumerable<double> y) : this()
         {
+            int minXIndex = -1;
+            int maxXIndex = -1;
+            int minYIndex = -1;
+            int maxYIndex = -1;
             X = x.ToArray();
             Y = y.ToArray();
             for (int i = 0; i < X.Length; i++)
             {
-                if (minX > X[i])
-                {
-                    minX = X[i];
-                    minXIndex = i;
-                }
-                if (minY > Y[i])
-                {
-                    minY = Y[i];
-                    minYIndex = i;
-                }
-                if (maxX < X[i])
-                {
-                    maxX = X[i];
-                    maxXIndex = i;
-                }
-                if (maxY < Y[i])
-                {
-                    maxY = Y[i];
-                    maxYIndex = i;
-                }
+                if (minX > X[i]) { minX = X[i]; minXIndex = i; }
+                if (minY > Y[i]) { minY = Y[i]; minYIndex = i; }
+                if (maxX < X[i]) { maxX = X[i]; maxXIndex = i; }
+                if (maxY < Y[i]) { maxY = Y[i]; maxYIndex = i; }
+
+                if (X[i] > 0 && minLogX > X[i]) minLogX = X[i];
+                if (Y[i] > 0 && minLogY > Y[i]) minLogY = Y[i];
+                if (X[i] > 0 && maxLogX < X[i]) maxLogX = X[i];
+                if (Y[i] > 0 && maxLogY < Y[i]) maxLogY = Y[i];
             }
             for (int i = 0; i < X.Length; i++)
             {
-                if (minXPre > X[i] && i != minXIndex)
-                    minXPre = X[i];
-                if (minYPre > Y[i] && i != minYIndex)
-                    minYPre = Y[i];
-                if (maxXPre < X[i] && i != maxXIndex)
-                    maxXPre = X[i];
-                if (maxYPre < Y[i] && i != maxYIndex)
-                    maxYPre = Y[i];
+                if (minXPre > X[i] && i != minXIndex) minXPre = X[i];
+                if (minYPre > Y[i] && i != minYIndex) minYPre = Y[i];
+                if (maxXPre < X[i] && i != maxXIndex) maxXPre = X[i];
+                if (maxYPre < Y[i] && i != maxYIndex) maxYPre = Y[i];
             }
         }
         /// <summary>

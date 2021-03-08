@@ -17,22 +17,8 @@ namespace OMPlot
                 data.VerticalAxis = GetVerticalAxis();
             if (data.HorizontalAxis == null)
                 data.HorizontalAxis = GetHorizontalAxis();
-
-            if (Data.Count == 0)
-            {
-                data.HorizontalAxis.Minimum = data.MinimumX;
-                data.VerticalAxis.Minimum = data.MinimumY;
-                data.HorizontalAxis.Maximum = data.MaximumX;
-                data.VerticalAxis.Maximum = data.MaximumY;
-            }
-            else
-            {
-                data.HorizontalAxis.Minimum = data.HorizontalAxis.Minimum > data.MinimumX ? data.MinimumX : data.HorizontalAxis.Minimum;
-                data.VerticalAxis.Minimum = data.VerticalAxis.Minimum > data.MinimumY ? data.MinimumY : data.VerticalAxis.Minimum;
-                data.HorizontalAxis.Maximum = data.HorizontalAxis.Maximum < data.MaximumX ? data.MaximumX : data.HorizontalAxis.Maximum;
-                data.VerticalAxis.Maximum = data.VerticalAxis.Maximum < data.MaximumY ? data.MaximumY : data.VerticalAxis.Maximum;
-            }
             Data.Add(data);
+            Autoscale();
         }
         /// <summary>
         /// Create instance of <see cref="OMPlot.Data.ScatterSeries"/> and add it to plot.

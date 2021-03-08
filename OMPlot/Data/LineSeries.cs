@@ -34,8 +34,8 @@ namespace OMPlot.Data
             X0 = x0;
             minX = dX > 0 ? X0 : X0 + dX * Y.Length;
             maxX = dX < 0 ? X0 : X0 + dX * Y.Length;
-            minXIndex = 0;
-            maxXIndex = Y.Length - 1;
+            int minYIndex = -1;
+            int maxYIndex = -1;
             minXPre = minX + dX;
             maxXPre = maxX - dX;
             for (int i = 0; i < Y.Length; i++)

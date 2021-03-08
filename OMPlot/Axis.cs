@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace OMPlot
 {
+
+    internal delegate void AxisAutoscaleEvent(object sender);
+
     /// <summary>
     /// Represents an axis
     /// </summary>
@@ -28,6 +31,16 @@ namespace OMPlot
         private double[] subTicks;
         private string tickLabelFormat;
 
+        private bool logarithmic;
+
+        internal event AxisAutoscaleEvent AutoscaleEvent;
+        public void Autoscale()
+        {
+            Minimum = double.MaxValue;
+            Maximum = Logarithmic ? double.Epsilon : double.MinValue;
+            AutoscaleEvent?.Invoke(this);
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref = "Axis" /> class.
         /// </summary>
@@ -35,34 +48,9 @@ namespace OMPlot
         {
             Color = Color.Black;
             TickNumber = 10;
+            TitleAlignment = Alignment.Center;
         }
 
-        /// <summary>
-        /// Full scale of the axis. 
-        /// </summary>
-        public double FullScale
-        {
-            get { return Maximum - Minimum; }
-            set
-            {
-                double center = Center;
-                Maximum = center + value / 2.0f;
-                Minimum = center - value / 2.0f;
-            }
-        }
-        /// <summary>
-        /// Value of the center of the axis.
-        /// </summary>
-        public double Center
-        {
-            get { return (Maximum + Minimum) / 2.0f; }
-            set
-            {
-                double delta = value - Center;
-                Maximum += delta;
-                Minimum += delta;
-            }
-        }
         /// <summary>
         /// The minimum value of the axis.
         /// </summary>
@@ -79,7 +67,11 @@ namespace OMPlot
         /// <summary>
         /// True if the axis is logarithmic.
         /// </summary>
-        public bool Logarithmic { get; set; }
+        public bool Logarithmic
+        { 
+            get { return logarithmic; }
+            set { logarithmic = value; Autoscale(); }
+        }
         internal bool Vertical { get; set; }
         /// <summary>
         /// True if the axis reversed.

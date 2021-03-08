@@ -8,6 +8,8 @@ using System.Windows.Forms;
 
 namespace OMPlot
 {
+    public delegate void PlotMouseEvent(object sender, PlotMouseEventArgs e);
+
     /// <summary>
     /// 
     /// </summary>
