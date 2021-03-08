@@ -299,7 +299,7 @@ namespace OMPlot
             var titleSize = new SizeF(0, 0);
             if (!string.IsNullOrEmpty(Title))
                 titleSize = g.MeasureString(Title, titleFont);
-            plotRectangle.SetTop(plotRectangle.Top + titleSize.Height);
+            plotRectangle.SetTop(plotRectangle.Top + titleSize.Height + 2);
 
             var legendRectangles = new RectangleF[Data.Count];
             var legendRectangle = new RectangleF();
