@@ -384,7 +384,7 @@ namespace OMPlot
                     subTickList.Add(subMark);
                     subMark -= 0.1 * mark;
                 }
-                while (mark < Maximum)
+                while (mark <= Maximum)
                 {
                     mark = Accessories.Pow10(Accessories.FirstSignRound(mark));
                     tickList.Add(mark);
